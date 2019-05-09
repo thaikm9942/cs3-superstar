@@ -25,11 +25,12 @@ const Vector SPEED = (Vector){20, 0};
 const Vector SPEED_UP = (Vector){0, 20};
 const Vector SPEED_DOWN = (Vector){0, -10};
 const Vector BALL_POS = (Vector){0, 10};
-const Vector BALL_VEL = (Vector){0, -5};
-const Vector BLOCK_VEL = (Vector){0, -20};
+const Vector BALL_VEL = (Vector){0, -15};
+const Vector BLOCK_VEL = (Vector){0, -10};
 const double BALL_MASS = 2;
-const double BALL_RADIUS = 5;
+const double BALL_RADIUS = 10;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
+const RGBColor PLATFORM_COLOR = (RGBColor){0.0, 0.0, 0.95};
 const Vector BLOCK_DIM = (Vector){10, 2};
 const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.25;
@@ -39,16 +40,6 @@ const int NSTART_PLATFORMS = 6;
 #define M 6E24 // kg
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
-
-typedef enum {
-    BALL,
-    BLOCK,
-    GRAVITY
-} BodType;
-
-BodType get_type(Body *body) {
-    return *(BodType *) body_get_info(body);
-}
 
 RGBColor rainbow(double seed){
   seed *= COLOR_FREQ;
@@ -89,14 +80,14 @@ List *create_block(Vector position, Vector dimension){
 }
 
 Body *init_block(Vector position, Vector dimension, RGBColor color){
-  BodType *type = malloc(sizeof(*type));
+  BodyType *type = malloc(sizeof(*type));
   *type = BLOCK;
   return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
 }*/
 /*
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
   List *ball = list_init(75, free);
-  BodType *type = malloc(sizeof(*type));
+  BodyType *type = malloc(sizeof(*type));
   *type = BALL;
   for(double angle = 0.0; angle < 2 * M_PI; angle += 0.05){
     list_add(ball, vec_init(vec_multiply(radius, (Vector){cos(angle), sin(angle)})));
@@ -124,11 +115,11 @@ Body *init_ball(Vector position, double mass, double radius, RGBColor color){
     list_add(rect, v);
     return rect;
 }*/
-
+/*
 Body *get_gravity_body() {
     // Will be offscreen, so shape is irrelevant
     List *gravity_ball = rect_init(1, 1);
-    BodType *type = malloc(sizeof(*type));
+    BodyType *type = malloc(sizeof(*type));
     *type = GRAVITY;
     Body *body = body_init_with_info(gravity_ball, M, WHITE, type, free);
 
@@ -137,17 +128,20 @@ Body *get_gravity_body() {
     body_set_centroid(body, gravity_center);
 
     return body;
-}
+}*/
 
 void addPoint(Scene *scene)
 {
 
+  Body * point = point_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, 3.0, 20.0, BALL_COLOR, 1);
+  scene_add_body(scene, point);
 }
 
 void add_Platform_Altitude(Scene *scene, int y)
 {
   // Top of screeen is Dimension.y, so make new platforms appear there.
-  Body * platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){5, 30}, BALL_COLOR, 1);
+  Body * platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
+  body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
 }
 
@@ -165,18 +159,20 @@ Scene *init_scene(Scene *scene){
   {
     add_Platform_Altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
   }
+  addPoint(scene);
   return scene;
 }
 
 void add_Platform(Scene *scene)
 {
   // Top of screeen is Dimension.y, so make new platforms appear there.
-  Body * platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){5, 30}, BALL_COLOR, 1);
+  Body * platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
+  body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
 }
 
 void compute_new_positions(Scene *scene, double dt){
-  if(rand() % 50 == 4)
+  if(rand() % 800 == 4)
   {
     add_Platform(scene);
   }
@@ -185,7 +181,7 @@ void compute_new_positions(Scene *scene, double dt){
 
 void on_key(char key, KeyEventType type, void* aux_info) {
   Scene *scene = aux_info;
-  Body* ball = scene_get_body(scene, 1);
+  Body* ball = scene_get_body(scene, 0);
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
@@ -218,8 +214,8 @@ int main(int argc, char *argv[]){
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = scene_init();
-  Body *gravity_body = get_gravity_body();
-  scene_add_body(scene, gravity_body);
+  //Body *gravity_body = get_gravity_body();
+  //scene_add_body(scene, gravity_body);
   init_scene(scene);
   sdl_on_key(on_key, scene);
   while(!sdl_is_done()){
