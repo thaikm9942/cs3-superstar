@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <time.h>
 
+
 const Vector BOUNDARY = {
   .x = 100.0,
   .y = 100.0
@@ -22,8 +23,9 @@ const Vector BOUNDARY = {
 const int NUM_ROWS = 3;
 const Vector SPEED = (Vector){20, 0};
 const Vector SPEED_UP = (Vector){0, 20};
-const Vector BALL_POS = (Vector){0, 50};
-const Vector BALL_VEL = (Vector){0, -50};
+const Vector SPEED_DOWN = (Vector){0, -10};
+const Vector BALL_POS = (Vector){0, 10};
+const Vector BALL_VEL = (Vector){0, -5};
 const Vector BLOCK_VEL = (Vector){0, -20};
 const double BALL_MASS = 2;
 const double BALL_RADIUS = 5;
@@ -32,7 +34,7 @@ const Vector BLOCK_DIM = (Vector){10, 2};
 const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
-
+const int NSTART_PLATFORMS = 6;
 #define G 6.67E-11 // N m^2 / kg^2
 #define M 6E24 // kg
 #define g 9.8 // m / s^2
@@ -51,6 +53,29 @@ BodyType get_type(Body *body) {
 RGBColor rainbow(double seed){
   seed *= COLOR_FREQ;
   return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
+}
+/*
+Vector randomPosition()
+{
+  int x;
+  int y;
+  if(rand() %2 == 1)
+      x = rand() % (dimension.x + 1);
+  else
+      x = -1 * rand() % (dimension.x + 1);
+  if(rand() %2 == 1)
+      y = rand() % (dimension.x + 1);
+  else
+      y = -1 * rand() % (dimension.x + 1);
+  return (Vector){x, y};
+}
+*/
+
+int randomValue(int min, int max){
+    if(rand() %2 == 1)
+        return rand() % (max - min + 1) + min;
+    return -1 * rand() % (max - min + 1) + min;
+
 }
 
 List *create_block(Vector position, Vector dimension){
@@ -114,19 +139,41 @@ Body *get_gravity_body() {
     return body;
 }
 
+void add_Platform_Altitude(Scene *scene, int y)
+{
+  // Top of screeen is Dimension.y, so make new platforms appear there.
+  Body * platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){5, 30}, BALL_COLOR, 1);
+  scene_add_body(scene, platform);
+}
+
 Scene *init_scene(Scene *scene){
   Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
   body_set_velocity(ball, BALL_VEL);
   scene_add_body(scene, ball);
-  //create_newtonian_gravity(scene, G, scene_get_body(scene, 0), ball);
-  Body *block = init_block((Vector){0, 20}, BLOCK_DIM, rainbow(100));
+  create_newtonian_gravity(scene, G, scene_get_body(scene, 0), ball);
+  Body *block = init_block((Vector){0, 50}, BLOCK_DIM, rainbow(100));
   body_set_velocity(block, BLOCK_VEL);
   scene_add_body(scene, block);
   create_player_platform_collision(scene, ball, block);
+  for(int i = 0; i < NSTART_PLATFORMS; i ++)
+  {
+    add_Platform_Altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
+  }
   return scene;
 }
 
+void add_Platform(Scene *scene)
+{
+  // Top of screeen is Dimension.y, so make new platforms appear there.
+  Body * platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){5, 30}, BALL_COLOR, 1);
+  scene_add_body(scene, platform);
+}
+
 void compute_new_positions(Scene *scene, double dt){
+  if(rand() % 50 == 4)
+  {
+    add_Platform(scene);
+  }
   scene_tick(scene, dt);
 }
 
@@ -141,11 +188,24 @@ void on_key(char key, KeyEventType type, void* aux_info) {
           case RIGHT_ARROW:
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED));
               break;
+          case UP_ARROW:
+              //if(on_platform(ball))
+              //jump
+              //Otherwise do nothing
+              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
+              break;
+          case DOWN_ARROW:
+              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_DOWN));
+              break;
           case ' ':
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
               break;
       }
-  }
+    }
+    if(type == KEY_RELEASED)
+    {
+      body_set_velocity(ball, BALL_VEL);
+    }
 }
 
 int main(int argc, char *argv[]){
