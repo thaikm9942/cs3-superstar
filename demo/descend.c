@@ -13,6 +13,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 
 const Vector BOUNDARY = {
@@ -35,6 +36,7 @@ const Vector BLOCK_DIM = (Vector){10, 2};
 const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
+const RGBColor BLACK = (RGBColor){0.0, 0.0, 0.0};
 const int NSTART_PLATFORMS = 6;
 #define G 6.67E-11 // N m^2 / kg^2
 #define M 6E24 // kg
@@ -53,13 +55,23 @@ int randomValue(int min, int max){
 
 }
 
+void add_spikes(Scene * scene)
+{
+  for(int x = -18; x <= 18; x ++)
+  {
+    Body *spike = spike_init((Vector){x * 10, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
+    scene_add_body(scene, spike);
+  }
+}
+
+
 void add_point(Scene *scene)
 {
   Body *point = point_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, 3.0, 20.0, BALL_COLOR, 1);
   scene_add_body(scene, point);
 }
 
-void add_platform_Altitude(Scene *scene, int y)
+void add_platform_altitude(Scene *scene, int y)
 {
   // Top of screeen is Dimension.y, so make new platforms appear there.
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
@@ -75,7 +87,8 @@ Scene *init_scene(Scene *scene){
   {
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
   }
-  addPoint(scene);
+  add_point(scene);
+  add_spikes(scene);
   return scene;
 }
 
