@@ -147,14 +147,15 @@ void add_Platform_Altitude(Scene *scene, int y)
 }
 
 Scene *init_scene(Scene *scene){
-  Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
-  body_set_velocity(ball, BALL_VEL);
-  scene_add_body(scene, ball);
-  create_newtonian_gravity(scene, G, scene_get_body(scene, 0), ball);
-  Body *block = init_block((Vector){0, 50}, BLOCK_DIM, rainbow(100));
+  //Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
+  Body *star = star_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
+  body_set_velocity(star, BALL_VEL);
+  scene_add_body(scene, star);
+  create_newtonian_gravity(scene, G, scene_get_body(scene, 0), star);
+  /*Body *block = init_block((Vector){0, 50}, BLOCK_DIM, rainbow(100));
   body_set_velocity(block, BLOCK_VEL);
   scene_add_body(scene, block);
-  create_player_platform_collision(scene, ball, block);
+  create_player_platform_collision(scene, ball, block);*/
   for(int i = 0; i < NSTART_PLATFORMS; i ++)
   {
     add_Platform_Altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
