@@ -44,10 +44,10 @@ typedef enum {
     BALL,
     BLOCK,
     GRAVITY
-} BodyType;
+} BodType;
 
-BodyType get_type(Body *body) {
-    return *(BodyType *) body_get_info(body);
+BodType get_type(Body *body) {
+    return *(BodType *) body_get_info(body);
 }
 
 RGBColor rainbow(double seed){
@@ -89,14 +89,14 @@ List *create_block(Vector position, Vector dimension){
 }
 
 Body *init_block(Vector position, Vector dimension, RGBColor color){
-  BodyType *type = malloc(sizeof(*type));
+  BodType *type = malloc(sizeof(*type));
   *type = BLOCK;
   return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
 }*/
 /*
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
   List *ball = list_init(75, free);
-  BodyType *type = malloc(sizeof(*type));
+  BodType *type = malloc(sizeof(*type));
   *type = BALL;
   for(double angle = 0.0; angle < 2 * M_PI; angle += 0.05){
     list_add(ball, vec_init(vec_multiply(radius, (Vector){cos(angle), sin(angle)})));
@@ -128,7 +128,7 @@ Body *init_ball(Vector position, double mass, double radius, RGBColor color){
 Body *get_gravity_body() {
     // Will be offscreen, so shape is irrelevant
     List *gravity_ball = rect_init(1, 1);
-    BodyType *type = malloc(sizeof(*type));
+    BodType *type = malloc(sizeof(*type));
     *type = GRAVITY;
     Body *body = body_init_with_info(gravity_ball, M, WHITE, type, free);
 

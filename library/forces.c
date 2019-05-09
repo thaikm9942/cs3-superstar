@@ -180,11 +180,16 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
     body_add_impulse(body1, impulse);
-    if(partial){
-      body_remove(body2);
-    }
-    else{
+    if(!partial || life == NULL){
       body_add_impulse(body2, vec_negate(impulse));
+
+    }
+    else if(partial && *life > 0){
+      *life = *life - 1;
+      body_add_impulse(body2, vec_negate(impulse));
+    }
+    else if(partial && *life == 0){
+      body_remove(body2);
     }
 }
 
