@@ -105,6 +105,10 @@ void compute_new_positions(Scene *scene, double dt){
   {
     add_platform(scene);
   }
+  if(rand() % 6400 == 4)
+  {
+    add_point(scene);
+  }
   scene_tick(scene, dt);
 }
 
