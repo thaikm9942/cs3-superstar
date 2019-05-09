@@ -43,6 +43,11 @@ const int NSTART_PLATFORMS = 6;
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
 
+
+// Global Variable to track points
+// TODO see if can be made not global
+int score;
+
 RGBColor rainbow(double seed){
   seed *= COLOR_FREQ;
   return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
@@ -57,7 +62,7 @@ int randomValue(int min, int max){
 
 void add_spikes(Scene * scene)
 {
-  for(int x = -18; x <= 18; x ++)
+  for(size_t x = -18; x <= 18; x ++)
   {
     Body *spike = spike_init((Vector){x * 10, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
     scene_add_body(scene, spike);
@@ -83,7 +88,7 @@ Scene *init_scene(Scene *scene){
   Body *star = star_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
   body_set_velocity(star, STAR_VEL);
   scene_add_body(scene, star);
-  for(int i = 0; i < NSTART_PLATFORMS; i ++)
+  for(size_t i = 0; i < NSTART_PLATFORMS; i ++)
   {
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
   }
