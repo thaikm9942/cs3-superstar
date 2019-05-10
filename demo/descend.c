@@ -62,9 +62,11 @@ int randomValue(int min, int max){
 
 void add_spikes(Scene *scene)
 {
-  for(int i = -10; i < 10; i++){
+  for(int i = -20; i < 20; i++){
     Body *spike = spike_init((Vector){i * 10.0, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
     scene_add_body(scene, spike);
+    Body* ball = scene_get_body(scene, 0);
+    create_partial_destructive_collision_with_life(scene, spike, ball);
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body* body = scene_get_body(scene, i);
       BodyInfo* info = body_get_info(body);
@@ -109,9 +111,19 @@ void add_platform(Scene *scene)
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
   body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body* body = scene_get_body(scene, i);
+    BodyInfo* info = body_get_info(body);
+    BodyType type = body_info_get_type(info);
+    if(type == SPIKE){
+      create_partial_destructive_collision_with_life(scene, body, platform);
+    }
+  }
 }
 
-void compute_new_positions(Scene *scene, double dt){
+
+// Return 0 if game running, return -1 if game over
+int compute_new_positions(Scene *scene, double dt){
   if(rand() % 800 == 4)
   {
     add_platform(scene);
@@ -120,7 +132,11 @@ void compute_new_positions(Scene *scene, double dt){
   {
     add_point(scene);
   }
+  Body* ball = scene_get_body(scene, 0);
+  if(body_info_get_type(body_get_info(ball)) != PLAYER)
+    return -1;
   scene_tick(scene, dt);
+  return 0;
 }
 
 void on_key(char key, KeyEventType type, void* aux_info) {
@@ -162,7 +178,10 @@ int main(int argc, char *argv[]){
   sdl_on_key(on_key, scene);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
-    compute_new_positions(scene, dt);
+    if(compute_new_positions(scene, dt) == -1)
+    {
+      break;
+    }
     sdl_clear();
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body *body = scene_get_body(scene, i);
