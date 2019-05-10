@@ -90,6 +90,8 @@ void add_platform_altitude(Scene *scene, int y)
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
   body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
+  Body* ball = scene_get_body(scene, 0);
+  create_player_platform_collision(scene, ball, platform);
 }
 
 Scene *init_scene(Scene *scene){
@@ -111,6 +113,10 @@ void add_platform(Scene *scene)
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
   body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
+  Body* ball = scene_get_body(scene, 0);
+  create_player_platform_collision(scene, ball, platform);
+  // add gravity down by making massive particle off screen.
+  
   for(size_t i = 0; i < scene_bodies(scene); i++){
     Body* body = scene_get_body(scene, i);
     BodyInfo* info = body_get_info(body);
@@ -154,7 +160,8 @@ void on_key(char key, KeyEventType type, void* aux_info) {
               //if(on_platform(ball))
               //jump
               //Otherwise do nothing
-              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
+              //body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
+              body_add_impulse(ball, SPEED_UP);
               break;
           case DOWN_ARROW:
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_DOWN));
@@ -166,7 +173,7 @@ void on_key(char key, KeyEventType type, void* aux_info) {
     }
     if(type == KEY_RELEASED)
     {
-      body_set_velocity(ball, STAR_VEL);
+      //body_set_velocity(ball, STAR_VEL);
     }
 }
 

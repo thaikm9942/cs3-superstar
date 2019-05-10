@@ -286,6 +286,7 @@ void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
   if(player_vel.y < 0){
     body_set_velocity(player, body_get_velocity(platform));
   }
+
 }
 
 void create_player_platform_collision(Scene *scene, Body* player, Body* platform){
