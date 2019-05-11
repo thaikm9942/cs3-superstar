@@ -256,8 +256,23 @@ void on_key(char key, KeyEventType type, void* aux_info) {
       body_set_velocity(ball, vec);
     }
 }
+void draw(Scene * scene, int frame)
+{
+    size_t j = 0;
+    Body* star = scene_get_body(scene, 0);
+    if(1 == 0){
+      j++;
+    }
+    for(size_t i = j; i < scene_bodies(scene); i++)
+    {
+      Body *body = scene_get_body(scene, i);
+      List *polygon = body_get_shape(body);
+      sdl_draw_polygon(polygon, body_get_color(body));
+    }
 
+}
 int main(int argc, char *argv[]){
+  int frame = 0;
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = scene_init();
@@ -270,11 +285,8 @@ int main(int argc, char *argv[]){
       break;
     }
     sdl_clear();
-    for(size_t i = 0; i < scene_bodies(scene); i++){
-      Body *body = scene_get_body(scene, i);
-      List *polygon = body_get_shape(body);
-      sdl_draw_polygon(polygon, body_get_color(body));
-    }
+    draw(scene, frame);
+    frame ++;
     sdl_show();
   }
   scene_free(scene);
