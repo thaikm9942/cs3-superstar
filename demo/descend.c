@@ -24,7 +24,7 @@ const Vector BOUNDARY = {
 const int NUM_ROWS = 3;
 const Vector SPEED = (Vector){20, 0};
 const Vector SPEED_UP = (Vector){0, 20};
-const Vector IMPULSE_UP = (Vector){0, 60};
+const Vector IMPULSE_UP = (Vector){0, 600};
 const Vector SPEED_DOWN = (Vector){0, -10};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
@@ -234,6 +234,7 @@ void on_key(char key, KeyEventType type, void* aux_info) {
 }
 
 int main(int argc, char *argv[]){
+  int frame = 0;
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = scene_init();
@@ -248,8 +249,17 @@ int main(int argc, char *argv[]){
     sdl_clear();
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body *body = scene_get_body(scene, i);
-      List *polygon = body_get_shape(body);
-      sdl_draw_polygon(polygon, body_get_color(body));
+      BodyInfo* info = body_get_info(body);
+      BodyType type = body_info_get_type(info);
+      if(type == PLAYER && (frame % 4 == 2 || frame % 3 == 0)){
+        frame ++;
+      }
+      else
+      {
+        List *polygon = body_get_shape(body);
+        sdl_draw_polygon(polygon, body_get_color(body));
+        frame ++;
+      }
     }
     sdl_show();
   }
