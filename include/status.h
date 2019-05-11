@@ -7,7 +7,11 @@
  * bodies in the scene.
  */
 
-typedef struct status Status;
+//typedef struct status Status;
+typedef struct status {
+  bool isInvincible;
+  bool isExpanded;
+} Status;
 
 // An initializer for a status board
 Status* status_init(void);

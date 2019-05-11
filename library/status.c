@@ -4,11 +4,11 @@
 #include <stdbool.h>
 #include "status.h"
 
-struct status {
+/*struct status {
   bool isInvincible;
   bool isExpanded;
 };
-
+*/
 const double DT = 1;
 
 Status* status_init(void){

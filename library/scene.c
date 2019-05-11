@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "status.h"
 const size_t INITIAL_SIZE = 10;
 
 struct scene_forcer {

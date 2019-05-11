@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
-
+#include "status.h"
 const Vector BOUNDARY = {
   .x = 100.0,
   .y = 100.0
@@ -245,7 +245,9 @@ void draw(Scene * scene, int frame)
 {
     size_t j = 0;
     Body* star = scene_get_body(scene, 0);
-    if(1 == 0){
+    if((scene_get_status(scene)->isInvincible) && (frame % 5 == 0 || frame % 5 == 1 || frame % 5 == 2)){
+      List *polygon = body_get_shape(star);
+      sdl_draw_polygon(polygon, BLACK);
       j++;
     }
     for(size_t i = j; i < scene_bodies(scene); i++)
