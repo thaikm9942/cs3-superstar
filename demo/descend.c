@@ -15,7 +15,6 @@
 #include <time.h>
 #include <math.h>
 
-
 const Vector BOUNDARY = {
   .x = 100.0,
   .y = 100.0
@@ -24,7 +23,7 @@ const Vector BOUNDARY = {
 const int NUM_ROWS = 3;
 const Vector SPEED = (Vector){20, 0};
 const Vector SPEED_UP = (Vector){0, 20};
-const Vector IMPULSE_UP = (Vector){0, 6000};
+const Vector IMPULSE_UP = (Vector){0, 10000};
 const Vector SPEED_DOWN = (Vector){0, -10};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
@@ -125,10 +124,21 @@ void add_platform_altitude(Scene *scene, int y)
   create_player_platform_collision(scene, player, platform);
 }
 
+void add_platform_first(Scene *scene)
+{
+  // Top of screeen is Dimension.y, so make new platforms appear there.
+  Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y- 10 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1);
+  body_set_velocity(platform, BLOCK_VEL);
+  scene_add_body(scene, platform);
+  Body* player = scene_get_body(scene, 0);
+  create_player_platform_collision(scene, player, platform);
+}
+
 Scene *init_scene(Scene *scene){
   Body *player = player_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
   scene_add_body(scene, player);
   create_gravity(scene, player);
+  add_platform_first(scene);
   for(size_t i = 0; i < NSTART_PLATFORMS; i ++)
   {
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
@@ -205,7 +215,7 @@ void on_key(char key, KeyEventType type, void* aux_info) {
           case RIGHT_ARROW:
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED));
               break;
-          case UP_ARROW:
+          /*case UP_ARROW:
               //if(on_platform(ball))
               //jump
               //Otherwise do nothing
@@ -214,13 +224,27 @@ void on_key(char key, KeyEventType type, void* aux_info) {
               break;
           case DOWN_ARROW:
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_DOWN));
-              break;
+              break;*/
           case ' ':
               //body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
-              if(vec_equal(body_get_velocity(ball), BLOCK_VEL)){
+              /*BodyInfo* info = body_get_info(ball);
+              bool colliding = body_info_get_collision(info);
+              if(colliding){
+                printf("jump\n");
+                body_add_impulse(ball, IMPULSE_UP);
+              }*/
+              printf("lol\n");
+              BodyInfo* info = body_get_info(ball);
+              bool colliding = body_info_get_collision(info);
+              if(colliding)
+              {
+                printf("hi\n");
                 body_add_impulse(ball, IMPULSE_UP);
               }
-
+              else
+              {
+                printf("sarah sad");
+              }
               break;
       }
     }
