@@ -80,13 +80,39 @@ void add_spikes(Scene *scene)
     }
   }
 }
-
+/* Spawns a point on the last added platform on the screen aka the highest platform */
 void add_point(Scene *scene)
 {
   Body* ball = scene_get_body(scene, 0);
-  Body *point = point_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, 3.0, 20.0, BALL_COLOR, 1);
-  scene_add_body(scene, point);
-  create_partial_destructive_collision(scene, ball, point);
+  for(size_t i = scene_bodies(scene) - 1; i > 0; i--){
+    Body* body = scene_get_body(scene, i);
+    BodyInfo* info = body_get_info(body);
+    BodyType type = body_info_get_type(info);
+    if(type == PLATFORM){
+      // Spawn a point
+      Body *point = point_init((Vector){body_get_centroid(body).x, body_get_centroid(body).y + 8},
+       3.0, 20.0, BALL_COLOR, 1);
+       scene_add_body(scene, point);
+       body_set_velocity(point, BLOCK_VEL);
+       // Creates collisions that destroy the point on collions. Scoring handled in
+       // update method
+       create_partial_destructive_collision(scene, ball, point);
+       /* THis screws up scoring so we're ignoritn it for now
+       // Link collisions with spikes
+       for(size_t j = 0; j < scene_bodies(scene); j++){
+         Body* body = scene_get_body(scene, j);
+         BodyInfo* info = body_get_info(body);
+         BodyType type = body_info_get_type(info);
+         if(type == SPIKE){
+           create_partial_destructive_collision_with_life(scene, body, point);
+         }
+       }*/
+       break;
+
+    }
+  }
+  //Body *point = point_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, 3.0, 20.0, BALL_COLOR, 1);
+
 }
 
 void add_platform_altitude(Scene *scene, int y)
@@ -112,7 +138,6 @@ Scene *init_scene(Scene *scene){
   {
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
   }
-  add_point(scene);
   add_spikes(scene);
   return scene;
 }
@@ -143,7 +168,7 @@ int compute_new_positions(Scene *scene, double dt){
   {
     add_platform(scene);
   }
-  if(rand() % 6400 == 4)
+  if(rand() % 4800 == 4)
   {
     add_point(scene);
   }
