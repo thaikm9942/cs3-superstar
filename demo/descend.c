@@ -24,11 +24,13 @@ const Vector BOUNDARY = {
 const int NUM_ROWS = 3;
 const Vector SPEED = (Vector){20, 0};
 const Vector SPEED_UP = (Vector){0, 20};
+const Vector IMPULSE_UP = (Vector){0, 6000};
 const Vector SPEED_DOWN = (Vector){0, -10};
+const Vector GRAVITY = (Vector){0, -20};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
 const Vector BLOCK_VEL = (Vector){0, -10};
-const double BALL_MASS = 2;
+const double BALL_MASS = 200;
 const double BALL_RADIUS = 10;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
 const RGBColor PLATFORM_COLOR = (RGBColor){0.0, 0.0, 0.95};
@@ -39,6 +41,7 @@ const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 const RGBColor BLACK = (RGBColor){0.0, 0.0, 0.0};
 const int NSTART_PLATFORMS = 6;
 #define G 6.67E-11 // N m^2 / kg^2
+#define G2 6.67E-3 // N m^2 / kg^2
 #define M 6E24 // kg
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
@@ -96,8 +99,13 @@ void add_platform_altitude(Scene *scene, int y)
 
 Scene *init_scene(Scene *scene){
   Body *star = star_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
-  body_set_velocity(star, STAR_VEL);
+  //body_set_velocity(star, STAR_VEL);
   scene_add_body(scene, star);
+  // Create gravity between massive object off screen and player.
+  //Body *gravityHelper = spike_init((Vector){0, (-1 * BOUNDARY.y - 80)}, 10.0, 10000000, BLACK, 1);
+  //create_newtonian_gravity(scene, G2, star, gravityHelper);
+  body_set_force(star, GRAVITY);
+  //scene_add_body(scene, gravityHelper);
   for(size_t i = 0; i < NSTART_PLATFORMS; i ++)
   {
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
@@ -115,8 +123,6 @@ void add_platform(Scene *scene)
   scene_add_body(scene, platform);
   Body* ball = scene_get_body(scene, 0);
   create_player_platform_collision(scene, ball, platform);
-  // add gravity down by making massive particle off screen.
-  
   for(size_t i = 0; i < scene_bodies(scene); i++){
     Body* body = scene_get_body(scene, i);
     BodyInfo* info = body_get_info(body);
@@ -161,19 +167,26 @@ void on_key(char key, KeyEventType type, void* aux_info) {
               //jump
               //Otherwise do nothing
               //body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
-              body_add_impulse(ball, SPEED_UP);
+              body_add_impulse(ball, IMPULSE_UP);
               break;
           case DOWN_ARROW:
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_DOWN));
               break;
           case ' ':
-              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
+              //body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
+              if(vec_equal(body_get_velocity(ball), BLOCK_VEL)){
+                body_add_impulse(ball, IMPULSE_UP);
+              }
+
               break;
       }
     }
     if(type == KEY_RELEASED)
     {
       //body_set_velocity(ball, STAR_VEL);
+      Vector vec = body_get_velocity(ball);
+      vec.x = 0;
+      body_set_velocity(ball, vec);
     }
 }
 
