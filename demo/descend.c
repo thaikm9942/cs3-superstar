@@ -83,8 +83,10 @@ void add_spikes(Scene *scene)
 
 void add_point(Scene *scene)
 {
+  Body* ball = scene_get_body(scene, 0);
   Body *point = point_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, 3.0, 20.0, BALL_COLOR, 1);
   scene_add_body(scene, point);
+  create_partial_destructive_collision(scene, ball, point);
 }
 
 void add_platform_altitude(Scene *scene, int y)
@@ -136,6 +138,7 @@ void add_platform(Scene *scene)
 
 // Return 0 if game running, return -1 if game over
 int compute_new_positions(Scene *scene, double dt){
+  int cnt = 0;
   if(rand() % 800 == 4)
   {
     add_platform(scene);
@@ -144,10 +147,30 @@ int compute_new_positions(Scene *scene, double dt){
   {
     add_point(scene);
   }
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body* body = scene_get_body(scene, i);
+    BodyInfo* info = body_get_info(body);
+    BodyType type = body_info_get_type(info);
+    if(type == POINT){
+      cnt ++;
+    }
+  }
   Body* ball = scene_get_body(scene, 0);
   if(body_info_get_type(body_get_info(ball)) != PLAYER)
     return -1;
   scene_tick(scene, dt);
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body* body = scene_get_body(scene, i);
+    BodyInfo* info = body_get_info(body);
+    BodyType type = body_info_get_type(info);
+    if(type == POINT){
+      cnt --;
+    }
+  }
+  score += cnt;
+  if(cnt != 0){
+    printf("%i\n", score);
+  }
   return 0;
 }
 
