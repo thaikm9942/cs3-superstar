@@ -36,6 +36,7 @@ const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 const RGBColor BLACK = (RGBColor){0.0, 0.0, 0.0};
 const int NSTART_PLATFORMS = 6;
+const int MIN_PLATFORM = 5;
 #define G 6.67E-11 // N m^2 / kg^2
 #define G2 6.67E-3 // N m^2 / kg^2
 #define M 6E24 // kg
@@ -166,23 +167,30 @@ void add_platform(Scene *scene)
 
 // Return 0 if game running, return -1 if game over
 int compute_new_positions(Scene *scene, double dt){
-  int cnt = 0;
-  if(rand() % 800 == 4)
+  int pointCnt = 0;
+  int platCnt = 0;
+  int maxPlats = 15;
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body* body = scene_get_body(scene, i);
+    BodyInfo* info = body_get_info(body);
+    BodyType type = body_info_get_type(info);
+    if(type == POINT){
+      pointCnt ++;
+    }
+    if(type == PLATFORM){
+      platCnt ++;
+    }
+  }
+  if((rand() % 800 == 4 && platCnt < maxPlats) || platCnt < MIN_PLATFORM)
   {
     add_platform(scene);
   }
   if(rand() % 4800 == 4)
   {
     add_point(scene);
+    pointCnt ++;
   }
-  for(size_t i = 0; i < scene_bodies(scene); i++){
-    Body* body = scene_get_body(scene, i);
-    BodyInfo* info = body_get_info(body);
-    BodyType type = body_info_get_type(info);
-    if(type == POINT){
-      cnt ++;
-    }
-  }
+
   Body* ball = scene_get_body(scene, 0);
   if(body_info_get_type(body_get_info(ball)) != PLAYER)
     return -1;
@@ -192,11 +200,11 @@ int compute_new_positions(Scene *scene, double dt){
     BodyInfo* info = body_get_info(body);
     BodyType type = body_info_get_type(info);
     if(type == POINT){
-      cnt --;
+      pointCnt --;
     }
   }
-  score += cnt;
-  if(cnt != 0){
+  score += pointCnt;
+  if(pointCnt != 0){
     printf("%i\n", score);
   }
   return 0;
