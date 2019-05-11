@@ -65,7 +65,7 @@ void add_spikes(Scene *scene)
     Body *spike = spike_init((Vector){i * 10.0, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
     scene_add_body(scene, spike);
     Body* ball = scene_get_body(scene, 0);
-    create_partial_destructive_collision_with_life(scene, spike, ball);
+    create_partial_collision_with_life(scene, 1, spike, ball);
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body* body = scene_get_body(scene, i);
       BodyInfo* info = body_get_info(body);
