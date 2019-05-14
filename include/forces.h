@@ -106,22 +106,4 @@ void create_physics_collision(
     Scene *scene, double elasticity, Body *body1, Body *body2
 );
 
-// Functions hidden from public interface
-
-/**
- * Applies destructive collisions between all bodies in the first list
- * and all bodies in the second list.
- * When bodies collide, both will be destroyed
- */
-void create_destructive_collisions(Scene *scene, List *bodies1, List *bodies2);
-
-/**
- * Resolves collisions between all bodies in the first list
- * and all bodies in the second list.
- * The impulses to apply are specified by the elasticity of the collisions.
- */
-void create_physics_collisions(
-    Scene *scene, double elasticity, List *bodies1, List *bodies2
-);
-
 #endif // #ifndef __FORCES_H__
