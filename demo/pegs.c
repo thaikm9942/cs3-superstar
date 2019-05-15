@@ -28,9 +28,9 @@
 
 #define BALL_MASS 2.0
 
-#define PEG_COLOR hue_to_rgb(0.3)
-#define BALL_COLOR hue_to_rgb(0)
-#define WALL_COLOR hue_to_rgb(0.9)
+#define BALL_COLOR ((RGBColor) {1, 0, 0})
+#define PEG_COLOR ((RGBColor) {0, 1, 0})
+#define WALL_COLOR ((RGBColor) {0, 0, 1})
 
 #define G 6.67E-11 // N m^2 / kg^2
 #define M 6E24 // kg
