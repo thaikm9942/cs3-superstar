@@ -2,6 +2,7 @@
 #define __FORCES_H__
 
 #include "scene.h"
+#include "collision.h"
 
 /**
  * A function called when a collision occurs.
@@ -11,8 +12,10 @@
  *   that defines the direction the two bodies are colliding in
  * @param aux the auxiliary value passed to create_collision()
  */
+typedef struct force_data ForceData;
 typedef void (*CollisionHandler)
     (Body *body1, Body *body2, Vector axis, void *aux);
+typedef struct collision_data CollisionData;
 
 /**
  * Adds a Newtonian gravitational force between two bodies in a scene.
@@ -49,7 +52,7 @@ void create_spring(Scene *scene, double k, Body *body1, Body *body2);
  */
 void create_drag(Scene *scene, double gamma, Body *body);
 
-/**
+ /**
  * Adds a ForceCreator to a scene that calls a given CollisionHandler
  * each time two bodies collide.
  * This generalizes create_destructive_collision() from last week,
@@ -76,8 +79,6 @@ void create_collision(
 /**
  * Adds a ForceCreator to a scene that destroys two bodies when they collide.
  * The bodies should be destroyed by calling body_remove().
- * This should be represented as an on-collision callback
- * registered with create_collision().
  *
  * @param scene the scene containing the bodies
  * @param body1 the first body
@@ -105,5 +106,6 @@ void create_destructive_collision(Scene *scene, Body *body1, Body *body2);
 void create_physics_collision(
     Scene *scene, double elasticity, Body *body1, Body *body2
 );
+
 
 #endif // #ifndef __FORCES_H__

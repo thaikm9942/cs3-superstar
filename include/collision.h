@@ -4,6 +4,12 @@
 #include <stdbool.h>
 #include "list.h"
 #include "vector.h"
+#include "body.h"
+
+typedef struct bounding_box BoundingBox;
+typedef struct bounds Bounds;
+typedef struct projection_info ProjectionInfo;
+typedef struct projection_info_axis ProjectionInfoAxis;
 
 /**
  * Represents the status of a collision between two shapes.
@@ -18,19 +24,19 @@ typedef struct {
      * Normal impulses are applied along this axis.
      * If collided is false, this value is undefined.
      */
+    double overlap;
     Vector axis;
 } CollisionInfo;
 
 /**
- * Computes the status of the collision between two convex polygons.
- * The shapes are given as lists of vertices in counterclockwise order.
+ * Determines whether two convex polygons intersect.
+ * The polygons are given as lists of vertices in counterclockwise order.
  * There is an edge between each pair of consecutive vertices,
  * and one between the first vertex and the last vertex.
  *
  * @param shape1 the first shape
  * @param shape2 the second shape
- * @return whether the shapes are colliding, and if so, the collision axis.
- * The axis should be a unit vector pointing from shape1 towards shape2.
+ * @return whether the shapes are colliding
  */
 CollisionInfo find_collision(List *shape1, List *shape2);
 
