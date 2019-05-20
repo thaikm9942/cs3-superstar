@@ -15,32 +15,30 @@
 #include <time.h>
 
 const Vector BOUNDARY = {
-  .x = 500.0,
-  .y = 250.0
+  .x = 750.0,
+  .y = 375.0
 };
 
-const int NUM_ROWS = 4;
-const double RIGHT = 0;
-const double LEFT = M_PI;
-const Vector SPD_LEFT = (Vector){-500, 0};
-const Vector SPD_RIGHT = (Vector){500, 0};
+const int NUM_ROWS = 3;
+const Vector SPEED = (Vector){700, 0};
 const Vector BALL_POS = (Vector){0, 0};
 const Vector BALL_VEL = (Vector){50, 200};
 const double BALL_MASS = 10;
-const double BALL_RADIUS = 7;
+const double BALL_RADIUS = 12;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
 const RGBColor PADDLE_COLOR = (RGBColor){0.95, 0.0, 0.0};
-const Vector PADDLE_DIM = (Vector){80, 15};
+const Vector PADDLE_DIM = (Vector){200, 15};
 const Vector BLOCK_DIM = (Vector){90, 30};
 const double BLOCK_SPACING = 7;
-const double COLOR_FREQ = 0.5;
+const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 
 typedef enum {
     BALL,
     WALL,
     BLOCK,
-    PADDLE
+    PADDLE,
+    B_WALL
 } BodyType;
 
 BodyType get_type(Body *body) {
@@ -52,40 +50,37 @@ RGBColor rainbow(double seed){
   return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
 }
 
-Body *init_block(Vector position, Vector dimension, RGBColor color){
+List *create_block(Vector position, Vector dimension){
   List *block = list_init(4, free);
-  BodyType *type = malloc(sizeof(*type));
-  *type = BLOCK;
   list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
   list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
   list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
   list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
   polygon_translate(block, position);
-  return body_init_with_info(block, INFINITY, color, type, free);
+  return block;
+}
+Body *init_block(Vector position, Vector dimension, RGBColor color){
+  BodyType *type = malloc(sizeof(*type));
+  *type = BLOCK;
+  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
 }
 
 Body *init_paddle(Vector position, Vector dimension, RGBColor color){
-  List *block = list_init(4, free);
   BodyType *type = malloc(sizeof(*type));
   *type = PADDLE;
-  list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
-  list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
-  list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
-  list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
-  polygon_translate(block, position);
-  return body_init_with_info(block, INFINITY, color, type, free);
+  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
 }
 
 Body *init_wall(Vector position, Vector dimension, RGBColor color){
-  List *block = list_init(4, free);
   BodyType *type = malloc(sizeof(*type));
   *type = WALL;
-  list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
-  list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
-  list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
-  list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
-  polygon_translate(block, position);
-  return body_init_with_info(block, INFINITY, color, type, free);
+  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
+}
+
+Body *init_bottom_wall(Vector position, Vector dimension, RGBColor color){
+  BodyType *type = malloc(sizeof(*type));
+  *type = B_WALL;
+  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
 }
 
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
@@ -105,23 +100,26 @@ void init_scene_boundaries(Scene *scene, Body *ball) {
   Body *rightBound = init_wall((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE);
   Vector dim2 = (Vector){2 * BOUNDARY.x, BLOCK_SPACING};
   Body *topBound = init_wall((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, WHITE);
-  Body *botBound = init_wall((Vector){0.0, -BOUNDARY.y - 2 * BALL_RADIUS}, dim2, WHITE);
+  Body *botBound = init_bottom_wall((Vector){0.0, -BOUNDARY.y - 2 * BALL_RADIUS}, dim2, WHITE);
   create_physics_collision(scene, 1.0, ball, leftBound);
   create_physics_collision(scene, 1.0, ball, rightBound);
   create_physics_collision(scene, 1.0, ball, topBound);
-  create_destructive_collision(scene, ball, botBound);
+  create_partial_collision(scene, 0, botBound, ball);
   scene_add_body(scene, leftBound);
   scene_add_body(scene, rightBound);
   scene_add_body(scene, topBound);
   scene_add_body(scene, botBound);
 }
 
-Scene *init_scene(void){
-  Scene *scene = scene_init();
+Scene *init_scene(Scene *scene){
+  //Scene *scene = scene_init();
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    scene_remove_body(scene, i);
+  }
   Body *paddle = init_paddle((Vector){0.0, PADDLE_DIM.y + BLOCK_SPACING - BOUNDARY.y}, PADDLE_DIM, PADDLE_COLOR);
   Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
   body_set_velocity(ball, BALL_VEL);
-  create_physics_collision(scene, 1.05, ball, paddle);
+  create_physics_collision(scene, 1.1, ball, paddle);
   scene_add_body(scene, paddle);
   scene_add_body(scene, ball);
   int numBlocks = (int)floor(2 * BOUNDARY.x / (BLOCK_DIM.x + BLOCK_SPACING));
@@ -141,17 +139,6 @@ Scene *init_scene(void){
   return scene;
 }
 
-bool check_game_over(Scene* scene){
-  size_t num_bricks = 0;
-  for(size_t i = 1; i < scene_bodies(scene); i++) {
-    Body *body = scene_get_body(scene, i);
-    if(get_type(body) == BLOCK){
-      num_bricks++;
-    }
-  }
-  return num_bricks == 0;
-}
-
 int check_bricks(Scene* scene){
   size_t num_bricks = 0;
   for(size_t i = 1; i < scene_bodies(scene); i++) {
@@ -163,25 +150,41 @@ int check_bricks(Scene* scene){
   return num_bricks;
 }
 
+int check_balls(Scene* scene){
+  size_t num_balls = 0;
+  for(size_t i = 1; i < scene_bodies(scene); i++) {
+    Body *body = scene_get_body(scene, i);
+    if(get_type(body) == BALL){
+      num_balls++;
+    }
+  }
+  return num_balls;
+}
+
 void add_ball(Scene* scene){
   Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
   body_set_velocity(ball, BALL_VEL);
-  create_physics_collision(scene, 1.05, ball, scene_get_body(scene, 0));
+  create_physics_collision(scene, 1.1, ball, scene_get_body(scene, 0));
   scene_add_body(scene, ball);
   for(size_t i = 1; i < scene_bodies(scene); i++) {
     Body *body = scene_get_body(scene, i);
     if(get_type(body) == BLOCK){
       create_partial_collision(scene, 1.0, ball, body);
     }
-    if(get_type(body) == BALL){
+    if(get_type(body) == BALL || get_type(body) == WALL){
       create_physics_collision(scene, 1.0, ball, body);
+    }
+    if(get_type(body) == B_WALL){
+      create_partial_collision(scene, 0, body, ball);
     }
   }
 }
 
-void compute_new_positions(Scene *scene, double dt, int initial){
+void compute_new_positions(Scene *scene, double dt, int initial, int *difference){
   scene_tick(scene, dt);
-  if((initial - check_bricks(scene) % 5) == 0){
+  if(initial - check_bricks(scene) > 0 && (initial - check_bricks(scene)) % 5 == 0
+&& (initial - check_bricks(scene)) != *difference){
+    *difference = initial - check_bricks(scene);
     add_ball(scene);
   }
 }
@@ -192,10 +195,10 @@ void on_key(char key, KeyEventType type, void* aux_info) {
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
-              body_set_velocity(paddle, SPD_LEFT);
+              body_set_velocity(paddle, vec_negate(SPEED));
               break;
           case RIGHT_ARROW:
-              body_set_velocity(paddle, SPD_RIGHT);
+              body_set_velocity(paddle, SPEED);
               break;
       }
     }
@@ -208,14 +211,21 @@ void on_key(char key, KeyEventType type, void* aux_info) {
 int main(int argc, char *argv[]){
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
-  Scene *scene = init_scene();
+  Scene *scene = scene_init();
+  init_scene(scene);
   int num_bricks = check_bricks(scene);
+  int* difference = malloc(sizeof(int*));
+  *difference = 0;
   sdl_on_key(on_key, scene);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
-    compute_new_positions(scene, dt, num_bricks);
-    if(check_game_over(scene)){
-      return 1;
+    compute_new_positions(scene, dt, num_bricks, difference);
+    if(check_bricks(scene) == 0){
+      free(difference);
+      return 0;
+    }
+    if(check_balls(scene) == 0){
+      init_scene(scene);
     }
     sdl_clear();
     for(size_t i = 0; i < scene_bodies(scene); i++){
@@ -225,6 +235,7 @@ int main(int argc, char *argv[]){
     }
     sdl_show();
   }
+  free(difference);
   scene_free(scene);
   return 0;
 }
