@@ -22,10 +22,10 @@ const Vector BOUNDARY = {
 const int NUM_ROWS = 4;
 const double RIGHT = 0;
 const double LEFT = M_PI;
-const Vector SPD_LEFT = (Vector){-200, 0};
-const Vector SPD_RIGHT = (Vector){200, 0};
+const Vector SPD_LEFT = (Vector){-500, 0};
+const Vector SPD_RIGHT = (Vector){500, 0};
 const Vector BALL_POS = (Vector){0, 0};
-const Vector BALL_VEL = (Vector){20, -200};
+const Vector BALL_VEL = (Vector){50, 200};
 const double BALL_MASS = 10;
 const double BALL_RADIUS = 7;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
@@ -36,9 +36,20 @@ const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.5;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 
+typedef enum {
+    BALL,
+    WALL,
+    BLOCK,
+    PADDLE
+} BodyType;
+
+BodyType get_type(Body *body) {
+    return *(BodyType *) body_get_info(body);
+}
+
 typedef struct info {
-  size_t tag;
-  bool isShooter;
+  BodyType type;
+  bool isPower;
 } Info;
 
 Info *init_info(Info i){
