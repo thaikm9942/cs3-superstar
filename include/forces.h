@@ -108,5 +108,6 @@ void create_physics_collision(
     Scene *scene, double elasticity, Body *body1, Body *body2
 );
 
+void create_partial_collision(Scene *scene, double elasticity, Body *body, Body *target);
 
 #endif // #ifndef __FORCES_H__

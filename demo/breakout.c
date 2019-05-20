@@ -1,29 +1,30 @@
 #include "sdl_wrapper.h"
+#include "forces.h"
+#include "color.h"
+#include "collision.h"
 #include "polygon.h"
 #include "body.h"
 #include "color.h"
 #include "scene.h"
 #include "list.h"
-#include <vector.h>
+#include "vector.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
-#include "forces.h"
-#include "color.h"
-#include "collision.h"
 
 const Vector BOUNDARY = {
   .x = 500.0,
   .y = 250.0
 };
+
 const int NUM_ROWS = 3;
 const double RIGHT = 0;
 const double LEFT = M_PI;
 const Vector SPD_LEFT = (Vector){-200, 0};
 const Vector SPD_RIGHT = (Vector){200, 0};
-const Vector BALL_POS = VEC_ZERO;
+const Vector BALL_POS = (Vector){0, 0};
 const Vector BALL_VEL = (Vector){0.0, -200};
 const double BALL_MASS = 10;
 const double BALL_RADIUS = 5;
@@ -39,18 +40,13 @@ typedef struct info {
   bool isShooter;
 } Info;
 
-Vector *init_vec(Vector v){
-  Vector *vector = malloc(sizeof(v));
-  vector->x = v.x;
-  vector->y = v.y;
-  return vector;
-}
 Info *init_info(Info i){
   Info *info = malloc(sizeof(i));
   info->tag = i.tag;
   info->isShooter = i.isShooter;
   return info;
 }
+
 RGBColor rainbow(double seed){
   seed *= COLOR_FREQ;
   return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
@@ -58,10 +54,10 @@ RGBColor rainbow(double seed){
 
 Body *init_block(Vector position, Vector dimension, RGBColor color){
   List *block = list_init(4, free);
-  list_add(block, init_vec(dimension.x / 2.0, dimension.y / 2.0));
-  list_add(block, init_vec(-dimension.x / 2.0, dimension.y / 2.0));
-  list_add(block, init_vec(dimension.x / 2.0, -dimension.y / 2.0));
-  list_add(block, init_vec(-dimension.x / 2.0, -dimension.y / 2.0));
+  list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
   polygon_translate(block, position);
   return body_init(block, INFINITY, color);
 }
@@ -69,19 +65,19 @@ Body *init_block(Vector position, Vector dimension, RGBColor color){
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
   List *ball = list_init(75, free);
   for(double angle = 0.0; angle < 2 * M_PI; angle += 0.05){
-    list_add(ball, init_vec(vec_multiply(radius, (Vector){cos(angle), sin(angle)})));
+    list_add(ball, vec_init(vec_multiply(radius, (Vector){cos(angle), sin(angle)})));
   }
   polygon_translate(ball, position);
   return body_init(ball, mass, color);
 }
 
-void *init_scene_boundaries(Scene *scene, Body *ball){
+void init_scene_boundaries(Scene *scene, Body *ball) {
   Vector dim1 = (Vector){BLOCK_SPACING, BOUNDARY.y};
-  Body *leftBound = init_block((Vector)(-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0), dim1, BALL_COLOR);
-  Body *rightBound = init_block((Vector)(BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0), dim1, BALL_COLOR);
-  Vector dim2 = (Vector){BOUNDARY.x, BLOCK_SPACING.y};
-  Body *topBound = init_block((Vector)(0.0, BOUNDARY.y + BLOCK_SPACING / 2.0), dim2, BALL_COLOR);
-  Body *botBound = init_block((Vector)(0.0, -BOUNDARY.y - BLOCK_SPACING / 2.0), dim2, BALL_COLOR);
+  Body *leftBound = init_block((Vector){-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0}, dim1, BALL_COLOR);
+  Body *rightBound = init_block((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, BALL_COLOR);
+  Vector dim2 = (Vector){BOUNDARY.x, BLOCK_SPACING};
+  Body *topBound = init_block((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, BALL_COLOR);
+  Body *botBound = init_block((Vector){0.0, -BOUNDARY.y - BLOCK_SPACING / 2.0}, dim2, BALL_COLOR);
   create_physics_collision(scene, 1.0, ball, leftBound);
   create_physics_collision(scene, 1.0, ball, rightBound);
   create_physics_collision(scene, 1.0, ball, topBound);
@@ -137,7 +133,6 @@ bool compute_new_positions(Scene *scene, double dt){
 void on_key(char key, KeyEventType type, void* aux_info) {
   Scene *scene = aux_info;
   Body* paddle = scene_get_body(scene, 0);
-  Body* bullet;
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
@@ -161,15 +156,7 @@ int main(int argc, char *argv[]){
   sdl_on_key(on_key, scene);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
-    if(compute_new_positions(scene, dt))
-    {
-      // if(check_game_over(scene)){
-      //   puts("You win! :-)\n");
-      //   return 0;
-      // }
-      // puts("Game over\n");
-      // return 0;
-    }
+    compute_new_positions(scene, dt);
     sdl_clear();
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body *body = scene_get_body(scene, i);

@@ -18,6 +18,8 @@ typedef struct {
  */
 extern const Vector VEC_ZERO;
 
+Vector *vec_init(Vector v);
+
 /**
  * Adds two vectors.
  * Performs the usual componentwise vector sum.

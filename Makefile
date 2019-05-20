@@ -30,7 +30,7 @@ STUDENT_LIBS = vector list \
 # and ".o" to the end of each value in STUDENT_LIBS.
 STUDENT_OBJS = $(addprefix out/,$(STUDENT_LIBS:=.o))
 # List of test suite executables, e.g. "bin/test_suite_vector"
-TEST_BINS = $(addprefix bin/test_suite_,$(STUDENT_LIBS)) bin/student_tests
+#*TEST_BINS = $(addprefix bin/test_suite_,$(STUDENT_LIBS)) bin/student_tests
 # List of demo executables, i.e. "bin/bounce".
 DEMO_BINS = $(addprefix bin/,$(DEMOS))
 # All executables (the concatenation of TEST_BINS and DEMO_BINS)
