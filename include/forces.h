@@ -12,6 +12,7 @@
  *   that defines the direction the two bodies are colliding in
  * @param aux the auxiliary value passed to create_collision()
  */
+typedef struct partial_data PartialData;
 typedef struct force_data ForceData;
 typedef void (*CollisionHandler)
     (Body *body1, Body *body2, Vector axis, void *aux);

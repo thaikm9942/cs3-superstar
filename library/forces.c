@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <math.h>
 
+struct partial_data {
+  double elasticity;
+  bool partial;
+};
+
 struct force_data {
   double force_constant;
   Body *body1;
@@ -12,6 +17,7 @@ struct force_data {
 };
 
 struct collision_data {
+  //Checks to see if collision has occurred between two bodies before
   bool colliding;
   CollisionHandler collision_handler;
   void *aux;
@@ -34,6 +40,14 @@ const double MIN_DISTANCE = 10;
  * @param body2 the second body
  */
 
+ PartialData *partial_data_init(double elasticity, bool partial){
+   PartialData *partial_data = malloc(sizeof(PartialData));
+   assert(partial_data != NULL);
+   partial_data->elasticity = elasticity;
+   partial_data->partial = partial;
+   return partial_data;
+ }
+
 ForceData *force_data_init(double force_constant, Body *body1, Body *body2){
   ForceData *force_data = malloc(sizeof(ForceData));
   assert(force_data != NULL);
@@ -43,7 +57,8 @@ ForceData *force_data_init(double force_constant, Body *body1, Body *body2){
   return force_data;
 }
 
-CollisionData *collision_data_init(CollisionHandler handler, void* aux, bool colliding, FreeFunc freer, Body *body1, Body *body2){
+CollisionData *collision_data_init(CollisionHandler handler, void* aux,
+  bool colliding, FreeFunc freer, Body *body1, Body *body2){
   CollisionData *collision_data = malloc(sizeof(CollisionData));
   assert(collision_data != NULL);
   collision_data->colliding = colliding;
@@ -135,7 +150,9 @@ void create_drag(Scene *scene, double gamma, Body *body) {
 
 //Collision handlers
 void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
-    double elasticity = *(double*) aux;
+    PartialData *partial_data = (PartialData*) aux;
+    double elasticity = partial_data->elasticity;
+    bool partial = partial_data->partial;
     double reduced_mass;
     double m1 = body_get_mass(body1);
     double m2 = body_get_mass(body2);
@@ -153,7 +170,12 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
     body_add_impulse(body1, impulse);
-    body_add_impulse(body2, vec_negate(impulse));
+    if(partial){
+      body_remove(body2);
+    }
+    else{
+      body_add_impulse(body2, vec_negate(impulse));
+    }
 }
 
 void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
@@ -187,8 +209,12 @@ void create_destructive_collision(Scene *scene, Body *body1, Body *body2) {
   create_collision(scene, body1, body2, (CollisionHandler) destroy_body, NULL, NULL);
 }
 
+void create_partial_collision(Scene *scene, double elasticity, Body *body, Body *target){
+  PartialData *partial = partial_data_init(elasticity, true);
+  create_collision(scene, body, target, (CollisionHandler) repel_body, (void*) partial, free);
+}
+
 void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body *body2){
-  double *ptr = malloc(sizeof(double));
-  *ptr = elasticity;
-  create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) ptr, free);
+  PartialData *partial = partial_data_init(elasticity, false);
+  create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) partial, free);
 }
