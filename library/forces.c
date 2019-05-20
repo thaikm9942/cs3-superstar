@@ -12,8 +12,10 @@ struct force_data {
 };
 
 struct collision_data {
+  bool colliding;
   CollisionHandler collision_handler;
   void *aux;
+  FreeFunc freer;
   Body *body1;
   Body *body2;
 };
@@ -41,11 +43,13 @@ ForceData *force_data_init(double force_constant, Body *body1, Body *body2){
   return force_data;
 }
 
-CollisionData *collision_data_init(CollisionHandler handler, void* aux, Body *body1, Body *body2){
+CollisionData *collision_data_init(CollisionHandler handler, void* aux, bool colliding, FreeFunc freer, Body *body1, Body *body2){
   CollisionData *collision_data = malloc(sizeof(CollisionData));
   assert(collision_data != NULL);
+  collision_data->colliding = colliding;
   collision_data->collision_handler = handler;
   collision_data->aux = aux;
+  collision_data->freer = freer;
   collision_data->body1 = body1;
   collision_data->body2 = body2;
   return collision_data;
@@ -56,8 +60,8 @@ void force_data_free(ForceData* data){
 }
 
 void collision_data_free(CollisionData* data){
-  if(data->aux != NULL){
-    free(data->aux);
+  if(data->freer != NULL){
+    data->freer(data->aux);
   }
   free(data);
 }
@@ -158,31 +162,33 @@ void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
 }
 
 void calculate_collision(CollisionData* data){
-  bool colliding = false;
   Body *body1 = data->body1;
   Body *body2 = data->body2;
   CollisionInfo info = find_collision(body_get_shape(body1), body_get_shape(body2));
-  if(info.collided && !colliding){
+  if(info.collided && !data->colliding){
     data->collision_handler(body1, body2, info.axis, data->aux);
-    colliding = true;
+    data->colliding = true;
+  }
+  if(!info.collided){
+    data->colliding = false;
   }
 }
 
 void create_collision(Scene *scene, Body *body1, Body *body2,
 CollisionHandler handler, void *aux, FreeFunc freer){
-  CollisionData *data = collision_data_init(handler, aux, body1, body2);
+  CollisionData *data = collision_data_init(handler, aux, false, freer, body1, body2);
   List *bodies_affected = list_init(2, NULL);
   list_add(bodies_affected, body1);
   list_add(bodies_affected, body2);
-  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_collision, data, bodies_affected, freer);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_collision, data, bodies_affected, (FreeFunc) collision_data_free);
 }
 
 void create_destructive_collision(Scene *scene, Body *body1, Body *body2) {
-  create_collision(scene, body1, body2, (CollisionHandler) destroy_body, NULL, (FreeFunc) collision_data_free);
+  create_collision(scene, body1, body2, (CollisionHandler) destroy_body, NULL, NULL);
 }
 
 void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body *body2){
   double *ptr = malloc(sizeof(double));
   *ptr = elasticity;
-  create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) ptr, (FreeFunc) collision_data_free);
+  create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) ptr, free);
 }

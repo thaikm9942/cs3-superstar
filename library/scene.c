@@ -41,8 +41,10 @@ SceneForcer *scene_forcer_init(ForceCreator forcer, void *aux, FreeFunc freer, L
 
 // Frees a single scene_forcer; the List of bodies_affected should
 void scene_forcer_single_free(SceneForcer* scene_forcer){
-  scene_forcer->freer(scene_forcer->aux);
-  //list_free(scene_forcer->bodies_affected);
+  if(scene_forcer->freer != NULL){
+    scene_forcer->freer(scene_forcer->aux);
+  }
+  list_free(scene_forcer->bodies_affected);
   free(scene_forcer);
 }
 
