@@ -55,9 +55,9 @@ RGBColor rainbow(double seed){
 Body *init_block(Vector position, Vector dimension, RGBColor color){
   List *block = list_init(4, free);
   list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
-  list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
   list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
   list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
   polygon_translate(block, position);
   return body_init(block, INFINITY, color);
 }
@@ -96,7 +96,8 @@ Scene *init_scene(void){
   create_physics_collision(scene, 1.0, ball, paddle);
   scene_add_body(scene, paddle);
   scene_add_body(scene, ball);
-  int numBlocks = (int)floor(BOUNDARY.x / (BLOCK_DIM.x + BLOCK_SPACING));
+  int numBlocks = (int)floor(2 * BOUNDARY.x / (BLOCK_DIM.x + BLOCK_SPACING));
+  printf("Number: %d\n", numBlocks);
   double offset = (BOUNDARY.x - numBlocks * (BLOCK_DIM.x + BLOCK_SPACING)) / 2.0;
   double y = BOUNDARY.y - BLOCK_SPACING - BLOCK_DIM.y / 2.0;
   for(int i = 0; i < NUM_ROWS; i++){
