@@ -47,49 +47,41 @@ BodyType get_type(Body *body) {
     return *(BodyType *) body_get_info(body);
 }
 
-typedef struct info {
-  BodyType type;
-  bool isPower;
-} Info;
-
-Info *init_info(Info i){
-  Info *info = malloc(sizeof(i));
-  info->tag = i.tag;
-  info->isShooter = i.isShooter;
-  return info;
-}
-
 RGBColor rainbow(double seed){
   seed *= COLOR_FREQ;
   return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
 }
 
-Body *init_block(Vector position, Vector dimension, RGBColor color){
+Body *init_block(Vector position, Vector dimension, RGBColor color, BodyType body_type){
   List *block = list_init(4, free);
+  BodyType *type = malloc(sizeof(*type));
+  *type = body_type;
   list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
   list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
   list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
   list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
   polygon_translate(block, position);
-  return body_init(block, INFINITY, color);
+  return body_init_with_info(block, INFINITY, color, (void*) body_type, free);
 }
 
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
   List *ball = list_init(75, free);
+  BodyType *type = malloc(sizeof(*type));
+  *type = BALL;
   for(double angle = 0.0; angle < 2 * M_PI; angle += 0.05){
     list_add(ball, vec_init(vec_multiply(radius, (Vector){cos(angle), sin(angle)})));
   }
   polygon_translate(ball, position);
-  return body_init(ball, mass, color);
+  return body_init_with_info(ball, mass, color, type, free);
 }
 
 void init_scene_boundaries(Scene *scene, Body *ball) {
   Vector dim1 = (Vector){BLOCK_SPACING, 2 * BOUNDARY.y};
-  Body *leftBound = init_block((Vector){-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE);
-  Body *rightBound = init_block((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE);
+  Body *leftBound = init_block((Vector){-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE, WALL);
+  Body *rightBound = init_block((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE, WALL);
   Vector dim2 = (Vector){2 * BOUNDARY.x, BLOCK_SPACING};
-  Body *topBound = init_block((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, WHITE);
-  Body *botBound = init_block((Vector){0.0, -BOUNDARY.y - 2 * BALL_RADIUS}, dim2, WHITE);
+  Body *topBound = init_block((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, WHITE, WALL);
+  Body *botBound = init_block((Vector){0.0, -BOUNDARY.y - 2 * BALL_RADIUS}, dim2, WHITE, WALL);
   create_physics_collision(scene, 1.0, ball, leftBound);
   create_physics_collision(scene, 1.0, ball, rightBound);
   create_physics_collision(scene, 1.0, ball, topBound);
@@ -102,10 +94,10 @@ void init_scene_boundaries(Scene *scene, Body *ball) {
 
 Scene *init_scene(void){
   Scene *scene = scene_init();
-  Body *paddle = init_block((Vector){0.0, PADDLE_DIM.y + BLOCK_SPACING - BOUNDARY.y}, PADDLE_DIM, PADDLE_COLOR);
+  Body *paddle = init_block((Vector){0.0, PADDLE_DIM.y + BLOCK_SPACING - BOUNDARY.y}, PADDLE_DIM, PADDLE_COLOR, PADDLE);
   Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
   body_set_velocity(ball, BALL_VEL);
-  create_physics_collision(scene, 1.0, ball, paddle);
+  create_physics_collision(scene, 1.05, ball, paddle);
   scene_add_body(scene, paddle);
   scene_add_body(scene, ball);
   int numBlocks = (int)floor(2 * BOUNDARY.x / (BLOCK_DIM.x + BLOCK_SPACING));
@@ -114,7 +106,7 @@ Scene *init_scene(void){
   for(int i = 0; i < NUM_ROWS; i++){
     double x = -BOUNDARY.x + offset + BLOCK_DIM.x / 2.0;
     for(double j = 0; j < numBlocks; j++){
-      Body *block = init_block((Vector){x, y}, BLOCK_DIM, rainbow(x));
+      Body *block = init_block((Vector){x, y}, BLOCK_DIM, rainbow(x), BLOCK);
       scene_add_body(scene, block);
       create_partial_collision(scene, 1.0, ball, block);
       x += BLOCK_DIM.x + BLOCK_SPACING;
@@ -126,20 +118,48 @@ Scene *init_scene(void){
 }
 
 bool check_game_over(Scene* scene){
-  size_t num_enemies = 0;
+  size_t num_bricks = 0;
   for(size_t i = 1; i < scene_bodies(scene); i++) {
     Body *body = scene_get_body(scene, i);
-    Info* info = body_get_info(body);
-    if(info->tag == 2){
-      num_enemies++;
+    if(get_type(body_get_info(body)) == BLOCK){
+      num_bricks++;
     }
   }
-  return num_enemies == 0;
+  return num_bricks == 0;
 }
 
-bool compute_new_positions(Scene *scene, double dt){
+int check_bricks(Scene* scene){
+  size_t num_bricks = 0;
+  for(size_t i = 1; i < scene_bodies(scene); i++) {
+    Body *body = scene_get_body(scene, i);
+    if(get_type(body_get_info(body)) == BLOCK){
+      num_bricks++;
+    }
+  }
+  return num_bricks;
+}
+
+void add_ball(Scene* scene){
+  Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
+  body_set_velocity(ball, BALL_VEL);
+  create_physics_collision(scene, 1.05, ball, scene_get_body(scene, 0));
+  scene_add_body(scene, ball);
+  for(size_t i = 1; i < scene_bodies(scene); i++) {
+    Body *body = scene_get_body(scene, i);
+    if(get_type(body_get_info(body)) == BLOCK){
+      create_partial_collision(scene, 1.0, ball, body);
+    }
+    if(get_type(body_get_info(body)) == BALL){
+      create_physics_collision(scene, 1.0, ball, body);
+    }
+  }
+}
+
+void compute_new_positions(Scene *scene, double dt, int initial){
   scene_tick(scene, dt);
-  return true;
+  if((initial - check_bricks(scene) % 5) == 0){
+    add_ball(scene);
+  }
 }
 
 void on_key(char key, KeyEventType type, void* aux_info) {
@@ -165,10 +185,14 @@ int main(int argc, char *argv[]){
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = init_scene();
+  int num_bricks = check_bricks(scene);
   sdl_on_key(on_key, scene);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
-    compute_new_positions(scene, dt);
+    compute_new_positions(scene, dt, num_bricks);
+    if(check_game_over(scene)){
+      return 1;
+    }
     sdl_clear();
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body *body = scene_get_body(scene, i);
