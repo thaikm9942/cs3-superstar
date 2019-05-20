@@ -19,21 +19,22 @@ const Vector BOUNDARY = {
   .y = 250.0
 };
 
-const int NUM_ROWS = 3;
+const int NUM_ROWS = 4;
 const double RIGHT = 0;
 const double LEFT = M_PI;
 const Vector SPD_LEFT = (Vector){-200, 0};
 const Vector SPD_RIGHT = (Vector){200, 0};
 const Vector BALL_POS = (Vector){0, 0};
-const Vector BALL_VEL = (Vector){0.0, -200};
+const Vector BALL_VEL = (Vector){20, -200};
 const double BALL_MASS = 10;
-const double BALL_RADIUS = 5;
+const double BALL_RADIUS = 7;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
 const RGBColor PADDLE_COLOR = (RGBColor){0.95, 0.0, 0.0};
-const Vector PADDLE_DIM = (Vector){20, 5};
-const Vector BLOCK_DIM = (Vector){30, 10};
-const double BLOCK_SPACING = 3;
+const Vector PADDLE_DIM = (Vector){80, 15};
+const Vector BLOCK_DIM = (Vector){90, 30};
+const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.5;
+const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 
 typedef struct info {
   size_t tag;
@@ -72,16 +73,16 @@ Body *init_ball(Vector position, double mass, double radius, RGBColor color){
 }
 
 void init_scene_boundaries(Scene *scene, Body *ball) {
-  Vector dim1 = (Vector){BLOCK_SPACING, BOUNDARY.y};
-  Body *leftBound = init_block((Vector){-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0}, dim1, BALL_COLOR);
-  Body *rightBound = init_block((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, BALL_COLOR);
-  Vector dim2 = (Vector){BOUNDARY.x, BLOCK_SPACING};
-  Body *topBound = init_block((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, BALL_COLOR);
-  Body *botBound = init_block((Vector){0.0, -BOUNDARY.y - BLOCK_SPACING / 2.0}, dim2, BALL_COLOR);
+  Vector dim1 = (Vector){BLOCK_SPACING, 2 * BOUNDARY.y};
+  Body *leftBound = init_block((Vector){-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE);
+  Body *rightBound = init_block((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE);
+  Vector dim2 = (Vector){2 * BOUNDARY.x, BLOCK_SPACING};
+  Body *topBound = init_block((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, WHITE);
+  Body *botBound = init_block((Vector){0.0, -BOUNDARY.y - 2 * BALL_RADIUS}, dim2, WHITE);
   create_physics_collision(scene, 1.0, ball, leftBound);
   create_physics_collision(scene, 1.0, ball, rightBound);
   create_physics_collision(scene, 1.0, ball, topBound);
-  create_physics_collision(scene, 1.0, ball, botBound);
+  create_destructive_collision(scene, ball, botBound);
   scene_add_body(scene, leftBound);
   scene_add_body(scene, rightBound);
   scene_add_body(scene, topBound);
@@ -97,8 +98,7 @@ Scene *init_scene(void){
   scene_add_body(scene, paddle);
   scene_add_body(scene, ball);
   int numBlocks = (int)floor(2 * BOUNDARY.x / (BLOCK_DIM.x + BLOCK_SPACING));
-  printf("Number: %d\n", numBlocks);
-  double offset = (BOUNDARY.x - numBlocks * (BLOCK_DIM.x + BLOCK_SPACING)) / 2.0;
+  double offset = (2 * BOUNDARY.x - numBlocks * (BLOCK_DIM.x + BLOCK_SPACING)) / 2.0;
   double y = BOUNDARY.y - BLOCK_SPACING - BLOCK_DIM.y / 2.0;
   for(int i = 0; i < NUM_ROWS; i++){
     double x = -BOUNDARY.x + offset + BLOCK_DIM.x / 2.0;
@@ -108,7 +108,7 @@ Scene *init_scene(void){
       create_partial_collision(scene, 1.0, ball, block);
       x += BLOCK_DIM.x + BLOCK_SPACING;
     }
-    y += BLOCK_DIM.y + BLOCK_SPACING;
+    y -= BLOCK_DIM.y + BLOCK_SPACING;
   }
   init_scene_boundaries(scene, ball);
   return scene;
