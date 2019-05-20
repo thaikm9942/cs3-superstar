@@ -64,10 +64,6 @@ void scene_free(Scene *scene) {
   free(scene);
 }
 
-void scene_mini_free(Scene * scene)
-{
-  free(scene);
-}
 size_t scene_bodies(Scene *scene) {
   return list_size(scene->bodies);
 }

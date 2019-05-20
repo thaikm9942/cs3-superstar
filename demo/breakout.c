@@ -52,16 +52,40 @@ RGBColor rainbow(double seed){
   return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
 }
 
-Body *init_block(Vector position, Vector dimension, RGBColor color, BodyType body_type){
+Body *init_block(Vector position, Vector dimension, RGBColor color){
   List *block = list_init(4, free);
   BodyType *type = malloc(sizeof(*type));
-  *type = body_type;
+  *type = BLOCK;
   list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
   list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
   list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
   list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
   polygon_translate(block, position);
-  return body_init_with_info(block, INFINITY, color, (void*) body_type, free);
+  return body_init_with_info(block, INFINITY, color, type, free);
+}
+
+Body *init_paddle(Vector position, Vector dimension, RGBColor color){
+  List *block = list_init(4, free);
+  BodyType *type = malloc(sizeof(*type));
+  *type = PADDLE;
+  list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
+  polygon_translate(block, position);
+  return body_init_with_info(block, INFINITY, color, type, free);
+}
+
+Body *init_wall(Vector position, Vector dimension, RGBColor color){
+  List *block = list_init(4, free);
+  BodyType *type = malloc(sizeof(*type));
+  *type = WALL;
+  list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){-dimension.x / 2.0, -dimension.y / 2.0}));
+  list_add(block, vec_init((Vector){-dimension.x / 2.0, dimension.y / 2.0}));
+  polygon_translate(block, position);
+  return body_init_with_info(block, INFINITY, color, type, free);
 }
 
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
@@ -77,11 +101,11 @@ Body *init_ball(Vector position, double mass, double radius, RGBColor color){
 
 void init_scene_boundaries(Scene *scene, Body *ball) {
   Vector dim1 = (Vector){BLOCK_SPACING, 2 * BOUNDARY.y};
-  Body *leftBound = init_block((Vector){-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE, WALL);
-  Body *rightBound = init_block((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE, WALL);
+  Body *leftBound = init_wall((Vector){-BOUNDARY.x - BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE);
+  Body *rightBound = init_wall((Vector){BOUNDARY.x + BLOCK_SPACING / 2.0, 0.0}, dim1, WHITE);
   Vector dim2 = (Vector){2 * BOUNDARY.x, BLOCK_SPACING};
-  Body *topBound = init_block((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, WHITE, WALL);
-  Body *botBound = init_block((Vector){0.0, -BOUNDARY.y - 2 * BALL_RADIUS}, dim2, WHITE, WALL);
+  Body *topBound = init_wall((Vector){0.0, BOUNDARY.y + BLOCK_SPACING / 2.0}, dim2, WHITE);
+  Body *botBound = init_wall((Vector){0.0, -BOUNDARY.y - 2 * BALL_RADIUS}, dim2, WHITE);
   create_physics_collision(scene, 1.0, ball, leftBound);
   create_physics_collision(scene, 1.0, ball, rightBound);
   create_physics_collision(scene, 1.0, ball, topBound);
@@ -94,7 +118,7 @@ void init_scene_boundaries(Scene *scene, Body *ball) {
 
 Scene *init_scene(void){
   Scene *scene = scene_init();
-  Body *paddle = init_block((Vector){0.0, PADDLE_DIM.y + BLOCK_SPACING - BOUNDARY.y}, PADDLE_DIM, PADDLE_COLOR, PADDLE);
+  Body *paddle = init_paddle((Vector){0.0, PADDLE_DIM.y + BLOCK_SPACING - BOUNDARY.y}, PADDLE_DIM, PADDLE_COLOR);
   Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
   body_set_velocity(ball, BALL_VEL);
   create_physics_collision(scene, 1.05, ball, paddle);
@@ -106,7 +130,7 @@ Scene *init_scene(void){
   for(int i = 0; i < NUM_ROWS; i++){
     double x = -BOUNDARY.x + offset + BLOCK_DIM.x / 2.0;
     for(double j = 0; j < numBlocks; j++){
-      Body *block = init_block((Vector){x, y}, BLOCK_DIM, rainbow(x), BLOCK);
+      Body *block = init_block((Vector){x, y}, BLOCK_DIM, rainbow(x));
       scene_add_body(scene, block);
       create_partial_collision(scene, 1.0, ball, block);
       x += BLOCK_DIM.x + BLOCK_SPACING;
@@ -121,7 +145,7 @@ bool check_game_over(Scene* scene){
   size_t num_bricks = 0;
   for(size_t i = 1; i < scene_bodies(scene); i++) {
     Body *body = scene_get_body(scene, i);
-    if(get_type(body_get_info(body)) == BLOCK){
+    if(get_type(body) == BLOCK){
       num_bricks++;
     }
   }
@@ -132,7 +156,7 @@ int check_bricks(Scene* scene){
   size_t num_bricks = 0;
   for(size_t i = 1; i < scene_bodies(scene); i++) {
     Body *body = scene_get_body(scene, i);
-    if(get_type(body_get_info(body)) == BLOCK){
+    if(get_type(body) == BLOCK){
       num_bricks++;
     }
   }
@@ -146,10 +170,10 @@ void add_ball(Scene* scene){
   scene_add_body(scene, ball);
   for(size_t i = 1; i < scene_bodies(scene); i++) {
     Body *body = scene_get_body(scene, i);
-    if(get_type(body_get_info(body)) == BLOCK){
+    if(get_type(body) == BLOCK){
       create_partial_collision(scene, 1.0, ball, body);
     }
-    if(get_type(body_get_info(body)) == BALL){
+    if(get_type(body) == BALL){
       create_physics_collision(scene, 1.0, ball, body);
     }
   }
