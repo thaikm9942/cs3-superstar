@@ -153,7 +153,7 @@ CollisionInfo check_overlap(List *shape1, List* shape2){
       return (CollisionInfo){true, info1.overlap, axis1};
     }
     else {
-      return (CollisionInfo){true, info2.overlap, axis2};
+      return (CollisionInfo){true, info2.overlap, vec_negate(axis2)};
     }
   }
   return (CollisionInfo){false, 0, (Vector){0, 0}};
@@ -179,11 +179,5 @@ CollisionInfo find_collision(List *shape1, List *shape2){
   if(!info.collided){
     return (CollisionInfo){false, 0, (Vector){0, 0}};
   }
-  // Checks to see if the axis is aligned in the direction from body1 to body2;
-  Vector axis = info.axis;
-  Vector alignment = vec_subtract(polygon_centroid(shape2), polygon_centroid(shape1));
-  if((axis.x > 0 && alignment.x < 0) || (axis.x < 0 && alignment.x > 0)){
-    vec_negate(axis);
-  }
-  return (CollisionInfo){true, 0, axis};
+  return (CollisionInfo){true, 0, info.axis};
 }
