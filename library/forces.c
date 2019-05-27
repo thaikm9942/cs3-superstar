@@ -179,7 +179,11 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
 }
 
 void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
-  body_remove(body1);
+  PartialData *partial_data = (PartialData*) aux;
+  bool partial = partial_data->partial;
+  if(!partial){
+      body_remove(body1);
+  }
   body_remove(body2);
 }
 
@@ -217,4 +221,10 @@ void create_partial_collision(Scene *scene, double elasticity, Body *body, Body 
 void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body *body2){
   PartialData *partial = partial_data_init(elasticity, false);
   create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) partial, free);
+}
+
+/* All Superstar game collisions will be implemented here*/
+void create_partial_destructive_collision(Scene *scene, Body *object, Body *target){
+  PartialData *partial = partial_data_init(0.0, true);
+  create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, free);
 }
