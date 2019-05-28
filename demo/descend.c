@@ -15,20 +15,20 @@
 #include <time.h>
 
 const Vector BOUNDARY = {
-  .x = 750.0,
-  .y = 375.0
+  .x = 100.0,
+  .y = 100.0
 };
 
 const int NUM_ROWS = 3;
-const Vector SPEED = (Vector){700, 0};
-const Vector SPEED_UP = (Vector){0, 500};
-const Vector BALL_POS = (Vector){0, 300};
-const Vector BALL_VEL = (Vector){0, -10};
-const Vector BLOCK_VEL = (Vector){0, -50};
-const double BALL_MASS = 20;
-const double BALL_RADIUS = 12;
+const Vector SPEED = (Vector){20, 0};
+const Vector SPEED_UP = (Vector){0, 20};
+const Vector BALL_POS = (Vector){0, 10};
+const Vector BALL_VEL = (Vector){0, -5};
+const Vector BLOCK_VEL = (Vector){0, -20};
+const double BALL_MASS = 2;
+const double BALL_RADIUS = 5;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
-const Vector BLOCK_DIM = (Vector){90, 30};
+const Vector BLOCK_DIM = (Vector){10, 2};
 const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
@@ -119,7 +119,7 @@ Scene *init_scene(Scene *scene){
   body_set_velocity(ball, BALL_VEL);
   scene_add_body(scene, ball);
   create_newtonian_gravity(scene, G, scene_get_body(scene, 0), ball);
-  Body *block = init_block((Vector){0, 200}, BLOCK_DIM, rainbow(100));
+  Body *block = init_block((Vector){0, 50}, BLOCK_DIM, rainbow(100));
   body_set_velocity(block, BLOCK_VEL);
   scene_add_body(scene, block);
   create_player_platform_collision(scene, ball, block);
@@ -136,19 +136,19 @@ void on_key(char key, KeyEventType type, void* aux_info) {
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
-              body_set_velocity(ball, vec_negate(SPEED));
+              body_set_velocity(ball, vec_add(body_get_velocity(ball), vec_negate(SPEED)));
               break;
           case RIGHT_ARROW:
-              body_set_velocity(ball, SPEED);
+              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED));
               break;
           case ' ':
-              body_set_velocity(ball, SPEED_UP);
+              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
               break;
       }
     }
     if(type == KEY_RELEASED)
     {
-      body_set_velocity(ball, VEC_ZERO);
+      body_set_velocity(ball, BALL_VEL);
     }
 }
 
