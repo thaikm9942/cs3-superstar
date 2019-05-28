@@ -108,6 +108,31 @@ void create_physics_collision(
     Scene *scene, double elasticity, Body *body1, Body *body2
 );
 
+/*Extra functionality*/
+
+/**
+ * Creates a partial collision where one body is reflected as a result of collision
+ * and the other body is destroyed.
+ *
+ * @param scene the scene containing the bodies
+ * @param elasticity the "coefficient of restitution" of the collision;
+ * 0 is a perfectly inelastic collision and 1 is a perfectly elastic collision
+ * @param body the body to add the impulse from collision to
+ * @param target the body to be destroyed during collision
+ */
 void create_partial_collision(Scene *scene, double elasticity, Body *body, Body *target);
+
+/* ALL SUPERSTAR FUNCTIONS */
+/**
+ * Creates a partial destructive collision in which only a specified body is destroyed
+ *
+ * @param scene the scene containing the bodies
+ * @param elasticity the "coefficient of restitution" of the collision;
+ * 0 is a perfectly inelastic collision and 1 is a perfectly elastic collision
+ * @param body the body that is not destroyed
+ * @param target the body to be destroyed during collision
+ */
+void create_partial_destructive_collision(Scene *scene, Body *object, Body *target);
+void create_player_platform_collision(Scene *scene, Body* player, Body* platform);
 
 #endif // #ifndef __FORCES_H__

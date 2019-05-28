@@ -115,4 +115,5 @@ void scene_add_bodies_force_creator(
  */
 void scene_tick(Scene *scene, double dt);
 
+void scene_draw(Scene* scene);
 #endif // #ifndef __SCENE_H__

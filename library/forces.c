@@ -178,11 +178,25 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     }
 }
 
+/* This method is now obsolete.
 void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
-  PartialData *partial_data = (PartialData*) aux;
-  bool partial = partial_data->partial;
-  if(!partial){
-      body_remove(body1);
+  body_remove(body1);
+  body_remove(body2);
+}
+*/
+
+// This accounts for partial destructive collision as well, in which if the
+// collision is partial, then only the 2nd body is destroyed
+void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
+  if(aux != NULL){
+    PartialData *partial_data = (PartialData*) aux;
+    bool partial = partial_data->partial;
+    if(!partial){
+        body_remove(body1);
+    }
+  }
+  else {
+    body_remove(body1);
   }
   body_remove(body2);
 }
@@ -227,4 +241,15 @@ void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body
 void create_partial_destructive_collision(Scene *scene, Body *object, Body *target){
   PartialData *partial = partial_data_init(0.0, true);
   create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, free);
+}
+
+void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
+  Vector player_vel = body_get_velocity(player);
+  if(player_vel.y < 0){
+    body_set_velocity(player, body_get_velocity(platform));
+  }
+}
+
+void create_player_platform_collision(Scene *scene, Body* player, Body* platform){
+  create_collision(scene, player, platform, (CollisionHandler) attach_body, NULL, NULL);
 }

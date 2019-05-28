@@ -59,6 +59,7 @@ List *create_block(Vector position, Vector dimension){
   polygon_translate(block, position);
   return block;
 }
+
 Body *init_block(Vector position, Vector dimension, RGBColor color){
   BodyType *type = malloc(sizeof(*type));
   *type = BLOCK;

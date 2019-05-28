@@ -123,3 +123,11 @@ void scene_tick(Scene *scene, double dt) {
     }
   }
 }
+
+void scene_draw(Scene* scene){
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body *body = scene_get_body(scene, i);
+    List *polygon = body_get_shape(body);
+    sdl_draw_polygon(polygon, body_get_color(body));
+  }
+}
