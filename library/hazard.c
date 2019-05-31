@@ -25,3 +25,9 @@ void gravity_well_init(Vector position, double mass, Body* player, Scene* scene)
     scene_add_body(grav_body, scene);
     create_newtonian_gravity(scene, G, grav_body, player);
 }
+
+void moving_ball_init(Vector position, Vector velocity, double mass, Scene* scene){
+    Body* moving_ball_body = malloc(sizeof(Body));
+    moving_ball_body = moving_ball_hazard_init(position, HAZARD_RADIUS, mass, BALL_COLOR, 1);
+    scene_add_body(moving_ball_body, scene);
+}
