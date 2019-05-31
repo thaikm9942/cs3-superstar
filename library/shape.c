@@ -24,7 +24,7 @@ void body_info_free(BodyInfo* info){
 }
 
 BodyType* body_info_get_type(BodyInfo* info){
-  return info->type;
+  return *info->type;
 }
 
 size_t* body_info_get_life(BodyInfo* info){

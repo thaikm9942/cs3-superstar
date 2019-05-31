@@ -45,7 +45,7 @@ typedef enum {
 } BodyType;
 
 BodyType get_type(Body *body) {
-    return *(BodyType *) body_get_info(body);
+    return *(BodType *) body_get_info(body);
 }
 
 RGBColor rainbow(double seed){
