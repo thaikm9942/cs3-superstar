@@ -5,46 +5,87 @@
 #include "body.h"
 #include "sdl_wrapper.h"
 
-/**
- * Represents a shape with a Body and number of lives. We're
- * assuming that the Shape can be anything
- */
-typedef struct shape Shape;
+// Defines BodyTypes
+typedef enum {
+    PLATFORM,
+    PLAYER,
+    SPIKE,
+    POINT
+} BodyType;
+
+// Defines a body_info struct to be passed in Body
+typedef struct body_info BodyInfo;
+
+/* Initializes a star shape given a position vector, its dimensinos, color and
+the number of lives */
+BodyInfo* body_info_init(BodyType* type, size_t* life);
 
 /**
- * Initializes a rectangular platform as a Shape with a given dimension and color with its centroid at
- * positin and
- * @param position the center of the Shape to be drawn
- * @param dimension the width and the height of a rectangular Platform
- * @param color the color of Shape
- * @param life the number of lives the Shape has left
+ * Releases memory allocated for a BodyInfo
+ * @param info a pointer to a BodyInfo to be free
  */
-Shape* platform_init(Vector position, Vector dimension, RGBColor color, int life);
-
-Shape* star_init(Vector position, Vector dimension, RGBColor color, int life);
+void body_info_free(BodyInfo* info);
 
 /**
- * Returns the body of a Shape
- * @param shape a pointer to a Shape
+ * Returns the type of a Body from BodyInfo
+ * @param info a pointer to a BodyInfo
+ * @return a BodyType pointer
  */
-Body* shape_get_body(Shape* shape);
+BodyType* body_info_get_type(BodyInfo* info);
 
 /**
- * Returns the life of a Platform
- * @param shape a pointer to a Shape
+ * Returns the number of lives left on a Body from BodyInfo
+ * @param info a pointer to a BodyInfo
+ * @return an int* pointer
  */
-int shape_get_life(Shape* shape);
+size_t *body_info_get_life(BodyInfo* info);
 
 /**
- * Releases the memory allocated for a Shape
- * @param shape a pointer to a Shape to be freed
+ * Creates a Body with a star shape and given parameters
+ * @param sides number of sides on the star
+ * @param position the position to translate the shape to after
+ * @param radius radius of the star
+ * @param mass the mass of the star
+ * @param RGBColor the color of the star
+ * @param life the number of lives the star has
+ * @returns a Body with star shape with centroid at position, mass, color and list_free
  */
-void shape_free(Shape* shape);
+Body* star_init(int sides, Vector position, double radius, double mass, RGBColor color, int life);
+
+/**
+ * Creates a Body with a block shape and given parameters
+ * @param position the position to translate the shape to after
+ * @param radius radius of the star
+ * @param mass the mass of the star
+ * @param RGBColor the color of the star
+ * @param life the number of lives the star has
+ */
+Body *block_init(Vector position, Vector dimension, RGBColor color, int life);
+
+/**
+ * Creates a Body with a ball shape and given parameters
+ * @param position the position to translate the shape to after
+ * @param radius radius of the star
+ * @param mass the mass of the star
+ * @param RGBColor the color of the star
+ * @param life the number of lives the star has
+ */
+Body *ball_init(Vector position, double radius, double mass, RGBColor color, int life);
+
+/**
+ * Creates a Body with a spike shape and given parameters
+ * @param position the position to translate the shape to after
+ * @param radius radius of the star
+ * @param mass the mass of the star
+ * @param RGBColor the color of the star
+ * @param life the number of lives the star has
+ */
+Body *spike_init(Vector position, double radius, double mass, RGBColor color, int life);
 
 /**
  * Draws the specified Shape using sdl_draw_polygon
  * @param shape a pointer to a Shape to be drawn
  */
-void draw_shape(Shape* shape);
+void draw_shape(Body* body);
 
 #endif // #ifndef __SHAPE_H__

@@ -4,19 +4,6 @@
 #include "assert.h"
 #include <math.h>
 
-struct body {
-    List *points;
-    double m;
-    RGBColor c;
-    Vector vel;
-    double theta;
-    Vector force;
-    Vector impulse;
-    void *info;
-    FreeFunc info_freer;
-    bool removed;
-};
-
 Body *body_init(List *shape, double mass, RGBColor color){
     Body *thisBod = malloc(sizeof(Body));
     assert(thisBod != NULL);

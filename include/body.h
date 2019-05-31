@@ -2,7 +2,6 @@
 #define __BODY_H__
 
 #include <stdbool.h>
-
 #include "polygon.h"
 #include "color.h"
 #include "list.h"
@@ -14,7 +13,18 @@
  * Bodies can accumulate forces and impulses during each tick.
  * Angular physics (i.e. torques) are not currently implemented.
  */
-typedef struct body Body;
+typedef struct body {
+  List *points;
+  double m;
+  RGBColor c;
+  Vector vel;
+  double theta;
+  Vector force;
+  Vector impulse;
+  void *info;
+  FreeFunc info_freer;
+  bool removed;
+} Body;
 
 /**
  * Initializes a body without any info.

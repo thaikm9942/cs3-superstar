@@ -22,8 +22,8 @@ const Vector BOUNDARY = {
 const int NUM_ROWS = 3;
 const Vector SPEED = (Vector){20, 0};
 const Vector SPEED_UP = (Vector){0, 20};
-const Vector BALL_POS = (Vector){0, 10};
-const Vector BALL_VEL = (Vector){0, -5};
+const Vector BALL_POS = (Vector){0, 50};
+const Vector BALL_VEL = (Vector){0, -50};
 const Vector BLOCK_VEL = (Vector){0, -20};
 const double BALL_MASS = 2;
 const double BALL_RADIUS = 5;
@@ -119,7 +119,7 @@ Scene *init_scene(Scene *scene){
   body_set_velocity(ball, BALL_VEL);
   scene_add_body(scene, ball);
   create_newtonian_gravity(scene, G, scene_get_body(scene, 0), ball);
-  Body *block = init_block((Vector){0, 50}, BLOCK_DIM, rainbow(100));
+  Body *block = init_block((Vector){0, 20}, BLOCK_DIM, rainbow(100));
   body_set_velocity(block, BLOCK_VEL);
   scene_add_body(scene, block);
   create_player_platform_collision(scene, ball, block);
@@ -145,11 +145,7 @@ void on_key(char key, KeyEventType type, void* aux_info) {
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
               break;
       }
-    }
-    if(type == KEY_RELEASED)
-    {
-      body_set_velocity(ball, BALL_VEL);
-    }
+  }
 }
 
 int main(int argc, char *argv[]){
