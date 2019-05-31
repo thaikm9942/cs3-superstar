@@ -13,13 +13,15 @@
 //GRAV_COLOR
 //G
 
-Body* spike_hazard_init(Vector position){
+void spike_hazard_init(Vector position, Scene* scene){
     Body* spike_body = malloc(sizeof(Body);
-    spike_init(position, HAZARD_RADIUS, INFINITY, SPIKE_COLOR, INFINITY);
+    spike_body = spike_init(position, HAZARD_RADIUS, INFINITY, SPIKE_COLOR, INFINITY);
+    scene_add_body(spike_body, scene)
 }
 
 void gravity_well_init(Vector position, double mass, Body* player, Scene* scene){
     Body* grav_body = malloc(sizeof(Body);
-    hazard_init(position, HAZARD_RADIUS, HAZARD_MASS, GRAV_COLOR, 1);
+    grav_body = hazard_init(position, HAZARD_RADIUS, HAZARD_MASS, GRAV_COLOR, 1);
+    scene_add_body(grav_body, scene);
     create_newtonian_gravity(scene, G, grav_body, player);
 }
