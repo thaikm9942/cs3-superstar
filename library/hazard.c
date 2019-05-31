@@ -7,8 +7,8 @@
 
 //Constants:
 
-//HAZARD_RADIUS
-//SPIKE_COLOR
+const double HAZARD_RADIUS = 5
+const double SPIKE_COLOR = 0.4
 //HAZARD_MASS
 //GRAV_COLOR
 //G
