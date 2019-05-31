@@ -182,13 +182,17 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     body_add_impulse(body1, impulse);
     //partial_destructive_collision without life
     if(partial){
-      if(life == NULL){
+      //partial_destructive_collision with life
+      if(life == NULL || *life == 0){
         body_remove(body2);
       }
-      else if(*life > 0){
+      else {
         *life = *life - 1;
         body_add_impulse(body2, impulse);
       }
+    }
+    else{
+      body_add_impulse(body2, impulse);
     }
 }
 
@@ -206,20 +210,23 @@ void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
   if(aux != NULL){
     PartialData *partial_data = (PartialData*) aux;
     bool partial = partial_data->partial;
-    size_t* life =
+    size_t* life = partial_data->life;
     if(!partial){
         body_remove(body1);
     }
-    else if(partial && life != NULL){
-      if(
+    if(partial){
+      if(life == NULL || *life == 0){
+        body_remove(body2);
+      }
+      else{
+        *life = *life - 1;
+      }
     }
-
   }
   else {
     body_remove(body1);
     body_remove(body2);
   }
-  body_remove(body2);
 }
 
 void calculate_collision(CollisionData* data){
