@@ -69,23 +69,30 @@ Body *block_init(Vector position, Vector dimension, RGBColor color, int life);
  * @param mass the mass of the star
  * @param RGBColor the color of the star
  * @param life the number of lives the star has
+* @param type the BodyType of the ball (PLAYER, MOVING_BALL, GRAVITY_BALL)
  */
-Body *ball_init(Vector position, double radius, double mass, RGBColor color, int life);
+Body *ball_init(Vector position, double radius, double mass, RGBColor color, int life, BodyType* type);
+
+Body *point_init(Vector position, double radius, double mass, RGBColor color, int life);
+Body *gravity_ball_init(Vector position, double radius, double mass, RGBColor color, int life);
+Body *moving_ball_init(Vector position, double radius, double mass, RGBColor color, int life);
 
 /**
- * Creates a Body with a spike shape and given parameters
+ * Creates a Body with a spike shape and given parameters representing SPIKE
  * @param position the position to translate the shape to after
  * @param radius radius of the star
  * @param mass the mass of the star
  * @param RGBColor the color of the star
  * @param life the number of lives the star has
  */
-Body *spike_init(Vector position, double radius, double mass, RGBColor color, int life);
 
-/**
- * Draws the specified Shape using sdl_draw_polygon
- * @param shape a pointer to a Shape to be drawn
- */
+ Body *spike_init(Vector position, double radius, double mass, RGBColor color, int life);
+
+ /**
+  * Draws the specified Shape using sdl_draw_polygon
+  * @param shape a pointer to a Shape to be drawn
+  */
+
 void draw_shape(Body* body);
 
 #endif // #ifndef __SHAPE_H__

@@ -118,7 +118,7 @@ Scene *init_scene(Scene *scene){
   Body *ball = init_ball(BALL_POS, BALL_MASS, BALL_RADIUS, BALL_COLOR);
   body_set_velocity(ball, BALL_VEL);
   scene_add_body(scene, ball);
-  create_newtonian_gravity(scene, G, scene_get_body(scene, 0), ball);
+  //create_newtonian_gravity(scene, G, scene_get_body(scene, 0), ball);
   Body *block = init_block((Vector){0, 20}, BLOCK_DIM, rainbow(100));
   body_set_velocity(block, BLOCK_VEL);
   scene_add_body(scene, block);
