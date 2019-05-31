@@ -16,7 +16,7 @@ typedef struct hazard {
 } Hazard;
 */
 
-void spike_init(Vector position);
+void spike_hazard_init(Vector position);
 //partial destroy_body collision type if out of Lives, otherwise, repel_body
 //Empty force exerted (does not exert a force)
 
