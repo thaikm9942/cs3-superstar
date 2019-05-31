@@ -31,3 +31,11 @@ void moving_ball_init(Vector position, Vector velocity, double mass, Scene* scen
     moving_ball_body = moving_ball_hazard_init(position, HAZARD_RADIUS, mass, BALL_COLOR, 1);
     scene_add_body(moving_ball_body, scene);
 }
+
+void spring_platforms_init(Vector position1, Vector position2, Vector dimension, double k, Scene* scene){
+    Body* spring_platform_body1 = malloc(sizeof(Body));
+    Body* spring_platform_body2 = malloc(sizeof(Body));
+    spring_platform_body1 = platform_hazard_init(position1, dimension);
+    spring_platform_body2 = platform_hazard_init(position2, dimension);
+    create_spring_force(scene, k, spring_platform_body1, spring_platform_body2);
+}
