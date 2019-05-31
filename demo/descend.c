@@ -77,7 +77,7 @@ int randomValue(int min, int max){
     return -1 * rand() % (max - min + 1) + min;
 
 }
-
+/*
 List *create_block(Vector position, Vector dimension){
   List *block = list_init(4, free);
   list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
@@ -92,8 +92,8 @@ Body *init_block(Vector position, Vector dimension, RGBColor color){
   BodType *type = malloc(sizeof(*type));
   *type = BLOCK;
   return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
-}
-
+}*/
+/*
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
   List *ball = list_init(75, free);
   BodType *type = malloc(sizeof(*type));
@@ -104,9 +104,9 @@ Body *init_ball(Vector position, double mass, double radius, RGBColor color){
   polygon_translate(ball, position);
   return body_init_with_info(ball, mass, color, type, free);
 }
-
+*/
 /** Constructs a rectangle with the given dimensions centered at (0, 0) */
-List *rect_init(double width, double height) {
+/*List *rect_init(double width, double height) {
     Vector half_width  = {.x = width / 2, .y = 0.0},
            half_height = {.x = 0.0, .y = height / 2};
     List *rect = list_init(4, free);
@@ -123,7 +123,7 @@ List *rect_init(double width, double height) {
     *v = vec_subtract(half_width, half_height);
     list_add(rect, v);
     return rect;
-}
+}*/
 
 Body *get_gravity_body() {
     // Will be offscreen, so shape is irrelevant
@@ -137,6 +137,11 @@ Body *get_gravity_body() {
     body_set_centroid(body, gravity_center);
 
     return body;
+}
+
+void addPoint(Scene *scene)
+{
+
 }
 
 void add_Platform_Altitude(Scene *scene, int y)
