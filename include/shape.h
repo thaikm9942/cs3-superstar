@@ -52,7 +52,7 @@ size_t *body_info_get_life(BodyInfo* info);
  * @param life the number of lives the star has
  * @returns a Body with star shape with centroid at position, mass, color and list_free
  */
-Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, int life);
+Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life);
 
 /**
  * Creates a Body with a block shape and given parameters
@@ -62,7 +62,7 @@ Body *star_init(int sides, Vector position, double radius, double mass, RGBColor
  * @param RGBColor the color of the star
  * @param life the number of lives the star has
  */
-Body *block_init(Vector position, Vector dimension, RGBColor color, int life);
+Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life);
 
 /**
  * Creates a Body with a ball shape and given parameters
@@ -73,11 +73,11 @@ Body *block_init(Vector position, Vector dimension, RGBColor color, int life);
  * @param life the number of lives the star has
 * @param type the BodyType of the ball (PLAYER, MOVING_BALL, GRAVITY_BALL)
  */
-Body *ball_init(Vector position, double radius, double mass, RGBColor color, int life, BodyType* type);
+Body *ball_init(Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type);
 
-Body *point_init(Vector position, double radius, double mass, RGBColor color, int life);
-Body *gravity_ball_init(Vector position, double radius, double mass, RGBColor color, int life);
-Body *moving_ball_init(Vector position, double radius, double mass, RGBColor color, int life);
+Body *point_init(Vector position, double radius, double mass, RGBColor color, size_t life);
+Body *gravity_ball_init(Vector position, double radius, double mass, RGBColor color, size_t life);
+Body *moving_ball_init(Vector position, double radius, double mass, RGBColor color, size_t life);
 
 /**
  * Creates a Body with a spike shape and given parameters representing SPIKE
@@ -88,7 +88,7 @@ Body *moving_ball_init(Vector position, double radius, double mass, RGBColor col
  * @param life the number of lives the star has
  */
 
- Body *spike_init(Vector position, double radius, double mass, RGBColor color, int life);
+ Body *spike_init(Vector position, double radius, double mass, RGBColor color, size_t life);
 
  /**
   * Draws the specified Shape using sdl_draw_polygon

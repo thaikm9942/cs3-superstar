@@ -17,13 +17,13 @@ LIBS = $(LIB_MATH) -lSDL2 -lSDL2_gfx
 
 # List of demo programs
 # bounce gravity pacman nbodies damping spaceinvaders
-DEMOS = damping spaceinvaders descend
+DEMOS = damping spaceinvaders
 # List of C files in "libraries" that we provide
 STAFF_LIBS = test_util sdl_wrapper
 # List of C files in "libraries" that you will write
 STUDENT_LIBS = vector list \
 	polygon color body scene \
-	forces collision shape\
+	forces collision shape \
 
 # List of compiled .o files corresponding to STUDENT_LIBS, e.g. "out/vector.o".
 # Don't worry about the syntax; it's just adding "out/" to the start
