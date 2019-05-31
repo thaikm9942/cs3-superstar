@@ -10,7 +10,9 @@ typedef enum {
     PLATFORM,
     PLAYER,
     SPIKE,
-    POINT
+    POINT,
+    GRAVITY_BALL,
+    MOVING_BALL
 } BodyType;
 
 // Defines a body_info struct to be passed in Body
@@ -50,7 +52,7 @@ size_t *body_info_get_life(BodyInfo* info);
  * @param life the number of lives the star has
  * @returns a Body with star shape with centroid at position, mass, color and list_free
  */
-Body* star_init(int sides, Vector position, double radius, double mass, RGBColor color, int life);
+Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, int life);
 
 /**
  * Creates a Body with a block shape and given parameters

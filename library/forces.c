@@ -244,7 +244,7 @@ void create_partial_collision(Scene *scene, double elasticity, Body *body, Body 
 //Target is the one being removed
 void create_partial_collision_with_life(Scene *scene, double elasticity, Body *body, Body *target){
   BodyInfo* info = body_get_info(target);
-  PartialData *partial = partial_data_init(elasticity, true, NULL);
+  PartialData *partial = partial_data_init(elasticity, true, body_info_get_life(info));
   create_collision(scene, body, target, (CollisionHandler) repel_body, (void*) partial, (FreeFunc) partial_data_free);
 }
 
