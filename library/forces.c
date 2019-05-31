@@ -51,9 +51,6 @@ const double MIN_DISTANCE = 10;
  }
 
  void partial_data_free(PartialData* data){
-   if(data->life != NULL){
-      free(data->life);
-   }
    free(data);
  }
 
