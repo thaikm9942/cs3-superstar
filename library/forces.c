@@ -180,16 +180,15 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
     body_add_impulse(body1, impulse);
-    if(!partial || life == NULL){
-      body_add_impulse(body2, vec_negate(impulse));
-
-    }
-    else if(partial && *life > 0){
-      *life = *life - 1;
-      body_add_impulse(body2, vec_negate(impulse));
-    }
-    else if(partial && *life == 0){
-      body_remove(body2);
+    //partial_destructive_collision without life
+    if(partial){
+      if(life == NULL){
+        body_remove(body2);
+      }
+      else if(*life > 0){
+        *life = *life - 1;
+        body_add_impulse(body2, impulse);
+      }
     }
 }
 
@@ -207,12 +206,18 @@ void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
   if(aux != NULL){
     PartialData *partial_data = (PartialData*) aux;
     bool partial = partial_data->partial;
+    size_t* life =
     if(!partial){
         body_remove(body1);
     }
+    else if(partial && life != NULL){
+      if(
+    }
+
   }
   else {
     body_remove(body1);
+    body_remove(body2);
   }
   body_remove(body2);
 }
@@ -263,6 +268,12 @@ void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body
 /* All Superstar game collisions will be implemented here*/
 void create_partial_destructive_collision(Scene *scene, Body *object, Body *target){
   PartialData *partial = partial_data_init(0.0, true, NULL);
+  create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, (FreeFunc) partial_data_free);
+}
+
+void create_partial_destructive_collision_with_life(Scene *scene, Body *object, Body *target){
+  BodyInfo* info = body_get_info(target);
+  PartialData *partial = partial_data_init(0.0, true, body_info_get_life(info));
   create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, (FreeFunc) partial_data_free);
 }
 

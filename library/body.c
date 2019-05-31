@@ -90,6 +90,12 @@ Vector body_get_impulse(Body *body){
 }
 
 /*Set functions*/
+void body_set_shape(Body *body, List* new_shape) {
+  List* old = body->points;
+  body->points = new_shape;
+  list_free(old);
+}
+
 void body_set_centroid(Body *body, Vector x){
     polygon_translate(body->points, vec_negate(body_get_centroid(body)));
     polygon_translate(body->points, x);
