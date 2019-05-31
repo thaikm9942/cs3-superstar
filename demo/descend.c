@@ -60,15 +60,22 @@ int randomValue(int min, int max){
 
 }
 
-void add_spikes(Scene * scene)
+void add_spikes(Scene *scene)
 {
   for(size_t x = -18; x <= 18; x ++)
   {
     Body *spike = spike_init((Vector){x * 10, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
     scene_add_body(scene, spike);
+    for(size_t i = 0; i < scene_bodies(scene); i++){
+      Body* body = scene_get_body(scene, i);
+      BodyInfo* info = body_get_info(body);
+      BodyType type = body_info_get_type(info);
+      if(type == PLATFORM){
+        create_partial_destructive_collision_with_life(scene, spike, body);
+      }
+    }
   }
 }
-
 
 void add_point(Scene *scene)
 {

@@ -31,9 +31,9 @@ void body_info_free(BodyInfo* info);
 /**
  * Returns the type of a Body from BodyInfo
  * @param info a pointer to a BodyInfo
- * @return a BodyType pointer
+ * @return a BodyType
  */
-BodyType* body_info_get_type(BodyInfo* info);
+BodyType body_info_get_type(BodyInfo* info);
 
 /**
  * Returns the number of lives left on a Body from BodyInfo

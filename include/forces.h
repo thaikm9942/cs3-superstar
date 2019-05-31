@@ -135,5 +135,6 @@ void create_partial_collision(Scene *scene, double elasticity, Body *body, Body 
  */
 void create_partial_destructive_collision(Scene *scene, Body *object, Body *target);
 void create_player_platform_collision(Scene *scene, Body* player, Body* platform);
-
+void create_partial_destructive_collision_with_life(Scene *scene, Body *object, Body *target);
+void create_partial_collision_with_life(Scene *scene, double elasticity, Body *body, Body *target);
 #endif // #ifndef __FORCES_H__
