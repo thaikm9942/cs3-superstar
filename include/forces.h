@@ -2,6 +2,7 @@
 #define __FORCES_H__
 
 #include "scene.h"
+#include "shape.h"
 #include "collision.h"
 
 /**

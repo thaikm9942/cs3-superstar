@@ -162,6 +162,7 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     PartialData *partial_data = (PartialData*) aux;
     double elasticity = partial_data->elasticity;
     bool partial = partial_data->partial;
+    size_t *life = partial_data->life;
     double reduced_mass;
     double m1 = body_get_mass(body1);
     double m2 = body_get_mass(body2);
@@ -179,13 +180,14 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
     body_add_impulse(body1, impulse);
-    if(partial){
+    if(partial && ){
       body_remove(body2);
     }
     else{
       body_add_impulse(body2, vec_negate(impulse));
     }
 }
+
 
 /* This method is now obsolete.
 void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
