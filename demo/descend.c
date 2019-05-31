@@ -62,10 +62,10 @@ int randomValue(int min, int max){
 
 void add_spikes(Scene *scene)
 {
-  for(size_t x = -18; x <= 18; x ++)
-  {
-    Body *spike = spike_init((Vector){x * 10, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
+  for(int i = -10; i < 10; i++){
+    Body *spike = spike_init((Vector){i * 10.0, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
     scene_add_body(scene, spike);
+    /*
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body* body = scene_get_body(scene, i);
       BodyInfo* info = body_get_info(body);
@@ -74,6 +74,7 @@ void add_spikes(Scene *scene)
         create_partial_destructive_collision_with_life(scene, spike, body);
       }
     }
+    */
   }
 }
 
@@ -165,7 +166,11 @@ int main(int argc, char *argv[]){
     double dt = time_since_last_tick();
     compute_new_positions(scene, dt);
     sdl_clear();
-    scene_draw(scene);
+    for(size_t i = 0; i < scene_bodies(scene); i++){
+      Body *body = scene_get_body(scene, i);
+      List *polygon = body_get_shape(body);
+      sdl_draw_polygon(polygon, body_get_color(body));
+    }
     sdl_show();
   }
   scene_free(scene);

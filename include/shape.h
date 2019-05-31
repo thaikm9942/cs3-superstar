@@ -94,7 +94,6 @@ Body *moving_ball_init(Vector position, double radius, double mass, RGBColor col
   * Draws the specified Shape using sdl_draw_polygon
   * @param shape a pointer to a Shape to be drawn
   */
-
 void draw_shape(Body* body);
 
 #endif // #ifndef __SHAPE_H__

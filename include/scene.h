@@ -114,6 +114,4 @@ void scene_add_bodies_force_creator(
  * @param dt the time elapsed since the last tick, in seconds
  */
 void scene_tick(Scene *scene, double dt);
-
-void scene_draw(Scene* scene);
 #endif // #ifndef __SCENE_H__
