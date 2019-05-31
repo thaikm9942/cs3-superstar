@@ -37,5 +37,7 @@ void spring_platforms_init(Vector position1, Vector position2, Vector dimension,
     Body* spring_platform_body2 = malloc(sizeof(Body));
     spring_platform_body1 = platform_hazard_init(position1, dimension);
     spring_platform_body2 = platform_hazard_init(position2, dimension);
+    scene_add_body(spring_platform_body1, scene);
+    scene_add_body(spring_platform_body2, scene);
     create_spring_force(scene, k, spring_platform_body1, spring_platform_body2);
 }
