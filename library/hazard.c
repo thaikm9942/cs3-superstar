@@ -16,7 +16,7 @@
 void spike_hazard_init(Vector position, Scene* scene){
     Body* spike_body = malloc(sizeof(Body);
     spike_body = spike_init(position, HAZARD_RADIUS, INFINITY, SPIKE_COLOR, INFINITY);
-    scene_add_body(spike_body, scene)
+    scene_add_body(spike_body, scene);
 }
 
 void gravity_well_init(Vector position, double mass, Body* player, Scene* scene){
