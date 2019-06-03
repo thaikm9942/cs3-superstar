@@ -1,5 +1,5 @@
 #include "sdl_wrapper.h"
-#include "forces.h"
+#include "forces_game.h"
 #include "color.h"
 #include "collision.h"
 #include "polygon.h"

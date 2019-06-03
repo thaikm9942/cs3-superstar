@@ -23,7 +23,7 @@ STAFF_LIBS = test_util sdl_wrapper
 # List of C files in "libraries" that you will write
 STUDENT_LIBS = vector list \
 	polygon color body scene \
-	forces collision shape \
+	forces collision shape forces_game\
 
 # List of compiled .o files corresponding to STUDENT_LIBS, e.g. "out/vector.o".
 # Don't worry about the syntax; it's just adding "out/" to the start

@@ -5,6 +5,17 @@
 #include "shape.h"
 #include "collision.h"
 
+
+typedef struct partial_data{
+  double elasticity;
+  bool partial;
+} PartialData;
+
+// Initializer for PartialData
+PartialData *partial_data_init(double elasticity, bool partial);
+
+typedef struct force_data ForceData;
+
 /**
  * A function called when a collision occurs.
  * @param body1 the first body passed to create_collision()
@@ -13,8 +24,6 @@
  *   that defines the direction the two bodies are colliding in
  * @param aux the auxiliary value passed to create_collision()
  */
-typedef struct partial_data PartialData;
-typedef struct force_data ForceData;
 typedef void (*CollisionHandler)
     (Body *body1, Body *body2, Vector axis, void *aux);
 typedef struct collision_data CollisionData;
@@ -123,7 +132,6 @@ void create_physics_collision(
  */
 void create_partial_collision(Scene *scene, double elasticity, Body *body, Body *target);
 
-/* ALL SUPERSTAR FUNCTIONS */
 /**
  * Creates a partial destructive collision in which only a specified body is destroyed
  *
@@ -134,7 +142,4 @@ void create_partial_collision(Scene *scene, double elasticity, Body *body, Body 
  * @param target the body to be destroyed during collision
  */
 void create_partial_destructive_collision(Scene *scene, Body *object, Body *target);
-void create_player_platform_collision(Scene *scene, Body* player, Body* platform);
-void create_partial_destructive_collision_with_life(Scene *scene, Body *object, Body *target);
-void create_partial_collision_with_life(Scene *scene, double elasticity, Body *body, Body *target);
 #endif // #ifndef __FORCES_H__

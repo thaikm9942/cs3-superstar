@@ -5,12 +5,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-struct partial_data {
-  double elasticity;
-  bool partial;
-  size_t* life;
-};
-
 struct force_data {
   double force_constant;
   Body *body1;
@@ -41,17 +35,12 @@ const double MIN_DISTANCE = 10;
  * @param body2 the second body
  */
 
- PartialData *partial_data_init(double elasticity, bool partial, size_t* life){
+ PartialData *partial_data_init(double elasticity, bool partial){
    PartialData *partial_data = malloc(sizeof(PartialData));
    assert(partial_data != NULL);
    partial_data->elasticity = elasticity;
    partial_data->partial = partial;
-   partial_data->life = life;
    return partial_data;
- }
-
- void partial_data_free(PartialData* data){
-   free(data);
  }
 
 ForceData *force_data_init(double force_constant, Body *body1, Body *body2){
@@ -159,7 +148,6 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     PartialData *partial_data = (PartialData*) aux;
     double elasticity = partial_data->elasticity;
     bool partial = partial_data->partial;
-    size_t *life = partial_data->life;
     double reduced_mass;
     double m1 = body_get_mass(body1);
     double m2 = body_get_mass(body2);
@@ -177,19 +165,11 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
     body_add_impulse(body1, impulse);
-    //partial_destructive_collision without life
     if(partial){
-      //partial_destructive_collision with life
-      if(life == NULL || *life == 0){
-        body_remove(body2);
-      }
-      else {
-        *life = *life - 1;
-        body_add_impulse(body2, impulse);
-      }
+      body_remove(body2);
     }
     else{
-      body_add_impulse(body2, impulse);
+      body_add_impulse(body2, vec_negate(impulse));
     }
 }
 
@@ -207,23 +187,14 @@ void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
   if(aux != NULL){
     PartialData *partial_data = (PartialData*) aux;
     bool partial = partial_data->partial;
-    size_t* life = partial_data->life;
     if(!partial){
         body_remove(body1);
-    }
-    if(partial){
-      if(life == NULL || *life == 0){
-        body_remove(body2);
-      }
-      else{
-        *life = *life - 1;
-      }
     }
   }
   else {
     body_remove(body1);
-    body_remove(body2);
   }
+  body_remove(body2);
 }
 
 void calculate_collision(CollisionData* data){
@@ -253,42 +224,16 @@ void create_destructive_collision(Scene *scene, Body *body1, Body *body2) {
 }
 
 void create_partial_collision(Scene *scene, double elasticity, Body *body, Body *target){
-  PartialData *partial = partial_data_init(elasticity, true, NULL);
-  create_collision(scene, body, target, (CollisionHandler) repel_body, (void*) partial, (FreeFunc) partial_data_free);
-}
-
-//Target is the one being removed
-void create_partial_collision_with_life(Scene *scene, double elasticity, Body *body, Body *target){
-  BodyInfo* info = body_get_info(target);
-  PartialData *partial = partial_data_init(elasticity, true, body_info_get_life(info));
-  create_collision(scene, body, target, (CollisionHandler) repel_body, (void*) partial, (FreeFunc) partial_data_free);
+  PartialData *partial = partial_data_init(elasticity, true);
+  create_collision(scene, body, target, (CollisionHandler) repel_body, (void*) partial, free);
 }
 
 void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body *body2){
-  PartialData *partial = partial_data_init(elasticity, false, NULL);
-  create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) partial, (FreeFunc) partial_data_free);
+  PartialData *partial = partial_data_init(elasticity, false);
+  create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) partial, free);
 }
 
-/* All Superstar game collisions will be implemented here*/
 void create_partial_destructive_collision(Scene *scene, Body *object, Body *target){
-  PartialData *partial = partial_data_init(0.0, true, NULL);
-  create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, (FreeFunc) partial_data_free);
-}
-
-void create_partial_destructive_collision_with_life(Scene *scene, Body *object, Body *target){
-  BodyInfo* info = body_get_info(target);
-  PartialData *partial = partial_data_init(0.0, true, body_info_get_life(info));
-  create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, (FreeFunc) partial_data_free);
-}
-
-void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
-  Vector player_vel = body_get_velocity(player);
-  if(player_vel.y < 0){
-    body_set_velocity(player, body_get_velocity(platform));
-  }
-
-}
-
-void create_player_platform_collision(Scene *scene, Body* player, Body* platform){
-  create_collision(scene, player, platform, (CollisionHandler) attach_body, NULL, NULL);
+  PartialData *partial = partial_data_init(0.0, true);
+  create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, free);
 }

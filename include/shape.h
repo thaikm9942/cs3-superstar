@@ -20,7 +20,7 @@ typedef struct body_info BodyInfo;
 
 /* Initializes a star shape given a position vector, its dimensinos, color and
 the number of lives */
-BodyInfo* body_info_init(BodyType* type, size_t* life);
+BodyInfo* body_info_init(BodyType* type, size_t life);
 
 /**
  * Releases memory allocated for a BodyInfo
@@ -40,7 +40,14 @@ BodyType body_info_get_type(BodyInfo* info);
  * @param info a pointer to a BodyInfo
  * @return an int* pointer
  */
-size_t *body_info_get_life(BodyInfo* info);
+size_t body_info_get_life(BodyInfo* info);
+
+/**
+ * Sets the number of lives left on a Body to a new one.
+ * @param info a pointer to a BodyInfo
+ * @param new_life a new number of lives to be set
+ */
+void body_info_set_life(BodyInfo* info, size_t new_life);
 
 /**
  * Creates a Body with a star shape and given parameters

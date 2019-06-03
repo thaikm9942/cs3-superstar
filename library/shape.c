@@ -6,10 +6,10 @@
 
 struct body_info{
   BodyType* type;
-  size_t* life;
+  size_t life;
 };
 
-BodyInfo* body_info_init(BodyType* type, size_t* life){
+BodyInfo* body_info_init(BodyType* type, size_t life){
   BodyInfo* info = malloc(sizeof(BodyInfo));
   assert(info != NULL);
   info->type = type;
@@ -19,7 +19,6 @@ BodyInfo* body_info_init(BodyType* type, size_t* life){
 
 void body_info_free(BodyInfo* info){
   free(info->type);
-  free(info->life);
   free(info);
 }
 
@@ -27,8 +26,12 @@ BodyType body_info_get_type(BodyInfo* info){
   return *(info->type);
 }
 
-size_t* body_info_get_life(BodyInfo* info){
+size_t body_info_get_life(BodyInfo* info){
   return info->life;
+}
+
+void body_info_set_life(BodyInfo* info, size_t new_life){
+  info->life = new_life;
 }
 
 List *rotate_points(int sides, Vector point){
@@ -93,9 +96,7 @@ Body *star_init(int sides, Vector position, double radius, double mass, RGBColor
   BodyType *type = malloc(sizeof(*type));
   assert(type != NULL);
   *type = PLAYER;
-  size_t* body_life = malloc(sizeof(size_t));
-  *body_life = life;
-  BodyInfo* body_info = body_info_init(type, body_life);
+  BodyInfo* body_info = body_info_init(type, life);
   return body_init_with_info(create_star(sides, position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
 }
 
@@ -105,16 +106,12 @@ Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life)
   BodyType *type = malloc(sizeof(*type));
   assert(type != NULL);
   *type = PLATFORM;
-  size_t* body_life = malloc(sizeof(size_t));
-  *body_life = life;
-  BodyInfo* body_info = body_info_init(type, body_life);
+  BodyInfo* body_info = body_info_init(type, life);
   return body_init_with_info(create_block(position, dimension), INFINITY, color, (void*) body_info, (FreeFunc) body_info_free);
 }
 
 Body *ball_init(Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type){
-  size_t* body_life = malloc(sizeof(size_t));
-  *body_life = life;
-  BodyInfo* body_info = body_info_init(type, body_life);
+  BodyInfo* body_info = body_info_init(type, life);
   return body_init_with_info(create_ball(position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
 }
 
@@ -145,8 +142,6 @@ Body *spike_init(Vector position, double radius, double mass, RGBColor color, si
   BodyType *type = malloc(sizeof(*type));
   assert(type != NULL);
   *type = SPIKE;
-  size_t* body_life = malloc(sizeof(size_t));
-  *body_life = life;
-  BodyInfo* body_info = body_info_init(type, body_life);
+  BodyInfo* body_info = body_info_init(type, life);
   return body_init_with_info(create_star(3, position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
 }
