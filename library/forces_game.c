@@ -5,15 +5,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define G_CONSTANT 9.8 // N m^2 / kg^2
+#define G_CONSTANT 9.8E2 // N m^2 / kg^2
 
 void calculate_g_collision(ForceData *data){
   Body *player = data->body1;
   double g = data->force_constant;
   BodyInfo* player_info = body_get_info(player);
   if(!body_info_get_collision(player_info)){
-    Vector force = (Vector){0, -g};
-    body_add_force(player, force);
+    Vector force = (Vector){0, g};
+    body_add_force(player, vec_negate(force));
   }
 }
 
@@ -85,15 +85,14 @@ void destroy_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
 void calculate_special_collision(CollisionData* data){
   Body *player = data->body1;
   Body *platform = data->body2;
+  BodyInfo* player_info = body_get_info(player);
   CollisionInfo info = find_collision(body_get_shape(player), body_get_shape(platform));
-  if(info.collided && !data->colliding){
+  if(info.collided && !body_info_get_collision(player_info)){
+    body_info_set_collision(player_info, true);
     data->collision_handler(player, platform, info.axis, data->aux);
-    data->colliding = true;
-    body_info_set_collision((BodyInfo*)body_get_info(player), true);
   }
   if(!info.collided){
-    data->colliding = false;
-    body_info_set_collision((BodyInfo*)body_get_info(player), false);
+    body_info_set_collision(player_info, false);
   }
 }
 
