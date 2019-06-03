@@ -21,10 +21,8 @@ const Vector BOUNDARY = {
 };
 
 const int NUM_ROWS = 3;
-const Vector SPEED = (Vector){20, 0};
-const Vector SPEED_UP = (Vector){0, 20};
+const Vector IMPULSE_X = (Vector){2000, 0};
 const Vector IMPULSE_UP = (Vector){0, 10000};
-const Vector SPEED_DOWN = (Vector){0, -10};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
 const Vector BLOCK_VEL = (Vector){0, -10};
@@ -127,7 +125,7 @@ void add_platform_altitude(Scene *scene, int y)
 void add_platform_first(Scene *scene)
 {
   // Top of screeen is Dimension.y, so make new platforms appear there.
-  Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y- 10 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1);
+  Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y - 2 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1);
   body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
   Body* player = scene_get_body(scene, 0);
@@ -210,10 +208,10 @@ void on_key(char key, KeyEventType type, void* aux_info) {
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
-              body_set_velocity(ball, vec_add(body_get_velocity(ball), vec_negate(SPEED)));
+              body_add_impulse(ball, vec_negate(IMPULSE_X));
               break;
           case RIGHT_ARROW:
-              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED));
+              body_add_impulse(ball, IMPULSE_X);
               break;
           /*case UP_ARROW:
               //if(on_platform(ball))
@@ -226,26 +224,13 @@ void on_key(char key, KeyEventType type, void* aux_info) {
               body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_DOWN));
               break;*/
           case ' ':
-              //body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
-              /*BodyInfo* info = body_get_info(ball);
-              bool colliding = body_info_get_collision(info);
-              if(colliding){
-                printf("jump\n");
-                body_add_impulse(ball, IMPULSE_UP);
-              }*/
+          /*
               printf("lol\n");
               BodyInfo* info = body_get_info(ball);
               bool colliding = body_info_get_collision(info);
-              if(colliding)
-              {
-                printf("hi\n");
-                body_add_impulse(ball, IMPULSE_UP);
-              }
-              else
-              {
-                printf("sarah sad");
-              }
-              break;
+              */
+              body_add_impulse(ball, IMPULSE_UP);
+
       }
     }
     if(type == KEY_RELEASED)

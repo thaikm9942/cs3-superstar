@@ -87,7 +87,8 @@ void calculate_special_collision(CollisionData* data){
   Body *platform = data->body2;
   BodyInfo* player_info = body_get_info(player);
   CollisionInfo info = find_collision(body_get_shape(player), body_get_shape(platform));
-  if(info.collided){
+  printf("collide: %d\n", body_info_get_collision(player_info));
+  if(info.collided && !body_info_get_collision(player_info)){
     body_info_set_collision(player_info, true);
     data->collision_handler(player, platform, info.axis, data->aux);
   }
@@ -117,7 +118,7 @@ void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
   List* player_shape = body_get_shape(player);
   List* player_platform = body_get_shape(platform);
   if(player_vel.y < 0 && polygon_centroid(player_shape).y > polygon_centroid(player_platform).y){
-    body_set_velocity(player, body_get_velocity(platform));
+    body_set_velocity(player, (Vector){player_vel.x, body_get_velocity(platform).y});
   }
 }
 
