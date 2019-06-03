@@ -118,7 +118,7 @@ void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
   List* platform_shape = body_get_shape(platform);
   Bounds player_y = get_y_bounds(find_boundaries(player_shape));
   Bounds platform_y = get_y_bounds(find_boundaries(platform_shape));
-  if(player_vel.y < 0 && player_y.min > platform_y.max){
+  if(player_vel.y < 0 && player_y.min >= platform_y.max){
     body_set_velocity(player, (Vector){player_vel.x, body_get_velocity(platform).y});
   }
 }
