@@ -35,7 +35,7 @@ BoundingBox *bounding_init(Bounds x_bounds, Bounds y_bounds);
 BoundingBox *find_boundaries(List *shape);
 Bounds get_x_bounds(BoundingBox *bounding_box);
 Bounds get_y_bounds(BoundingBox *bounding_box);
-
+Bounds find_y_bounds(List *shape);
 /**
  * Determines whether two convex polygons intersect.
  * The polygons are given as lists of vertices in counterclockwise order.

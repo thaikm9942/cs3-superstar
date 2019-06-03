@@ -31,6 +31,21 @@ Bounds get_y_bounds(BoundingBox *bounding_box){
   return bounding_box->y_bounds;
 }
 
+Bounds find_y_bounds(List *shape){
+  double y_min = INFINITY;
+  double y_max = -INFINITY;
+  for(size_t i = 0; i < list_size(shape); i++){
+    Vector point = *(Vector*)list_get(shape, i);
+    if(point.y < y_min){
+      y_min = point.y;
+    }
+    if(point.y > y_max){
+      y_max = point.y;
+    }
+  }
+  return (Bounds){y_min, y_max};
+}
+
 // Returns the unit vector of a given vector v
 Vector unit_vector(Vector v){
   return vec_multiply(1.0 / vec_magnitude(v), v);

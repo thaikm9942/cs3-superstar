@@ -61,6 +61,44 @@ void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
     }
 }
 
+/*
+void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
+    PartialData* partial_data = (PartialData*) aux;
+    double elasticity = partial_data->elasticity;
+    bool partial = partial_data->partial;
+    BodyInfo *info = body_get_info(body2);
+    double reduced_mass;
+    double m1 = body_get_mass(body1);
+    double m2 = body_get_mass(body2);
+    double u_a = vec_dot(body_get_velocity(body1), axis);
+    double u_b = vec_dot(body_get_velocity(body2), axis);
+    if(m1 == INFINITY){
+      reduced_mass = m2;
+    }
+    else if(m2 == INFINITY){
+      reduced_mass = m1;
+    }
+    else {
+      reduced_mass = (m1 * m2) / (m1 + m2);
+    }
+    double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
+    Vector impulse = vec_multiply(j_n, axis);
+    body_add_impulse(body1, impulse);
+    if(partial){
+      if(body_info_get_life(info) == 0) {
+        body_remove(body2);
+      }
+      else {
+        body_info_set_life(info, body_info_get_life(info) - 1);
+        body_add_impulse(body2, vec_negate(impulse));
+      }
+    }
+    else{
+      body_add_impulse(body2, vec_negate(impulse));
+    }
+}
+*/
+
 // NOTE: body2 is the Body being taken into consideration for lives
 // This accounts for partial destructive collision as well, in which if the
 // collision is partial, then check if the body2 has 0 lives left, then remove
@@ -112,15 +150,16 @@ void create_partial_collision_with_life(Scene *scene, double elasticity, Body *b
   create_collision(scene, body, target, (CollisionHandler) repel_body_with_life, (void*) data, free);
 }
 
+/*
+void create_player_spike_with_life(Scene *scene, double elasticity, Body *spike, Body *player){
+  PartialData *data = partial_data_init(elasticity, true);
+  create_collision(scene, body, target, (CollisionHandler) repel_player_with_life, (void*) data, free);
+}
+*/
+
 void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
   Vector player_vel = body_get_velocity(player);
-  List* player_shape = body_get_shape(player);
-  List* platform_shape = body_get_shape(platform);
-  Bounds player_y = get_y_bounds(find_boundaries(player_shape));
-  printf("player_y: %f\n", player_y.max);
-  Bounds platform_y = get_y_bounds(find_boundaries(platform_shape));
-  printf("platform_y: %f\n", platform_y.min);
-  if(player_vel.y < 0 && player_y.max >= platform_y.min){
+  if(player_vel.y < 0 && (body_get_centroid(player).y >= body_get_centroid(platform).y)){
     body_set_velocity(player, (Vector){player_vel.x, body_get_velocity(platform).y});
   }
 }

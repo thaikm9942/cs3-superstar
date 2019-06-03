@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
-#include "status.h"
+
 const Vector BOUNDARY = {
   .x = 100.0,
   .y = 100.0
@@ -36,7 +36,6 @@ const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 const RGBColor BLACK = (RGBColor){0.0, 0.0, 0.0};
 const int NSTART_PLATFORMS = 6;
-const int MIN_PLATFORM = 5;
 #define G 6.67E-11 // N m^2 / kg^2
 #define G2 6.67E-3 // N m^2 / kg^2
 #define M 6E24 // kg
@@ -167,30 +166,23 @@ void add_platform(Scene *scene)
 
 // Return 0 if game running, return -1 if game over
 int compute_new_positions(Scene *scene, double dt){
-  int pointCnt = 0;
-  int platCnt = 0;
-  int maxPlats = 15;
-  for(size_t i = 0; i < scene_bodies(scene); i++){
-    Body* body = scene_get_body(scene, i);
-    BodyInfo* info = body_get_info(body);
-    BodyType type = body_info_get_type(info);
-    if(type == POINT){
-      pointCnt ++;
-    }
-    if(type == PLATFORM){
-      platCnt ++;
-    }
-  }
-  if((rand() % 800 == 4 && platCnt < maxPlats) || platCnt < MIN_PLATFORM)
+  int cnt = 0;
+  if(rand() % 800 == 4)
   {
     add_platform(scene);
   }
   if(rand() % 4800 == 4)
   {
     add_point(scene);
-    pointCnt ++;
   }
-
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body* body = scene_get_body(scene, i);
+    BodyInfo* info = body_get_info(body);
+    BodyType type = body_info_get_type(info);
+    if(type == POINT){
+      cnt ++;
+    }
+  }
   Body* ball = scene_get_body(scene, 0);
   if(body_info_get_type(body_get_info(ball)) != PLAYER)
     return -1;
@@ -200,11 +192,11 @@ int compute_new_positions(Scene *scene, double dt){
     BodyInfo* info = body_get_info(body);
     BodyType type = body_info_get_type(info);
     if(type == POINT){
-      pointCnt --;
+      cnt --;
     }
   }
-  score += pointCnt;
-  if(pointCnt != 0){
+  score += cnt;
+  if(cnt != 0){
     printf("%i\n", score);
   }
   return 0;
@@ -221,29 +213,14 @@ void on_key(char key, KeyEventType type, void* aux_info) {
           case RIGHT_ARROW:
               body_add_impulse(ball, IMPULSE_X);
               break;
-          /*case UP_ARROW:
-              //if(on_platform(ball))
-              //jump
-              //Otherwise do nothing
-              //body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_UP));
-              body_add_impulse(ball, IMPULSE_UP);
-              break;
-          case DOWN_ARROW:
-              body_set_velocity(ball, vec_add(body_get_velocity(ball), SPEED_DOWN));
-              break;*/
           case ' ':
-          /*
-              printf("lol\n");
-              BodyInfo* info = body_get_info(ball);
-              bool colliding = body_info_get_collision(info);
-              */
+          //should check if on platform
               body_add_impulse(ball, IMPULSE_UP);
 
       }
     }
     if(type == KEY_RELEASED)
     {
-      //body_set_velocity(ball, STAR_VEL);
       Vector vec = body_get_velocity(ball);
       vec.x = 0;
       body_set_velocity(ball, vec);
@@ -253,9 +230,7 @@ void draw(Scene * scene, int frame)
 {
     size_t j = 0;
     Body* star = scene_get_body(scene, 0);
-    if((scene_get_status(scene)->isInvincible) && (frame % 5 == 0 || frame % 5 == 1 || frame % 5 == 2)){
-      List *polygon = body_get_shape(star);
-      sdl_draw_polygon(polygon, BLACK);
+    if(1 == 0){
       j++;
     }
     for(size_t i = j; i < scene_bodies(scene); i++)
@@ -281,7 +256,7 @@ int main(int argc, char *argv[]){
     }
     sdl_clear();
     draw(scene, frame);
-    frame ++;
+    frame++;
     sdl_show();
   }
   scene_free(scene);
