@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define G_CONSTANT 9.8E2 // N m^2 / kg^2
+#define G_CONSTANT 9.8E3 // N m^2 / kg^2
 
 void calculate_g_collision(ForceData *data){
   Body *player = data->body1;

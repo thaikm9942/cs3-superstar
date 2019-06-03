@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-
-
 const double MIN_DISTANCE = 10;
 
 /**
