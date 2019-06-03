@@ -87,7 +87,6 @@ void calculate_special_collision(CollisionData* data){
   Body *platform = data->body2;
   BodyInfo* player_info = body_get_info(player);
   CollisionInfo info = find_collision(body_get_shape(player), body_get_shape(platform));
-  printf("collide: %d\n", body_info_get_collision(player_info));
   if(info.collided && !body_info_get_collision(player_info)){
     body_info_set_collision(player_info, true);
     data->collision_handler(player, platform, info.axis, data->aux);
@@ -116,8 +115,10 @@ void create_partial_collision_with_life(Scene *scene, double elasticity, Body *b
 void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
   Vector player_vel = body_get_velocity(player);
   List* player_shape = body_get_shape(player);
-  List* player_platform = body_get_shape(platform);
-  if(player_vel.y < 0 && polygon_centroid(player_shape).y > polygon_centroid(player_platform).y){
+  List* platform_shape = body_get_shape(platform);
+  Bounds player_y = get_y_bounds(find_boundaries(player_shape));
+  Bounds platform_y = get_y_bounds(find_boundaries(platform_shape));
+  if(player_vel.y < 0 && player_y.min > platform_y.max){
     body_set_velocity(player, (Vector){player_vel.x, body_get_velocity(platform).y});
   }
 }

@@ -5,11 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct bounds {
-  double min;
-  double max;
-};
-
 struct bounding_box {
   Bounds x_bounds;
   Bounds y_bounds;
@@ -26,6 +21,14 @@ BoundingBox *bounding_init(Bounds x_bounds, Bounds y_bounds){
   bounding_box->x_bounds = x_bounds;
   bounding_box->y_bounds = y_bounds;
   return bounding_box;
+}
+
+Bounds get_x_bounds(BoundingBox *bounding_box){
+  return bounding_box->x_bounds;
+}
+
+Bounds get_y_bounds(BoundingBox *bounding_box){
+  return bounding_box->y_bounds;
 }
 
 // Returns the unit vector of a given vector v

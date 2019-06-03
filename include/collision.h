@@ -7,7 +7,10 @@
 #include "body.h"
 
 typedef struct bounding_box BoundingBox;
-typedef struct bounds Bounds;
+typedef struct bounds {
+  double min;
+  double max;
+} Bounds;
 typedef struct projection_info ProjectionInfo;
 typedef struct projection_info_axis ProjectionInfoAxis;
 
@@ -27,6 +30,11 @@ typedef struct {
     double overlap;
     Vector axis;
 } CollisionInfo;
+
+BoundingBox *bounding_init(Bounds x_bounds, Bounds y_bounds);
+BoundingBox *find_boundaries(List *shape);
+Bounds get_x_bounds(BoundingBox *bounding_box);
+Bounds get_y_bounds(BoundingBox *bounding_box);
 
 /**
  * Determines whether two convex polygons intersect.
