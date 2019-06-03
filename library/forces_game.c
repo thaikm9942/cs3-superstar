@@ -87,11 +87,11 @@ void calculate_special_collision(CollisionData* data){
   Body *platform = data->body2;
   BodyInfo* player_info = body_get_info(player);
   CollisionInfo info = find_collision(body_get_shape(player), body_get_shape(platform));
-  if(info.collided && !body_info_get_collision(player_info)){
+  if(info.collided){
     body_info_set_collision(player_info, true);
     data->collision_handler(player, platform, info.axis, data->aux);
   }
-  if(!info.collided){
+  else{
     body_info_set_collision(player_info, false);
   }
 }
