@@ -7,6 +7,7 @@
 struct body_info{
   BodyType* type;
   size_t life;
+  bool isColliding;
 };
 
 BodyInfo* body_info_init(BodyType* type, size_t life){
@@ -14,8 +15,10 @@ BodyInfo* body_info_init(BodyType* type, size_t life){
   assert(info != NULL);
   info->type = type;
   info->life = life;
+  info->isColliding = false;
   return info;
 }
+
 
 void body_info_free(BodyInfo* info){
   free(info->type);
@@ -30,8 +33,16 @@ size_t body_info_get_life(BodyInfo* info){
   return info->life;
 }
 
+bool body_info_get_collision(BodyInfo* info){
+  return info->isColliding;
+}
+
 void body_info_set_life(BodyInfo* info, size_t new_life){
   info->life = new_life;
+}
+
+void body_info_set_collision(BodyInfo* info, bool colliding){
+  info->isColliding = colliding;
 }
 
 List *rotate_points(int sides, Vector point){
@@ -90,14 +101,26 @@ List *create_ball(Vector position, double radius){
   return ball;
 }
 
-// Initializes a star Body using a position, dimension, mass and color with a specified
-// info of PLAYER
-Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life){
+// Initializes a star Body using a position, dimension, mass and color with a specified type
+Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type){
+  BodyInfo* body_info = body_info_init(type, life);
+  return body_init_with_info(create_star(sides, position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
+}
+
+// Initializes a PLAYER star
+Body *player_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life){
   BodyType *type = malloc(sizeof(*type));
   assert(type != NULL);
   *type = PLAYER;
-  BodyInfo* body_info = body_info_init(type, life);
-  return body_init_with_info(create_star(sides, position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
+  return star_init(sides, position, radius, mass, color, life, type);
+}
+
+// Initializes a SPIKE star
+Body *spike_init(Vector position, double radius, double mass, RGBColor color, size_t life){
+  BodyType *type = malloc(sizeof(*type));
+  assert(type != NULL);
+  *type = SPIKE;
+  return star_init(3, position, radius, mass, color, life, type);
 }
 
 // Initializes a block Body using a position, dimension and color with a specified
@@ -136,12 +159,4 @@ Body *moving_ball_init(Vector position, double radius, double mass, RGBColor col
   assert(type != NULL);
   *type = MOVING_BALL;
   return ball_init(position, radius, mass, color, life, type);
-}
-
-Body *spike_init(Vector position, double radius, double mass, RGBColor color, size_t life){
-  BodyType *type = malloc(sizeof(*type));
-  assert(type != NULL);
-  *type = SPIKE;
-  BodyInfo* body_info = body_info_init(type, life);
-  return body_init_with_info(create_star(3, position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
 }

@@ -16,6 +16,7 @@ struct scene_forcer {
 struct scene {
   List* bodies;
   List* scene_forcers;
+  Status* status;
 };
 
 Scene *scene_init(void) {
@@ -27,6 +28,7 @@ Scene *scene_init(void) {
   assert(scene_forcers != NULL);
   scene->bodies = bodies;
   scene->scene_forcers = scene_forcers;
+  scene->status = status_init();
   return scene;
 }
 
@@ -61,11 +63,18 @@ void scene_free(Scene *scene) {
   list_free(scene->bodies);
   scene_forcer_free(scene);
   list_free(scene->scene_forcers);
+  // Frees status board
+  status_free(scene->status);
   free(scene);
 }
 
 size_t scene_bodies(Scene *scene) {
   return list_size(scene->bodies);
+}
+
+// Returns a status board keep tracking of the powerups active
+Status* scene_get_status(Scene *scene){
+  return scene->status;
 }
 
 Body *scene_get_body(Scene *scene, size_t index) {

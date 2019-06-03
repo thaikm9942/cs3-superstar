@@ -5,26 +5,24 @@
 #include <stdlib.h>
 #include <math.h>
 
-/*
-// A ForceCreator that calculates the gravitational force between 2 bodies
+#define G_CONSTANT 9.8 // N m^2 / kg^2
+
 void calculate_g_collision(ForceData *data){
-    Body *body1 = data->body1;
-    Body *body2 = data->body2;
-    double g = data->force_constant;
-    Vector dist_vec = vec_subtract(body_get_centroid(body1), body_get_centroid(body2));
-    double dist = vec_magnitude(dist_vec);
-    Vector unit_vec = vec_multiply(1.0 / dist, dist_vec);
-    double m1 = body_get_mass(body1);
-    double m2 = body_get_mass(body2);
-    double force_mag = g * m1 * m2 / pow(dist, 2.0);
-    // Force from body 1 to body 2
-    Vector force = vec_multiply(force_mag, unit_vec);
-    if(dist > MIN_DISTANCE){
-      body_add_force(body1, vec_negate(force));
-      body_add_force(body2, force);
-    }
+  Body *player = data->body1;
+  double g = data->force_constant;
+  BodyInfo* player_info = body_get_info(player);
+  if(!body_info_get_collision(player_info)){
+    Vector force = (Vector){0, -g};
+    body_add_force(player, force);
+  }
 }
-*/
+
+void create_gravity(Scene *scene, Body *player){
+  ForceData *data = force_data_init(G_CONSTANT, player, NULL);
+  List *bodies_affected = list_init(1, NULL);
+  list_add(bodies_affected, player);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_g_collision, data, bodies_affected, free);
+}
 
 //NOTE: body2 is the Body being taken into consideration for lives
 void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
@@ -84,6 +82,30 @@ void destroy_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
   }
 }
 
+void calculate_special_collision(CollisionData* data){
+  Body *player = data->body1;
+  Body *platform = data->body2;
+  CollisionInfo info = find_collision(body_get_shape(player), body_get_shape(platform));
+  if(info.collided && !data->colliding){
+    data->collision_handler(player, platform, info.axis, data->aux);
+    data->colliding = true;
+    body_info_set_collision((BodyInfo*)body_get_info(player), true);
+  }
+  if(!info.collided){
+    data->colliding = false;
+    body_info_set_collision((BodyInfo*)body_get_info(player), false);
+  }
+}
+
+void create_special_collision(Scene *scene, Body *player, Body *platform,
+CollisionHandler handler, void *aux, FreeFunc freer){
+  CollisionData *data = collision_data_init(handler, aux, false, freer, player, platform);
+  List *bodies_affected = list_init(2, NULL);
+  list_add(bodies_affected, player);
+  list_add(bodies_affected, platform);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_special_collision, data, bodies_affected, (FreeFunc) collision_data_free);
+}
+
 /* All Superstar game collisions will be implemented here*/
 //Target is the one being removed
 void create_partial_collision_with_life(Scene *scene, double elasticity, Body *body, Body *target){
@@ -101,7 +123,7 @@ void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
 }
 
 void create_player_platform_collision(Scene *scene, Body* player, Body* platform){
-  create_collision(scene, player, platform, (CollisionHandler) attach_body, NULL, NULL);
+  create_special_collision(scene, player, platform, (CollisionHandler) attach_body, NULL, NULL);
 }
 
 void create_partial_destructive_collision_with_life(Scene *scene, Body *object, Body *target){

@@ -5,17 +5,6 @@
 #include "shape.h"
 #include "collision.h"
 
-
-typedef struct partial_data{
-  double elasticity;
-  bool partial;
-} PartialData;
-
-// Initializer for PartialData
-PartialData *partial_data_init(double elasticity, bool partial);
-
-typedef struct force_data ForceData;
-
 /**
  * A function called when a collision occurs.
  * @param body1 the first body passed to create_collision()
@@ -26,7 +15,44 @@ typedef struct force_data ForceData;
  */
 typedef void (*CollisionHandler)
     (Body *body1, Body *body2, Vector axis, void *aux);
-typedef struct collision_data CollisionData;
+
+typedef struct partial_data{
+  double elasticity;
+  bool partial;
+} PartialData;
+
+// Initializer for PartialData
+PartialData *partial_data_init(double elasticity, bool partial);
+
+typedef struct force_data {
+  double force_constant;
+  Body *body1;
+  Body *body2;
+} ForceData;
+
+// Initializer for ForceData
+ForceData *force_data_init(double force_constant, Body *body1, Body *body2);
+
+typedef struct collision_data {
+  //Checks to see if collision has occurred between two bodies before
+  bool colliding;
+  CollisionHandler collision_handler;
+  void *aux;
+  FreeFunc freer;
+  Body *body1;
+  Body *body2;
+} CollisionData;
+
+
+// Initializer for CollisionData
+CollisionData *collision_data_init(CollisionHandler handler, void* aux,
+  bool colliding, FreeFunc freer, Body *body1, Body *body2);
+
+/**
+  * Releases memory allocated for CollisionData
+  * @param data a pointer to the CollisionData to be freed
+  */
+void collision_data_free(CollisionData* data);
 
 /**
  * Adds a Newtonian gravitational force between two bodies in a scene.

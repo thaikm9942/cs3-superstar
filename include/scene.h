@@ -4,12 +4,14 @@
 #include <stdbool.h>
 #include "body.h"
 #include "list.h"
+#include "status.h"
 
 /**
  * A collection of bodies and force creators.
  * The scene automatically resizes to store
  * arbitrarily many bodies and force creators.
  */
+
 typedef struct scene Scene;
 typedef struct scene_forcer SceneForcer;
 
@@ -56,6 +58,13 @@ size_t scene_bodies(Scene *scene);
  * @return a pointer to the body at the given index
  */
 Body *scene_get_body(Scene *scene, size_t index);
+
+/**
+ * Gets the Status board of a scene
+ * @param scene a pointer to a scene returned from scene_init()
+ * @return a pointer to the Status
+ */
+Status *scene_get_status(Scene *scene);
 
 /**
  * Adds a body to a scene.

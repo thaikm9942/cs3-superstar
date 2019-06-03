@@ -5,21 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-struct force_data {
-  double force_constant;
-  Body *body1;
-  Body *body2;
-};
 
-struct collision_data {
-  //Checks to see if collision has occurred between two bodies before
-  bool colliding;
-  CollisionHandler collision_handler;
-  void *aux;
-  FreeFunc freer;
-  Body *body1;
-  Body *body2;
-};
 
 const double MIN_DISTANCE = 10;
 
@@ -63,10 +49,6 @@ CollisionData *collision_data_init(CollisionHandler handler, void* aux,
   collision_data->body1 = body1;
   collision_data->body2 = body2;
   return collision_data;
-}
-
-void force_data_free(ForceData* data){
-  free(data);
 }
 
 void collision_data_free(CollisionData* data){
@@ -125,7 +107,7 @@ void create_newtonian_gravity(Scene *scene, double G, Body *body1, Body *body2){
   List *bodies_affected = list_init(2, NULL);
   list_add(bodies_affected, body1);
   list_add(bodies_affected, body2);
-  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_g, data, bodies_affected, (FreeFunc) force_data_free);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_g, data, bodies_affected, free);
 }
 
 void create_spring(Scene *scene, double k, Body *body1, Body *body2){
@@ -133,14 +115,14 @@ void create_spring(Scene *scene, double k, Body *body1, Body *body2){
   List *bodies_affected = list_init(2, NULL);
   list_add(bodies_affected, body1);
   list_add(bodies_affected, body2);
-  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_k, data, bodies_affected, (FreeFunc) force_data_free);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_k, data, bodies_affected, free);
 }
 
 void create_drag(Scene *scene, double gamma, Body *body) {
   ForceData *data = force_data_init(gamma, body, NULL);
   List *bodies_affected = list_init(1, NULL);
   list_add(bodies_affected, body);
-  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_gamma, data, bodies_affected, (FreeFunc) force_data_free);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_gamma, data, bodies_affected, free);
 }
 
 //Collision handlers

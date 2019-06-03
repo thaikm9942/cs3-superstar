@@ -12,7 +12,9 @@ typedef enum {
     SPIKE,
     POINT,
     GRAVITY_BALL,
-    MOVING_BALL
+    MOVING_BALL,
+    POWERUP_EXPAND,
+    POWERUP_INVINCIBILITY
 } BodyType;
 
 // Defines a body_info struct to be passed in Body
@@ -43,11 +45,25 @@ BodyType body_info_get_type(BodyInfo* info);
 size_t body_info_get_life(BodyInfo* info);
 
 /**
+ * Returns whether or not the body is in collision
+ * @param info a pointer to a BodyInfo
+ * @return TRUE or FALSE depending on whether the Body is in collision
+ */
+bool body_info_get_collision(BodyInfo* info);
+
+/**
  * Sets the number of lives left on a Body to a new one.
  * @param info a pointer to a BodyInfo
  * @param new_life a new number of lives to be set
  */
 void body_info_set_life(BodyInfo* info, size_t new_life);
+
+/**
+ * Sets whether or not the body is currently in collision with another body
+ * @param info a pointer to a BodyInfo
+ * @param colliding either TRUE or FALSE will be set here
+ */
+void body_info_set_collision(BodyInfo* info, bool colliding);
 
 /**
  * Creates a Body with a star shape and given parameters
@@ -57,17 +73,24 @@ void body_info_set_life(BodyInfo* info, size_t new_life);
  * @param mass the mass of the star
  * @param RGBColor the color of the star
  * @param life the number of lives the star has
- * @returns a Body with star shape with centroid at position, mass, color and list_free
+ * @param type the BodyType of the star
+ * @returns a Body with star shape of specified type with centroid at position, mass, color and
+ * number of lives
  */
-Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life);
+Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type);
+
+// Calls on star_init to create a PLAYER type star
+Body *player_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life);
 
 /**
  * Creates a Body with a block shape and given parameters
- * @param position the position to translate the shape to after
- * @param radius radius of the star
- * @param mass the mass of the star
- * @param RGBColor the color of the star
- * @param life the number of lives the star has
+ * @param position the position to translate the block to after
+ * @param radius radius of the block
+ * @param mass the mass of the block
+ * @param RGBColor the color of the block
+ * @param life the number of lives the block has
+ * @returns a Body with a block shape with centroid at position, mass, color and
+ * number of lives
  */
 Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life);
 
@@ -82,20 +105,25 @@ Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life)
  */
 Body *ball_init(Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type);
 
+// Initializes a POINT type ball using ball_init
 Body *point_init(Vector position, double radius, double mass, RGBColor color, size_t life);
+
+// Initializes a GRAVITY_BALL type hazard ball using ball_init
 Body *gravity_ball_init(Vector position, double radius, double mass, RGBColor color, size_t life);
+
+// Initializes a MOVING_BALL type hazard ball using ball_init
 Body *moving_ball_init(Vector position, double radius, double mass, RGBColor color, size_t life);
 
 /**
- * Creates a Body with a spike shape and given parameters representing SPIKE
+ * Creates a Body with a spike shape and given parameters representing SPIKE type
+ * hazard
  * @param position the position to translate the shape to after
  * @param radius radius of the star
  * @param mass the mass of the star
  * @param RGBColor the color of the star
  * @param life the number of lives the star has
  */
-
- Body *spike_init(Vector position, double radius, double mass, RGBColor color, size_t life);
+Body *spike_init(Vector position, double radius, double mass, RGBColor color, size_t life);
 
  /**
   * Draws the specified Shape using sdl_draw_polygon
