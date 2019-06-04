@@ -104,7 +104,7 @@ List *create_ball(Vector position, double radius){
 // Initializes a star Body using a position, dimension, mass and color with a specified type
 Body *star_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type){
   BodyInfo* body_info = body_info_init(type, life);
-  return body_init_with_info(create_star(sides, position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
+  return body_init_with_info(create_star(sides, position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free, radius);
 }
 
 // Initializes a PLAYER star
@@ -130,12 +130,12 @@ Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life)
   assert(type != NULL);
   *type = PLATFORM;
   BodyInfo* body_info = body_info_init(type, life);
-  return body_init_with_info(create_block(position, dimension), INFINITY, color, (void*) body_info, (FreeFunc) body_info_free);
+  return body_init_with_info(create_block(position, dimension), INFINITY, color, (void*) body_info, (FreeFunc) body_info_free, 1.0 / 2.0 * dimension.y);
 }
 
 Body *ball_init(Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type){
   BodyInfo* body_info = body_info_init(type, life);
-  return body_init_with_info(create_ball(position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free);
+  return body_init_with_info(create_ball(position, radius), mass, color, (void*) body_info, (FreeFunc) body_info_free, radius);
 }
 
 // Initializes a block Body using a position, dimension, mass and color with a specified

@@ -16,7 +16,7 @@
 #include <math.h>
 
 const Vector BOUNDARY = {
-  .x = 100.0,
+  .x = 200.0,
   .y = 100.0
 };
 
@@ -41,11 +41,6 @@ const int NSTART_PLATFORMS = 6;
 #define M 6E24 // kg
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
-
-
-// Global Variable to track points
-// TODO see if can be made not global
-int score;
 
 RGBColor rainbow(double seed){
   seed *= COLOR_FREQ;
@@ -78,43 +73,36 @@ void add_spikes(Scene *scene)
 }
 
 /* Spawns a point on the last added platform on the screen aka the highest platform */
-void add_point(Scene *scene)
-{
+void add_point(Scene *scene) {
   Body* ball = scene_get_body(scene, 0);
-  for(size_t i = scene_bodies(scene) - 1; i > 0; i--){
+  for(size_t i = scene_bodies(scene) - 1; i > 0; i--) {
     Body* body = scene_get_body(scene, i);
     BodyInfo* info = body_get_info(body);
     BodyType type = body_info_get_type(info);
     if(type == PLATFORM){
       // Spawn a point
       Body *point = point_init((Vector){body_get_centroid(body).x, body_get_centroid(body).y + 8},
-       3.0, 20.0, BALL_COLOR, 1);
-       scene_add_body(scene, point);
-       body_set_velocity(point, BLOCK_VEL);
-       // Creates collisions that destroy the point on collions. Scoring handled in
-       // update method
-       create_partial_destructive_collision(scene, ball, point);
-       /* THis screws up scoring so we're ignoritn it for now
-       // Link collisions with spikes
-       for(size_t j = 0; j < scene_bodies(scene); j++){
-         Body* body = scene_get_body(scene, j);
-         BodyInfo* info = body_get_info(body);
-         BodyType type = body_info_get_type(info);
-         if(type == SPIKE){
-           create_partial_destructive_collision_with_life(scene, body, point);
-         }
-       }*/
-       break;
-
+      3.0, 20.0, BALL_COLOR, 1);
+      scene_add_body(scene, point);
+      body_set_velocity(point, BLOCK_VEL);
+      // Creates collisions that destroy the point on collions. Scoring handled in
+      // the CollisionHandler
+      create_player_point_collision(scene, ball, point);
+      for(size_t j = 0; j < scene_bodies(scene); j++){
+        Body* spike = scene_get_body(scene, j);
+        BodyInfo* spike_info = body_get_info(spike);
+        BodyType spike_type = body_info_get_type(spike_info);
+        if(spike_type == SPIKE){
+          create_partial_destructive_collision_with_life(scene, spike, point);
+        }
+      }
+      break;
     }
   }
-  //Body *point = point_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, 3.0, 20.0, BALL_COLOR, 1);
-
 }
 
-void add_platform_altitude(Scene *scene, int y)
-{
-  // Top of screeen is Dimension.y, so make new platforms appear there.
+void add_platform_altitude(Scene *scene, int y) {
+  // Top of screen is Dimension.y, so make new platforms appear there.
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
   body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
@@ -122,9 +110,7 @@ void add_platform_altitude(Scene *scene, int y)
   create_player_platform_collision(scene, player, platform);
 }
 
-void add_platform_first(Scene *scene)
-{
-  // Top of screeen is Dimension.y, so make new platforms appear there.
+void add_platform_first(Scene *scene){
   Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y - 2 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1);
   body_set_velocity(platform, BLOCK_VEL);
   scene_add_body(scene, platform);
@@ -165,82 +151,65 @@ void add_platform(Scene *scene)
 
 
 // Return 0 if game running, return -1 if game over
-int compute_new_positions(Scene *scene, double dt){
-  int cnt = 0;
-  if(rand() % 800 == 4)
-  {
+int step(Scene *scene, double dt){
+  if(rand() % 200 == 4){
     add_platform(scene);
   }
-  if(rand() % 4800 == 4)
-  {
+  if(rand() % 200 == 4){
     add_point(scene);
   }
-  for(size_t i = 0; i < scene_bodies(scene); i++){
-    Body* body = scene_get_body(scene, i);
-    BodyInfo* info = body_get_info(body);
-    BodyType type = body_info_get_type(info);
-    if(type == POINT){
-      cnt ++;
-    }
-  }
-  Body* ball = scene_get_body(scene, 0);
-  if(body_info_get_type(body_get_info(ball)) != PLAYER)
+  Body* body = scene_get_body(scene, 0);
+  if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
+  }
   scene_tick(scene, dt);
-  for(size_t i = 0; i < scene_bodies(scene); i++){
-    Body* body = scene_get_body(scene, i);
-    BodyInfo* info = body_get_info(body);
-    BodyType type = body_info_get_type(info);
-    if(type == POINT){
-      cnt --;
-    }
-  }
-  score += cnt;
-  if(cnt != 0){
-    printf("%i\n", score);
-  }
   return 0;
 }
 
+// KeyHandler
 void on_key(char key, KeyEventType type, void* aux_info) {
   Scene *scene = aux_info;
-  Body* ball = scene_get_body(scene, 0);
+  Body* player = scene_get_body(scene, 0);
+  BodyInfo* info = body_get_info(player);
+  bool colliding = body_info_get_collision(info);
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
-              body_add_impulse(ball, vec_negate(IMPULSE_X));
+              body_add_impulse(player, vec_negate(IMPULSE_X));
               break;
           case RIGHT_ARROW:
-              body_add_impulse(ball, IMPULSE_X);
+              body_add_impulse(player, IMPULSE_X);
               break;
           case ' ':
-          //should check if on platform
-              body_add_impulse(ball, IMPULSE_UP);
-
+              if(colliding){
+                printf("collision\n");
+                body_add_impulse(player, IMPULSE_UP);
+                break;
+              }
+              else{
+                printf("no collision\n");
+              }
+              break;
       }
     }
     if(type == KEY_RELEASED)
     {
-      Vector vec = body_get_velocity(ball);
+      Vector vec = body_get_velocity(player);
       vec.x = 0;
-      body_set_velocity(ball, vec);
+      body_set_velocity(player, vec);
     }
 }
-void draw(Scene * scene, int frame)
-{
-    size_t j = 0;
-    Body* star = scene_get_body(scene, 0);
-    if(1 == 0){
-      j++;
-    }
-    for(size_t i = j; i < scene_bodies(scene); i++)
+
+// Draws the scene
+void draw(Scene *scene, int frame){
+    for(size_t i = 0; i < scene_bodies(scene); i++)
     {
       Body *body = scene_get_body(scene, i);
       List *polygon = body_get_shape(body);
       sdl_draw_polygon(polygon, body_get_color(body));
     }
-
 }
+
 int main(int argc, char *argv[]){
   int frame = 0;
   srand(time(0));
@@ -251,12 +220,12 @@ int main(int argc, char *argv[]){
   char* displayScore = (char *)malloc(sizeof(char)*10);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
-    if(compute_new_positions(scene, dt) == -1)
+    if(step(scene, dt) == -1)
     {
       break;
     }
     sdl_clear();
-    sprintf(displayScore, "Score: %d", score);
+    sprintf(displayScore, "Score: %zu", scene_get_score(scene));
     drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
     draw(scene, frame);
     frame++;

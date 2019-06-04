@@ -4,7 +4,7 @@
 #include "assert.h"
 #include <math.h>
 
-Body *body_init(List *shape, double mass, RGBColor color){
+Body *body_init(List *shape, double mass, RGBColor color, double radius){
     Body *thisBod = malloc(sizeof(Body));
     assert(thisBod != NULL);
     thisBod->points = shape;
@@ -17,11 +17,12 @@ Body *body_init(List *shape, double mass, RGBColor color){
     thisBod->info = NULL;
     thisBod->info_freer = NULL;
     thisBod->removed = false;
+    thisBod->radius = radius;
     return thisBod;
 }
 
 Body *body_init_with_info(
-    List *shape, double mass, RGBColor color, void *info, FreeFunc info_freer){
+    List *shape, double mass, RGBColor color, void *info, FreeFunc info_freer, double radius){
     Body *thisBod = malloc(sizeof(Body));
     assert(thisBod != NULL);
     thisBod->points = shape;
@@ -34,6 +35,7 @@ Body *body_init_with_info(
     thisBod->info = info;
     thisBod->info_freer = info_freer;
     thisBod->removed = false;
+    thisBod->radius = radius;
     return thisBod;
 }
 
@@ -89,11 +91,20 @@ Vector body_get_impulse(Body *body){
     return body->impulse;
 }
 
+double body_get_radius(Body *body){
+  return body->radius;
+}
+
 /*Set functions*/
 void body_set_shape(Body *body, List* new_shape) {
   List* old = body->points;
   body->points = new_shape;
   list_free(old);
+}
+
+// Only used for objects that have a radius or a y-height
+void body_set_radius(Body* body, double new_r){
+  body->radius = new_r;
 }
 
 void body_set_centroid(Body *body, Vector x){

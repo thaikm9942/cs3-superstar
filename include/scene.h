@@ -66,6 +66,17 @@ Body *scene_get_body(Scene *scene, size_t index);
  */
 Status *scene_get_status(Scene *scene);
 
+
+/**
+ * Gets the current score of the game
+ * @param scene a pointer to a scene returned from scene_init()
+ * @return the current score
+ */
+size_t scene_get_score(Scene *scene);
+
+// Set method for score
+void scene_set_score(Scene *scene, size_t new_score);
+
 /**
  * Adds a body to a scene.
  *

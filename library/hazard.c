@@ -8,7 +8,7 @@
 //Constants:
 
 const double HAZARD_RADIUS = 5
-const double SPIKE_COLOR = 0.4
+const RGBColor BLACK = (RGBColor){0.0, 0.0, 0.0};
 //HAZARD_MASS
 //GRAV_COLOR
 //G

@@ -24,13 +24,14 @@ typedef struct body {
   void *info;
   FreeFunc info_freer;
   bool removed;
+  double radius;
 } Body;
 
 /**
  * Initializes a body without any info.
  * Acts like body_init_with_info() where info and info_freer are NULL.
  */
-Body *body_init(List *shape, double mass, RGBColor color);
+Body *body_init(List *shape, double mass, RGBColor color, double radius);
 
 /**
  * Allocates memory for a body with the given parameters.
@@ -46,8 +47,8 @@ Body *body_init(List *shape, double mass, RGBColor color);
  * @return a pointer to the newly allocated body
  */
 Body *body_init_with_info(
-    List *shape, double mass, RGBColor color, void *info, FreeFunc info_freer
-);
+    List *shape, double mass, RGBColor color, void *info, FreeFunc info_freer,
+double radius);
 
 /**
  * Releases the memory allocated for a body.
@@ -109,6 +110,14 @@ RGBColor body_get_color(Body *body);
 void *body_get_info(Body *body);
 
 /**
+ * Gets the radius associated with a body
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @return the radius/ 1/2 y-dimension of a body
+ */
+double body_get_radius(Body *body);
+
+/**
  * Translates a body to a new position.
  * The position is specified by the position of the body's center of mass.
  *
@@ -136,6 +145,14 @@ void body_set_velocity(Body *body, Vector v);
 void body_set_rotation(Body *body, double angle);
 
 /**
+ * Sets the radius of a body to a new radius
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param new_r the body's new radius
+ */
+void body_set_radius(Body *body, double new_r);
+
+/**
  * Applies a force to a body over the current tick.
  * If multiple forces are applied in the same tick, they should be added.
  * Should not change the body's position or velocity; see body_tick().
@@ -158,6 +175,7 @@ void body_set_force(Body *body, Vector force);
  */
 void body_add_impulse(Body *body, Vector impulse);
 
+void body_set_impulse(Body* body, Vector impulse);
 /**
  * Updates the body after a given time interval has elapsed.
  * Sets acceleration and velocity according to the forces and impulses

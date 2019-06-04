@@ -17,6 +17,7 @@ struct scene {
   List* bodies;
   List* scene_forcers;
   Status* status;
+  size_t score;
 };
 
 Scene *scene_init(void) {
@@ -29,6 +30,7 @@ Scene *scene_init(void) {
   scene->bodies = bodies;
   scene->scene_forcers = scene_forcers;
   scene->status = status_init();
+  scene->score = 0;
   return scene;
 }
 
@@ -81,6 +83,15 @@ Body *scene_get_body(Scene *scene, size_t index) {
   assert(index < scene_bodies(scene));
   return list_get(scene->bodies, index);
 }
+
+size_t scene_get_score(Scene *scene) {
+  return scene->score;
+}
+
+void scene_set_score(Scene *scene, size_t new_score) {
+  scene->score = new_score;
+}
+
 
 void scene_add_body(Scene *scene, Body *body) {
   list_add(scene->bodies, body);

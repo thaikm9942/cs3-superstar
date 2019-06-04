@@ -17,7 +17,7 @@ LIBS = $(LIB_MATH) -lSDL2 -lSDL2_gfx -lSDL2_ttf
 
 # List of demo programs
 # bounce gravity pacman nbodies damping spaceinvaders
-DEMOS = damping spaceinvaders breakout descend
+DEMOS = descend
 # List of C files in "libraries" that we provide
 STAFF_LIBS = test_util sdl_wrapper
 # List of C files in "libraries" that you will write
