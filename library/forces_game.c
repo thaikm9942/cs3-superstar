@@ -17,6 +17,29 @@ void calculate_g_collision(ForceData *data){
   }
 }
 
+void repel_player(Body* body1, Body* body2, Vector axis, void* aux){
+    PartialData *partial_data = (PartialData*) aux;
+    double elasticity = partial_data->elasticity;
+    double reduced_mass;
+    double m1 = body_get_mass(body1);
+    double m2 = body_get_mass(body2);
+    double u_a = vec_dot(body_get_velocity(body1), axis);
+    double u_b = vec_dot(body_get_velocity(body2), axis);
+    if(m1 == INFINITY){
+      reduced_mass = m2;
+    }
+    else if(m2 == INFINITY){
+      reduced_mass = m1;
+    }
+    else {
+      reduced_mass = (m1 * m2) / (m1 + m2);
+    }
+    double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
+    Vector impulse = vec_multiply(j_n, axis);
+    body_add_impulse(body1, impulse);
+}
+
+
 void create_gravity(Scene *scene, Body *player){
   ForceData *data = force_data_init(G_CONSTANT, player, NULL);
   List *bodies_affected = list_init(1, NULL);
@@ -148,6 +171,11 @@ void create_player_point_collision(Scene *scene, Body* player, Body* point){
   create_collision(scene, player, point, (CollisionHandler) eat_point, (void*) scene, NULL);
 }
 
+// Creates player-gravity ball collision
+void create_player_gravity_collision(Scene *scene, double elasticity, Body* player, Body* grav_ball){
+  PartialData *partial = partial_data_init(elasticity, false);
+  create_collision(scene, player, grav_ball, (CollisionHandler) repel_player, (void*) partial, free);
+}
 // Creates partial destructive collision
 void create_partial_destructive_collision_with_life(Scene *scene, Body *object, Body *target){
   PartialData *data = partial_data_init(0.0, true);

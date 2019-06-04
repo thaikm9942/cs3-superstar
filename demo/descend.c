@@ -1,13 +1,8 @@
 #include "sdl_wrapper.h"
 #include "forces_game.h"
-#include "color.h"
 #include "collision.h"
-#include "polygon.h"
-#include "body.h"
-#include "color.h"
 #include "scene.h"
-#include "list.h"
-#include "vector.h"
+#include "hazard.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -25,7 +20,7 @@ const Vector IMPULSE_X = (Vector){2000, 0};
 const Vector IMPULSE_UP = (Vector){0, 10000};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
-const Vector BLOCK_VEL = (Vector){0, -10};
+const Vector DEFAULT_VEL = (Vector){0, -10};
 const double BALL_MASS = 200;
 const double BALL_RADIUS = 10;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
@@ -34,10 +29,7 @@ const Vector BLOCK_DIM = (Vector){10, 2};
 const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
-const RGBColor BLACK = (RGBColor){0.0, 0.0, 0.0};
 const int NSTART_PLATFORMS = 6;
-#define G 6.67E-11 // N m^2 / kg^2
-#define G2 6.67E-3 // N m^2 / kg^2
 #define M 6E24 // kg
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
@@ -48,27 +40,15 @@ RGBColor rainbow(double seed){
 }
 
 int randomValue(int min, int max){
-    if(rand() % 2 == 1)
-        return rand() % (max - min + 1) + min;
-    return -1 * rand() % (max - min + 1) + min;
-
+  if(rand() % 2 == 1) {
+    return rand() % (max - min + 1) + min;
+  }
+  return -1 * rand() % (max - min + 1) + min;
 }
 
-void add_spikes(Scene *scene)
-{
+void add_spikes(Scene *scene) {
   for(int i = -20; i < 20; i++){
-    Body *spike = spike_init((Vector){i * 10.0, (-1 * BOUNDARY.y)}, 10.0, INFINITY, BLACK, 1);
-    scene_add_body(scene, spike);
-    Body* ball = scene_get_body(scene, 0);
-    create_partial_collision_with_life(scene, 1, spike, ball);
-    for(size_t i = 0; i < scene_bodies(scene); i++){
-      Body* body = scene_get_body(scene, i);
-      BodyInfo* info = body_get_info(body);
-      BodyType type = body_info_get_type(info);
-      if(type == PLATFORM){
-        create_partial_destructive_collision_with_life(scene, spike, body);
-      }
-    }
+    spike_hazard_init((Vector){i * 10.0, (-1 * BOUNDARY.y)}, scene);
   }
 }
 
@@ -84,7 +64,7 @@ void add_point(Scene *scene) {
       Body *point = point_init((Vector){body_get_centroid(body).x, body_get_centroid(body).y + 8},
       3.0, 20.0, BALL_COLOR, 1);
       scene_add_body(scene, point);
-      body_set_velocity(point, BLOCK_VEL);
+      body_set_velocity(point, DEFAULT_VEL);
       // Creates collisions that destroy the point on collions. Scoring handled in
       // the CollisionHandler
       create_player_point_collision(scene, ball, point);
@@ -104,7 +84,7 @@ void add_point(Scene *scene) {
 void add_platform_altitude(Scene *scene, int y) {
   // Top of screen is Dimension.y, so make new platforms appear there.
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
-  body_set_velocity(platform, BLOCK_VEL);
+  body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
   Body* player = scene_get_body(scene, 0);
   create_player_platform_collision(scene, player, platform);
@@ -112,10 +92,14 @@ void add_platform_altitude(Scene *scene, int y) {
 
 void add_platform_first(Scene *scene){
   Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y - 2 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1);
-  body_set_velocity(platform, BLOCK_VEL);
+  body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
   Body* player = scene_get_body(scene, 0);
   create_player_platform_collision(scene, player, platform);
+}
+
+void add_gravity_hazard(Scene *scene){
+  gravity_hazard_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, scene);
 }
 
 Scene *init_scene(Scene *scene){
@@ -128,6 +112,7 @@ Scene *init_scene(Scene *scene){
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
   }
   add_spikes(scene);
+  //add_gravity_hazard(scene);
   return scene;
 }
 
@@ -135,7 +120,7 @@ void add_platform(Scene *scene)
 {
   // Top of screeen is Dimension.y, so make new platforms appear there.
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
-  body_set_velocity(platform, BLOCK_VEL);
+  body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
   Body* player = scene_get_body(scene, 0);
   create_player_platform_collision(scene, player, platform);
@@ -157,6 +142,9 @@ int step(Scene *scene, double dt){
   }
   if(rand() % 200 == 4){
     add_point(scene);
+  }
+  if(rand() % 200 == 4){
+    add_gravity_hazard(scene);
   }
   Body* body = scene_get_body(scene, 0);
   if(body_info_get_type(body_get_info(body)) != PLAYER){

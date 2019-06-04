@@ -24,7 +24,7 @@ STAFF_LIBS = test_util sdl_wrapper
 STUDENT_LIBS = vector list \
 	polygon color body scene \
 	forces collision shape forces_game \
-	powerup status \
+	powerup status hazard \
 
 # List of compiled .o files corresponding to STUDENT_LIBS, e.g. "out/vector.o".
 # Don't worry about the syntax; it's just adding "out/" to the start
