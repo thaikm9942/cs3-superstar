@@ -8,6 +8,8 @@
 // Defines BodyTypes
 typedef enum {
     PLATFORM,
+    // Special tag used for platform generation
+    PLATFORM_TRIGGER,
     PLAYER,
     SPIKE,
     POINT,
@@ -89,10 +91,12 @@ Body *player_init(int sides, Vector position, double radius, double mass, RGBCol
  * @param mass the mass of the block
  * @param RGBColor the color of the block
  * @param life the number of lives the block has
+ * @param isTrigger a boolean indicating whether the platform triggers the
+ * next generation of platform or not
  * @returns a Body with a block shape with centroid at position, mass, color and
  * number of lives
  */
-Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life);
+Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life, bool isTrigger);
 
 /**
  * Creates a Body with a ball shape and given parameters

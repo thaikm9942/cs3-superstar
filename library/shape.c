@@ -125,10 +125,17 @@ Body *spike_init(Vector position, double radius, double mass, RGBColor color, si
 
 // Initializes a block Body using a position, dimension and color with a specified
 // info of PLATFORM
-Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life){
+Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life, bool isTrigger){
   BodyType *type = malloc(sizeof(*type));
   assert(type != NULL);
-  *type = PLATFORM;
+  // If isTrigger is true, then set type to PLATFORM_TRIGGER; else, indicate regular
+  // PLATFORM
+  if(isTrigger) {
+    *type = PLATFORM_TRIGGER;
+  }
+  else {
+    *type = PLATFORM;
+  }
   BodyInfo* body_info = body_info_init(type, life);
   return body_init_with_info(create_block(position, dimension), INFINITY, color, (void*) body_info, (FreeFunc) body_info_free, 1.0 / 2.0 * dimension.y);
 }
