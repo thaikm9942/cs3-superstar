@@ -25,7 +25,7 @@ void spike_hazard_init(Vector position, Scene* scene) {
     if(type == PLAYER){
       create_partial_collision_with_life(scene, 1, spike, body);
     }
-    if(type == PLATFORM){
+    if(type == PLATFORM || type == PLATFORM_TRIGGER){
       create_partial_destructive_collision_with_life(scene, spike, body);
     }
   }
