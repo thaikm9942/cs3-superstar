@@ -87,7 +87,7 @@ void add_platform_altitude(Scene *scene, int y, bool trigger) {
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1, trigger);
   body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
-  for(size_t i = 0; scene_bodies(scene); i++){
+  for(size_t i = 0; i < scene_bodies(scene); i++){
       Body* body = scene_get_body(scene, i);
       BodyInfo* info = body_get_info(body);
       BodyType type = body_info_get_type(info);
