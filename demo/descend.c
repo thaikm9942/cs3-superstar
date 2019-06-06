@@ -30,6 +30,7 @@ const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 const int NSTART_PLATFORMS = 6;
+const int PLATFORM_DIST = 10;
 #define M 6E24 // kg
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
@@ -81,9 +82,9 @@ void add_point(Scene *scene) {
   }
 }
 
-void add_platform_altitude(Scene *scene, int y) {
+void add_platform_altitude(Scene *scene, int y, bool trigger) {
   // Top of screen is Dimension.y, so make new platforms appear there.
-  Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
+  Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1, trigger);
   body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
   Body* player = scene_get_body(scene, 0);
@@ -91,11 +92,19 @@ void add_platform_altitude(Scene *scene, int y) {
 }
 
 void add_platform_first(Scene *scene){
-  Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y - 2 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1);
+  Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y - 2 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1, false);
   body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
   Body* player = scene_get_body(scene, 0);
   create_player_platform_collision(scene, player, platform);
+}
+
+void add_fair_platforms(Scene *scene){
+  bool trigger = true;
+  for(double i = -BOUNDARY.y; i < BOUNDARY.y; i += PLATFORM_DIST){
+    add_platform_altitude(scene, i + 2 * BOUNDARY.y + (double) randomValue(-5, 5), trigger);
+    trigger = false;
+  }
 }
 
 void add_gravity_hazard(Scene *scene){
@@ -109,8 +118,9 @@ Scene *init_scene(Scene *scene){
   add_platform_first(scene);
   for(size_t i = 0; i < NSTART_PLATFORMS; i ++)
   {
-    add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS));
+    add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS), false);
   }
+  add_fair_platforms(scene);
   add_spikes(scene);
   //add_gravity_hazard(scene);
   return scene;
@@ -119,7 +129,7 @@ Scene *init_scene(Scene *scene){
 void add_platform(Scene *scene)
 {
   // Top of screeen is Dimension.y, so make new platforms appear there.
-  Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){30, 5}, PLATFORM_COLOR, 1);
+  Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){30, 5}, PLATFORM_COLOR, 1, false);
   body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
   Body* player = scene_get_body(scene, 0);
@@ -134,17 +144,29 @@ void add_platform(Scene *scene)
   }
 }
 
+int next_platforms(Scene *scene){
+  for(size_t i = 1; i < scene_bodies(scene); i++){
+    if (body_info_get_type(body_get_info(scene_get_body(scene, i))) == PLATFORM_TRIGGER){
+      return 0;
+    }
+  }
+  return 1;
+}
 
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
-  if(rand() % 200 == 4){
-    add_platform(scene);
-  }
-  if(rand() % 200 == 4){
-    add_point(scene);
-  }
-  if(rand() % 200 == 4){
-    add_gravity_hazard(scene);
+  // if(rand() % 200 == 4){
+  //   add_platform(scene);
+  // }
+  // if(rand() % 200 == 4){
+  //   add_point(scene);
+  // }
+  // if(rand() % 200 == 4){
+  //   add_gravity_hazard(scene);
+  // }
+  if(next_platforms(scene)){
+    printf("yes\n");
+    add_fair_platforms(scene);
   }
   Body* body = scene_get_body(scene, 0);
   if(body_info_get_type(body_get_info(body)) != PLAYER){
