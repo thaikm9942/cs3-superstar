@@ -17,7 +17,7 @@ const Vector BOUNDARY = {
 
 const int NUM_ROWS = 3;
 const Vector IMPULSE_X = (Vector){2000, 0};
-const Vector IMPULSE_UP = (Vector){0, 10000};
+const Vector IMPULSE_UP = (Vector){0, 100000};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
 const Vector DEFAULT_VEL = (Vector){0, -10};
@@ -146,6 +146,7 @@ void add_platform(Scene *scene)
 
 int next_platforms(Scene *scene){
   for(size_t i = 1; i < scene_bodies(scene); i++){
+    //printf("%d\n",body_info_get_type(body_get_info(scene_get_body(scene, i))));
     if (body_info_get_type(body_get_info(scene_get_body(scene, i))) == PLATFORM_TRIGGER){
       return 0;
     }
