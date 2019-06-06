@@ -87,8 +87,17 @@ void add_platform_altitude(Scene *scene, int y, bool trigger) {
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1, trigger);
   body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
-  Body* player = scene_get_body(scene, 0);
-  create_player_platform_collision(scene, player, platform);
+  for(size_t i = 0; scene_bodies(scene); i++){
+      Body* body = scene_get_body(scene, i);
+      BodyInfo* info = body_get_info(body);
+      BodyType type = body_info_get_type(info);
+      if(type == PLAYER){
+          create_player_platform_collision(scene, body, platform);
+      }
+      if(type == SPIKE){
+          create_partial_destructive_collision_with_life(scene, body, platform);
+      }
+  }
 }
 
 void add_platform_first(Scene *scene){
