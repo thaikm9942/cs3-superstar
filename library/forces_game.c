@@ -6,7 +6,7 @@
 #include <math.h>
 
 #define G_CONSTANT 9.8E3 // N m^2 / kg^2
-const double MIN_COLLISION_DISTANCE = 2;
+const double MIN_COLLISION_DISTANCE = 10;
 void calculate_g_collision(ForceData *data){
   Body *player = data->body1;
   double g = data->force_constant;
@@ -112,7 +112,7 @@ void calculate_special_collision(CollisionData* data){
   Body *platform = data->body2;
   BodyInfo* player_info = body_get_info(player);
   BodyInfo* platform_info = body_get_info(platform);
-  double distance = (body_get_centroid(player).y + 2 - body_get_radius(player)) -
+  double distance = (body_get_centroid(player).y + 5 - body_get_radius(player)) -
   (body_get_centroid(platform).y + body_get_radius(platform));
   CollisionInfo info = find_collision(body_get_shape(player), body_get_shape(platform));
   if(info.collided && !body_info_get_collision(player_info) && fabs(distance) < MIN_COLLISION_DISTANCE){
