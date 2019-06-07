@@ -38,11 +38,6 @@ const int PLATFORM_DIST = 10;
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
 
-RGBColor rainbow(double seed){
-  seed *= COLOR_FREQ;
-  return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
-}
-
 int randomValue(int min, int max){
   if(rand() % 2 == 1) {
     return rand() % (max - min + 1) + min;
@@ -132,7 +127,14 @@ void add_star_invincibility(Scene *scene){
   body_set_velocity(power, DEFAULT_VEL);
   create_player_powerup_collision(scene, scene_get_body(scene, 0), power);
   scene_add_body(scene, power);
-
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body* body = scene_get_body(scene, i);
+    BodyInfo* info = body_get_info(body);
+    BodyType type = body_info_get_type(info);
+    if(type == SPIKE){
+      create_partial_destructive_collision_with_life(scene, body, power);
+    }
+  }
 }
 
 Scene *init_scene(Scene *scene){
@@ -150,24 +152,6 @@ Scene *init_scene(Scene *scene){
   //add_gravity_hazard(scene);
   //add_ball_hazard(scene);
   return scene;
-}
-
-void add_platform(Scene *scene)
-{
-  // Top of screeen is Dimension.y, so make new platforms appear there.
-  Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector){30, 5}, PLATFORM_COLOR, 1, false);
-  body_set_velocity(platform, DEFAULT_VEL);
-  scene_add_body(scene, platform);
-  Body* player = scene_get_body(scene, 0);
-  create_player_platform_collision(scene, player, platform);
-  for(size_t i = 0; i < scene_bodies(scene); i++){
-    Body* body = scene_get_body(scene, i);
-    BodyInfo* info = body_get_info(body);
-    BodyType type = body_info_get_type(info);
-    if(type == SPIKE){
-      create_partial_destructive_collision_with_life(scene, body, platform);
-    }
-  }
 }
 
 int next_platforms(Scene *scene){
