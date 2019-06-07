@@ -16,12 +16,12 @@ const Vector BOUNDARY = {
 };
 
 const int NUM_ROWS = 3;
-const Vector IMPULSE_X = (Vector){3000, 0};
+const Vector IMPULSE_X = (Vector){5000, 0};
 const Vector IMPULSE_UP = (Vector){0, 17500};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
 const Vector DEFAULT_VEL = (Vector){0, -10};
-const Vector MAX_VEL = (Vector){75, 500};
+const Vector MAX_VEL = (Vector){50, 250};
 const double BALL_MASS = 200;
 const double BALL_RADIUS = 10;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
