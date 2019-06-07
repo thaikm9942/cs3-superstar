@@ -12,7 +12,7 @@ const double HAZARD_MASS = 5E14;
 // GRAV_COLOR and SPIKE_COLOR are both BLACK
 const RGBColor GRAV_COLOR = (RGBColor){0.0, 0.0, 0.0};
 const RGBColor SPIKE_COLOR = (RGBColor){0.0, 0.0, 0.0};
-const RGBColor BAD_BALL_COLOR = (RGBColor){0.0, 0.0, 1.0};
+const RGBColor BAD_BALL_COLOR = (RGBColor){0.0, 0.5, 0.5};
 #define G 6.67E-11 // N m^2 / kg^2
 #define G2 6.67E-3 // N m^2 / kg^2
 
