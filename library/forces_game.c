@@ -150,6 +150,7 @@ void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
   (body_get_centroid(platform).y + body_get_radius(platform));
   if(player_vel.y < 0 && fabs(distance) < MIN_COLLISION_DISTANCE){
     body_set_velocity(player, (Vector){player_vel.x, body_get_velocity(platform).y});
+    //Code below locks your Y-position immediately above the platform
     body_set_centroid(player, (Vector){body_get_centroid(player).x, body_get_centroid(platform).y + 10});
   }
 }
