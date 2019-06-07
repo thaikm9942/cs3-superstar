@@ -8,7 +8,7 @@
 // Constants:
 const Vector DEFAULT_HAZARD_VEL = (Vector){0, -10};
 const double HAZARD_RADIUS = 10;
-const double HAZARD_MASS = 100;
+const double HAZARD_MASS = 5E14;
 // GRAV_COLOR and SPIKE_COLOR are both BLACK
 const RGBColor GRAV_COLOR = (RGBColor){0.0, 0.0, 0.0};
 const RGBColor SPIKE_COLOR = (RGBColor){0.0, 0.0, 0.0};
@@ -41,7 +41,7 @@ void gravity_hazard_init(Vector position, Scene* scene){
       BodyInfo* info = body_get_info(body);
       BodyType type = body_info_get_type(info);
       if(type == PLAYER){
-        create_newtonian_gravity(scene, G, body, grav_body);
+        create_newtonian_gravity(scene, G, grav_body, body);
         //create_player_gravity_collision(scene, 1, body, grav_body);
       }
       if(type == SPIKE){
