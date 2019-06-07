@@ -41,7 +41,7 @@ void gravity_hazard_init(Vector position, Scene* scene){
       BodyInfo* info = body_get_info(body);
       BodyType type = body_info_get_type(info);
       if(type == PLAYER){
-        create_newtonian_gravity(scene, G, grav_body, body);
+        create_newtonian_gravity(scene, G, body, grav_body);
         //create_player_gravity_collision(scene, 1, body, grav_body);
       }
       if(type == SPIKE){
