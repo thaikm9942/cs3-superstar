@@ -185,7 +185,7 @@ void calculate_collision(CollisionData* data){
     data->collision_handler(body1, body2, info.axis, data->aux);
     data->colliding = true;
   }
-  if(!info.collided){
+  else{
     data->colliding = false;
   }
 }
