@@ -3,6 +3,7 @@
 #include "collision.h"
 #include "scene.h"
 #include "hazard.h"
+#include "powerup.h"
 #include "body.h"
 #include <stdlib.h>
 #include <string.h>
@@ -126,6 +127,14 @@ void add_ball_hazard(Scene *scene){
   moving_ball_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector) {randomValue(0, MAX_VEL.x/4), DEFAULT_VEL.y}, randomValue(1, 10) * BALL_MASS, scene);
 }
 
+void add_star_invincibility(Scene *scene){
+  Body *power = invincibility_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, 4.0, 12.0, (RGBColor){0.95, 0.95, 0.0}); //magic numbers!
+  body_set_velocity(power, DEFAULT_VEL);
+  create_player_powerup_collision(scene, scene_get_body(scene, 0), power);
+  scene_add_body(scene, power);
+
+}
+
 Scene *init_scene(Scene *scene){
   Body *player = player_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
   scene_add_body(scene, player);
@@ -173,11 +182,12 @@ int next_platforms(Scene *scene){
 
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
-  // if(rand() % 200 == 4){
-  //   add_platform(scene);
-  // }
+
    if(rand() % 200 == 5){
      add_point(scene);
+   }
+   if(rand() % 500 == 5){
+     add_star_invincibility(scene);
    }
    if(rand() % 200 == 6){
      add_gravity_hazard(scene);
