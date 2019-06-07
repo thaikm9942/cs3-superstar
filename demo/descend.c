@@ -32,7 +32,7 @@ const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 const int NSTART_PLATFORMS = 6;
 const int PLATFORM_DIST = 10;
-#define M 6E24 // kg
+#define M 6E30 // kg
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
 
@@ -175,13 +175,13 @@ int step(Scene *scene, double dt){
   // if(rand() % 200 == 4){
   //   add_platform(scene);
   // }
-   if(rand() % 200 == 4){
+   if(rand() % 200 == 5){
      add_point(scene);
    }
-   if(rand() % 200 == 3){
+   if(rand() % 200 == 6){
      add_gravity_hazard(scene);
    }
-   if(rand() % 200 == 2){
+   if(rand() % 200 == 7){
      add_ball_hazard(scene);
    }
 
