@@ -196,12 +196,12 @@ void on_key(char key, KeyEventType type, void* aux_info) {
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
-            if(!(body_get_velocity(player) < 0 - MAX_VEL.x)){
+            if(!(body_get_velocity(player).x < 0 - MAX_VEL.x)){
               body_add_impulse(player, vec_negate(IMPULSE_X));
             }
             break;
           case RIGHT_ARROW:
-            if(!(body_get_velocity(player) > MAX_VEL.x)){
+            if(!(body_get_velocity(player).x > MAX_VEL.x)){
               body_add_impulse(player, IMPULSE_X);
             }
             break;
