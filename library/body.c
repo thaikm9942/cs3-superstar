@@ -153,22 +153,15 @@ void body_accelerate(Body * body, Vector a, double dt)
   body_set_velocity(body, vec_add(body_get_velocity(body), (vec_multiply(dt, a))));
 }
 
-// Wraps bodies around
-void alien_wrap(Body *body, Vector max)
-{
-  Vector centroid = body_get_centroid(body);
-  if(centroid.x > max.x || centroid.x < -max.x){
-    centroid.y -= 150;
-    body_set_centroid(body, centroid);
-    body_set_velocity(body, (Vector){-1 * body_get_velocity(body).x, body_get_velocity(body).y});
-  }
-}
-
 void player_wrap(Body *body, Vector max)
 {
   Vector centroid = body_get_centroid(body);
   if(centroid.x > max.x || centroid.x < -max.x){
     centroid.x = -centroid.x;
+    body_set_centroid(body, centroid);
+  }
+  if(centroid.y > max.y){
+    centroid.y = max.y;
     body_set_centroid(body, centroid);
   }
 }

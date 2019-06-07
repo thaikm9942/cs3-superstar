@@ -208,6 +208,6 @@ void body_remove(Body *body);
  */
 bool body_is_removed(Body *body);
 void player_wrap(Body *body, Vector max);
-void alien_wrap(Body *body, Vector max);
+
 
 #endif // #ifndef __BODY_H__

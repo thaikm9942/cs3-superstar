@@ -3,6 +3,7 @@
 #include "collision.h"
 #include "scene.h"
 #include "hazard.h"
+#include "body.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -128,6 +129,7 @@ void add_ball_hazard(Scene *scene){
 Scene *init_scene(Scene *scene){
   Body *player = player_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
   scene_add_body(scene, player);
+  add_spikes(scene);
   create_gravity(scene, player);
   add_platform_first(scene);
   for(size_t i = 0; i < NSTART_PLATFORMS; i ++)
@@ -135,7 +137,6 @@ Scene *init_scene(Scene *scene){
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS), false);
   }
   add_fair_platforms(scene);
-  add_spikes(scene);
   //Experimental
   //add_gravity_hazard(scene);
   //add_ball_hazard(scene);
@@ -186,10 +187,10 @@ int step(Scene *scene, double dt){
    }
 
   if(next_platforms(scene)){
-    printf("yes\n");
     add_fair_platforms(scene);
   }
   Body* body = scene_get_body(scene, 0);
+  player_wrap(body, BOUNDARY);
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
   }
