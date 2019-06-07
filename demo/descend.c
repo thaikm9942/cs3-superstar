@@ -250,6 +250,7 @@ int main(int argc, char *argv[]){
   init_scene(scene);
   sdl_on_key(on_key, scene);
   char* displayScore = (char *)malloc(sizeof(char)*10);
+  char* displayLives = (char *)malloc(sizeof(char)*10);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
     if(step(scene, dt) == -1)
@@ -258,12 +259,15 @@ int main(int argc, char *argv[]){
     }
     sdl_clear();
     sprintf(displayScore, "Score: %zu", scene_get_score(scene));
+    sprintf(displayLives, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
     drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
+    drawText(displayLives,27,(RGBColor){0,100,255}, (Vector){870,0});
     draw(scene, frame);
     frame++;
     sdl_show();
   }
   free(displayScore);
+  free(displayLives);
   scene_free(scene);
   return 0;
 }
