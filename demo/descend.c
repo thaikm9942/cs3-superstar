@@ -17,10 +17,11 @@ const Vector BOUNDARY = {
 
 const int NUM_ROWS = 3;
 const Vector IMPULSE_X = (Vector){2000, 0};
-const Vector IMPULSE_UP = (Vector){0, 100000};
+const Vector IMPULSE_UP = (Vector){0, 17500};
 const Vector BALL_POS = (Vector){0, 10};
 const Vector STAR_VEL = (Vector){0, -15};
 const Vector DEFAULT_VEL = (Vector){0, -10};
+const Vector MAX_VEL = (Vecotr){100, 500};
 const double BALL_MASS = 200;
 const double BALL_RADIUS = 10;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
@@ -195,11 +196,15 @@ void on_key(char key, KeyEventType type, void* aux_info) {
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
+            if(!(body_get_velocity(player) < 0 - MAX_VEL.x)){
               body_add_impulse(player, vec_negate(IMPULSE_X));
-              break;
+            }
+            break;
           case RIGHT_ARROW:
+            if(!(body_get_velocity(player) > MAX_VEL.x)){
               body_add_impulse(player, IMPULSE_X);
-              break;
+            }
+            break;
           case ' ':
               if(colliding){
                 printf("collision\n");
