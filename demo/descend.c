@@ -19,7 +19,7 @@ const int NUM_ROWS = 3;
 const Vector IMPULSE_X = (Vector){3000, 0};
 const Vector IMPULSE_UP = (Vector){0, 17500};
 const Vector BALL_POS = (Vector){0, 10};
-const Vector STAR_VEL = (Vector){0, -10};
+const Vector STAR_VEL = (Vector){0, -15};
 const Vector DEFAULT_VEL = (Vector){0, -10};
 const Vector MAX_VEL = (Vector){75, 500};
 const double BALL_MASS = 200;
@@ -32,7 +32,7 @@ const double COLOR_FREQ = 0.25;
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 const int NSTART_PLATFORMS = 6;
 const int PLATFORM_DIST = 10;
-#define M 6E30 // kg
+#define M 6E26 // kg
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
 
