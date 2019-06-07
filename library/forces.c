@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-const double MIN_DISTANCE = 10;
+const double MIN_DISTANCE = 5;
 
 /**
  * Adds a Newtonian gravitational force between two bodies in a scene.
