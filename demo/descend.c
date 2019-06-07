@@ -16,12 +16,12 @@ const Vector BOUNDARY = {
 };
 
 const int NUM_ROWS = 3;
-const Vector IMPULSE_X = (Vector){2000, 0};
+const Vector IMPULSE_X = (Vector){3000, 0};
 const Vector IMPULSE_UP = (Vector){0, 17500};
 const Vector BALL_POS = (Vector){0, 10};
-const Vector STAR_VEL = (Vector){0, -15};
+const Vector STAR_VEL = (Vector){0, -10};
 const Vector DEFAULT_VEL = (Vector){0, -10};
-const Vector MAX_VEL = (Vector){100, 500};
+const Vector MAX_VEL = (Vector){75, 500};
 const double BALL_MASS = 200;
 const double BALL_RADIUS = 10;
 const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
@@ -118,7 +118,11 @@ void add_fair_platforms(Scene *scene){
 }
 
 void add_gravity_hazard(Scene *scene){
-  gravity_hazard_init((Vector){randomValue(0, BOUNDARY.x), randomValue(0, BOUNDARY.y)}, scene);
+  gravity_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, scene);
+}
+
+void add_ball_hazard(Scene *scene){
+  moving_ball_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector) {randomValue(0, MAX_VEL.x/4), DEFAULT_VEL.y}, randomValue(1, 10) * BALL_MASS, scene);
 }
 
 Scene *init_scene(Scene *scene){
@@ -132,7 +136,9 @@ Scene *init_scene(Scene *scene){
   }
   add_fair_platforms(scene);
   add_spikes(scene);
+  //Experimental
   //add_gravity_hazard(scene);
+  //add_ball_hazard(scene);
   return scene;
 }
 
@@ -169,12 +175,16 @@ int step(Scene *scene, double dt){
   // if(rand() % 200 == 4){
   //   add_platform(scene);
   // }
-  // if(rand() % 200 == 4){
-  //   add_point(scene);
-  // }
-  // if(rand() % 200 == 4){
-  //   add_gravity_hazard(scene);
-  // }
+   if(rand() % 200 == 4){
+     add_point(scene);
+   }
+   if(rand() % 200 == 3){
+     add_gravity_hazard(scene);
+   }
+   if(rand() % 200 == 2){
+     add_ball_hazard(scene);
+   }
+
   if(next_platforms(scene)){
     printf("yes\n");
     add_fair_platforms(scene);
@@ -208,7 +218,9 @@ void on_key(char key, KeyEventType type, void* aux_info) {
           case ' ':
               if(colliding){
                 printf("collision\n");
-                body_add_impulse(player, IMPULSE_UP);
+                if(!(body_get_velocity(player).y > MAX_VEL.y)){
+                  body_add_impulse(player, IMPULSE_UP);
+                }
                 break;
               }
               else{
