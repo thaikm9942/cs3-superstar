@@ -75,6 +75,7 @@ void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
         body_remove(body2);
       }
       else {
+        printf("Life lost\n");
         body_info_set_life(info, body_info_get_life(info) - 1);
         body_add_impulse(body2, vec_negate(impulse));
       }
@@ -152,6 +153,23 @@ void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
     body_set_velocity(player, (Vector){player_vel.x, body_get_velocity(platform).y});
     //Code below locks your Y-position immediately above the platform
     body_set_centroid(player, (Vector){body_get_centroid(player).x, body_get_centroid(platform).y + 10});
+  }
+}
+
+// Modulates the player's velocity to make sure it never gets too high
+void modulate_velocity(Body* player){
+  Vector player_vel = body_get_velocity(player);
+  if(player_vel.x > 100){
+    body_set_velocity(player, (Vector){100, player_vel.y});
+  }
+  if(player_vel.x < -100){
+    body_set_velocity(player, (Vector){-100, player_vel.y});
+  }
+  if(player_vel.y > 100){
+    body_set_velocity(player, (Vector){player_vel.x, 100});
+  }
+  if(player_vel.y < -100){
+    body_set_velocity(player, (Vector){player_vel.x, -100});
   }
 }
 
