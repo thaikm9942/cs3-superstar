@@ -7,7 +7,6 @@
 #include "body.h"
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
@@ -185,6 +184,7 @@ int step(Scene *scene, double dt){
   }
   Body* body = scene_get_body(scene, 0);
   player_wrap(body, BOUNDARY);
+  modulate_velocity(body);
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
   }
@@ -250,6 +250,7 @@ int main(int argc, char *argv[]){
   init_scene(scene);
   sdl_on_key(on_key, scene);
   char* displayScore = (char *)malloc(sizeof(char)*10);
+  char* displayLife = (char *)malloc(sizeof(char)*100);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
     if(step(scene, dt) == -1)
@@ -259,11 +260,14 @@ int main(int argc, char *argv[]){
     sdl_clear();
     sprintf(displayScore, "Score: %zu", scene_get_score(scene));
     drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
+    sprintf(displayLife, "Life: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
+    drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){200,0});
     draw(scene, frame);
     frame++;
     sdl_show();
   }
   free(displayScore);
+  free(displayLife);
   scene_free(scene);
   return 0;
 }
