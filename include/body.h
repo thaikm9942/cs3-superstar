@@ -94,6 +94,14 @@ Vector body_get_velocity(Body *body);
 double body_get_mass(Body *body);
 
 /**
+ * Sets the display color of a body.
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param color a pointer to a color returned from body_init()
+ */
+RGBColor body_set_color(Body *body, RGBColor color);
+
+/**
  * Gets the display color of a body.
  *
  * @param body a pointer to a body returned from body_init()

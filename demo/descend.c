@@ -25,12 +25,14 @@ const Vector DEFAULT_VEL = (Vector){0, -10};
 const Vector MAX_VEL = (Vector){50, 250};
 const double BALL_MASS = 200;
 const double BALL_RADIUS = 10;
-const RGBColor BALL_COLOR = (RGBColor){0.95, 0.0, 0.0};
+
 const RGBColor PLATFORM_COLOR = (RGBColor){0.0, 0.0, 0.95};
 const Vector BLOCK_DIM = (Vector){10, 2};
 const double BLOCK_SPACING = 7;
 const double COLOR_FREQ = 0.25;
+const RGBColor RED = (RGBColor){0.95, 0.0, 0.0};
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
+const RGBColor YELLOW = (RGBColor){0.95, 0.95, 0.0};
 const int NSTART_PLATFORMS = 6;
 const int PLATFORM_DIST = 10;
 #define M 6E26 // kg
@@ -60,7 +62,7 @@ void add_point(Scene *scene) {
     if(type == PLATFORM){
       // Spawn a point
       Body *point = point_init((Vector){body_get_centroid(body).x, body_get_centroid(body).y + 8},
-      3.0, 20.0, BALL_COLOR, 1);
+      3.0, 20.0, RED, 1);
       scene_add_body(scene, point);
       body_set_velocity(point, DEFAULT_VEL);
       // Creates collisions that destroy the point on collions. Scoring handled in
@@ -132,7 +134,7 @@ void add_ball_hazard(Scene *scene){
 }
 
 void add_star_invincibility(Scene *scene){
-  Body *power = invincibility_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, 4.0, 12.0, (RGBColor){0.95, 0.95, 0.0}); //magic numbers!
+  Body *power = invincibility_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, 4.0, 12.0, YELLOW);
   body_set_velocity(power, DEFAULT_VEL);
   create_player_powerup_collision(scene, scene_get_body(scene, 0), power);
   scene_add_body(scene, power);
@@ -147,7 +149,7 @@ void add_star_invincibility(Scene *scene){
 }
 
 Scene *init_scene(Scene *scene){
-  Body *player = player_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
+  Body *player = player_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, RED, 3);
   scene_add_body(scene, player);
   add_spikes(scene);
   add_boundary(scene);
@@ -198,11 +200,18 @@ int step(Scene *scene, double dt){
   }
   Body* body = scene_get_body(scene, 0);
   BodyInfo* info = body_get_info(body);
+  size_t life = body_info_get_life(info);
   player_wrap(body, BOUNDARY);
   modulate_velocity(body);
   if(scene_get_status(scene)->isInvincible){
-    body_info_set_life(info, body_info_get_life(info) + 5);
-    deactivate_invincibility(scene_get_status(scene));
+    body_set_color(body, YELLOW);
+    if(life < 10000){
+      body_info_set_life(info, life + 10000);
+    }
+  }
+  else if(life > 10){
+    body_set_color(body, RED);
+    body_info_set_life(info, 3);
   }
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
@@ -279,7 +288,13 @@ int main(int argc, char *argv[]){
     sdl_clear();
     sprintf(displayScore, "Score: %zu", scene_get_score(scene));
     drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
-    sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
+    if(body_info_get_life(body_get_info(scene_get_body(scene, 0))) > 10) {
+      sprintf(displayLife, "Lives: INVINCIBLE");
+    }
+    else{
+      sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
+    }
+
     drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){500,0});
     draw(scene, frame);
     frame++;

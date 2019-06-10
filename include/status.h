@@ -10,7 +10,10 @@
 //typedef struct status Status;
 typedef struct status {
   bool isInvincible;
+  int timeInv;
   bool isExpanded;
+  int timeExp;
+
 } Status;
 
 // An initializer for a status board
@@ -23,13 +26,13 @@ Status* status_init(void);
 void status_free(Status* status);
 
 // Activates invincibility
-void activate_invincibility(Status* status);
+void activate_invincibility(Status* status, int time);
 
 // Deactivates invincibility
 void deactivate_invincibility(Status* status);
 
 // Activates platform expansion
-void activate_expand(Status* status);
+void activate_expand(Status* status, int time);
 
 // Deactivates platform expansion
 void deactivate_expand(Status* status);

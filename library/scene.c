@@ -142,4 +142,5 @@ void scene_tick(Scene *scene, double dt) {
       i--;
     }
   }
+  status_tick(scene_get_status(scene));
 }
