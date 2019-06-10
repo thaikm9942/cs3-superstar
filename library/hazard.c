@@ -17,7 +17,7 @@ const RGBColor BAD_BALL_COLOR = (RGBColor){0.0, 0.5, 0.5};
 #define G2 6.67E-3 // N m^2 / kg^2
 
 void spike_hazard_init(Vector position, Scene* scene) {
-  Body* spike = spike_init(position, HAZARD_RADIUS, INFINITY, SPIKE_COLOR, INFINITY);
+  Body* spike = spike_init(position, HAZARD_RADIUS, HAZARD_MASS, SPIKE_COLOR, INFINITY);
   scene_add_body(scene, spike);
   for(size_t i = 0; i < scene_bodies(scene); i++){
     Body* body = scene_get_body(scene, i);

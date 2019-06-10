@@ -87,8 +87,10 @@ void calculate_k(ForceData *data){
   double force_mag = k * dist;
   // Force from body 1 to body 2
   Vector force = vec_multiply(force_mag, unit_vec);
-  body_add_force(body1, vec_negate(force));
-  body_add_force(body2, force);
+  if(dist > MIN_DISTANCE){
+    body_add_force(body1, vec_negate(force));
+    body_add_force(body2, force);
+  }
 }
 
 // A ForceFunction that calculates the drag froce on a body using F= -gamma * v

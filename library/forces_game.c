@@ -67,8 +67,11 @@ void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
     else {
       reduced_mass = (m1 * m2) / (m1 + m2);
     }
+    printf("RM: %f\n", reduced_mass);
+    printf("UA: %f %f\n", u_a, u_b);
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
+    assert(j_n != INFINITY && j_n != -INFINITY);
     body_add_impulse(body1, impulse);
     if(partial){
       if(body_info_get_life(info) == 0) {
@@ -76,6 +79,8 @@ void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
       }
       else {
         printf("Life lost\n");
+        printf("%d %d\n", body_info_get_type(body_get_info(body1)), body_info_get_type(body_get_info(body2)));
+        printf("%f %f, %f %f", body_get_centroid(body1).x, body_get_centroid(body1).y, body_get_centroid(body2).x, body_get_centroid(body2).y);
         body_info_set_life(info, body_info_get_life(info) - 1);
         body_add_impulse(body2, vec_negate(impulse));
       }

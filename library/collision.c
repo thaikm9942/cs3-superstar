@@ -156,6 +156,9 @@ CollisionInfo check_projection_overlap(List* shape1, List* shape2){
       axis = normal;
     }
   }
+  if(isnan(axis.x) || isnan(axis.y)){
+    axis = (Vector){1,0};
+  }
   return (CollisionInfo){true, min, axis};
 }
 

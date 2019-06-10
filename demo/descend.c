@@ -166,16 +166,16 @@ int next_platforms(Scene *scene){
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
 
-   if(rand() % 200 == 1){
+   if(rand() % 100 == 1){
      add_point(scene);
    }
-   if(rand() % 1000 == 2){
+   if(rand() % 100 == 2){
      add_star_invincibility(scene);
    }
-   if(rand() % 700 == 3){
+   if(rand() % 100 == 3){
      add_gravity_hazard(scene);
    }
-   if(rand() % 400 == 4){
+   if(rand() % 100 == 4){
      add_ball_hazard(scene);
    }
 

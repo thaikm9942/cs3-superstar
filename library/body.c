@@ -131,10 +131,12 @@ void body_set_impulse(Body *body, Vector impulse){
 
 void body_add_force(Body *body, Vector force){
   body_set_force(body, vec_add(body_get_force(body), force));
+  assert(!isnan(force.x) && !isnan(force.y));
 }
 
 void body_add_impulse(Body *body, Vector impulse){
   body_set_impulse(body, vec_add(body_get_impulse(body), impulse));
+  assert(!isnan(impulse.x) && !isnan(impulse.y));
 }
 
 void body_tick(Body *body, double dt){
