@@ -14,4 +14,5 @@ void create_partial_destructive_collision_with_life(Scene *scene, Body *object, 
 void create_partial_collision_with_life(Scene *scene, double elasticity, Body *body, Body *target);
 void create_player_point_collision(Scene *scene, Body* player, Body* point);
 void create_player_gravity_collision(Scene *scene, double elasticity, Body* player, Body* grav_ball);
+void modulate_velocity(Body* player);
 #endif // #ifndef __FORCES_GAME_H__

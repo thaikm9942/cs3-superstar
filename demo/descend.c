@@ -7,7 +7,6 @@
 #include "body.h"
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
@@ -166,17 +165,20 @@ int next_platforms(Scene *scene){
 
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
-
-   if(rand() % 200 == 5){
+  //200
+   if(rand() % 20 == 1){
      add_point(scene);
    }
-   if(rand() % 500 == 5){
+   //1000
+   if(rand() % 100 == 2){
      add_star_invincibility(scene);
    }
-   if(rand() % 200 == 6){
-     add_gravity_hazard(scene);
+   //700
+   if(rand() % 70 == 3){
+     //add_gravity_hazard(scene);
    }
-   if(rand() % 200 == 7){
+   //400
+   if(rand() % 40 == 4){
      add_ball_hazard(scene);
    }
 
@@ -185,6 +187,7 @@ int step(Scene *scene, double dt){
   }
   Body* body = scene_get_body(scene, 0);
   player_wrap(body, BOUNDARY);
+  modulate_velocity(body);
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
   }
@@ -250,7 +253,11 @@ int main(int argc, char *argv[]){
   init_scene(scene);
   sdl_on_key(on_key, scene);
   char* displayScore = (char *)malloc(sizeof(char)*10);
+<<<<<<< HEAD
   char* displayLives = (char *)malloc(sizeof(char)*10);
+=======
+  char* displayLife = (char *)malloc(sizeof(char)*100);
+>>>>>>> e213ccb6cc56e93f2b94de4aab28709067662e5c
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
     if(step(scene, dt) == -1)
@@ -261,13 +268,22 @@ int main(int argc, char *argv[]){
     sprintf(displayScore, "Score: %zu", scene_get_score(scene));
     sprintf(displayLives, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
     drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
+<<<<<<< HEAD
     drawText(displayLives,27,(RGBColor){0,100,255}, (Vector){870,0});
+=======
+    sprintf(displayLife, "Life: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
+    drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){200,0});
+>>>>>>> e213ccb6cc56e93f2b94de4aab28709067662e5c
     draw(scene, frame);
     frame++;
     sdl_show();
   }
   free(displayScore);
+<<<<<<< HEAD
   free(displayLives);
+=======
+  free(displayLife);
+>>>>>>> e213ccb6cc56e93f2b94de4aab28709067662e5c
   scene_free(scene);
   return 0;
 }
