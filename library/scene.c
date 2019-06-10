@@ -84,6 +84,12 @@ Body *scene_get_body(Scene *scene, size_t index) {
   return list_get(scene->bodies, index);
 }
 
+void scene_set_body(Scene *scene, size_t index, Body *body) {
+  assert(index < scene_bodies(scene));
+  body_free(list_get(scene->bodies, index));
+  list_set(scene->bodies, index, body);
+}
+
 size_t scene_get_score(Scene *scene) {
   return scene->score;
 }

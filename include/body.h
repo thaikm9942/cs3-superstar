@@ -67,6 +67,15 @@ void body_free(Body *body);
 List *body_get_shape(Body *body);
 
 /**
+ * Sets the current shape of a body.
+ * Returns a newly allocated vector list, which must be list_free()d.
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param new_shape a list of vectors describing the initial shape of the body
+ */
+void body_set_shape(Body *body, List* new_shape);
+
+/**
  * Gets the current center of mass of a body.
  * While this could be calculated with polygon_centroid(), that becomes too slow
  * when this function is called thousands of times every tick.

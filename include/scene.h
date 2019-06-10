@@ -60,6 +60,16 @@ size_t scene_bodies(Scene *scene);
 Body *scene_get_body(Scene *scene, size_t index);
 
 /**
+ * Sets the body at a given index in a scene.
+ * Asserts that the index is valid.
+ *
+ * @param scene a pointer to a scene returned from scene_init()
+ * @param index the index of the body in the scene (starting at 0)
+ * @param body to be placed at given index
+ */
+void scene_set_body(Scene *scene, size_t index, Body *body);
+
+/**
  * Gets the Status board of a scene
  * @param scene a pointer to a scene returned from scene_init()
  * @return a pointer to the Status

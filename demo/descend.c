@@ -33,6 +33,7 @@ const double COLOR_FREQ = 0.25;
 const RGBColor RED = (RGBColor){0.95, 0.0, 0.0};
 const RGBColor WHITE = (RGBColor){1.0, 1.0, 1.0};
 const RGBColor YELLOW = (RGBColor){0.95, 0.95, 0.0};
+const RGBColor BLUE = (RGBColor){0.0, 0.0, 0.95};
 const int NSTART_PLATFORMS = 6;
 const int PLATFORM_DIST = 10;
 #define M 6E26 // kg
@@ -133,8 +134,7 @@ void add_ball_hazard(Scene *scene){
   moving_ball_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector) {randomValue(0, MAX_VEL.x/4), DEFAULT_VEL.y}, randomValue(1, 10) * BALL_MASS, scene);
 }
 
-void add_star_invincibility(Scene *scene){
-  Body *power = invincibility_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, 4.0, 12.0, YELLOW);
+void add_power(Scene *scene, Body *power){
   body_set_velocity(power, DEFAULT_VEL);
   create_player_powerup_collision(scene, scene_get_body(scene, 0), power);
   scene_add_body(scene, power);
@@ -146,6 +146,15 @@ void add_star_invincibility(Scene *scene){
       create_partial_destructive_collision_with_life(scene, body, power);
     }
   }
+}
+void add_star_invincibility(Scene *scene){
+  Body *invincibility = invincibility_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, 4.0, 12.0, YELLOW);
+  add_power(scene, invincibility);
+}
+
+void add_star_expand(Scene *scene){
+  Body *expand = expand_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, 4.0, 12.0, BLUE);
+  add_power(scene, expand);
 }
 
 Scene *init_scene(Scene *scene){
@@ -168,7 +177,6 @@ Scene *init_scene(Scene *scene){
 
 int next_platforms(Scene *scene){
   for(size_t i = 1; i < scene_bodies(scene); i++){
-    //printf("%d\n",body_info_get_type(body_get_info(scene_get_body(scene, i))));
     if (body_info_get_type(body_get_info(scene_get_body(scene, i))) == PLATFORM_TRIGGER){
       return 0;
     }
@@ -183,8 +191,12 @@ int step(Scene *scene, double dt){
      add_point(scene);
    }
    //1000
-   if(rand() % 100 == 2){
+   if(rand() % 300 == 2){
      add_star_invincibility(scene);
+   }
+
+   if(rand() % 300 == 2){
+     add_star_expand(scene);
    }
    //700
    if(rand() % 70 == 3){
@@ -212,6 +224,13 @@ int step(Scene *scene, double dt){
   else if(life > 10){
     body_set_color(body, RED);
     body_info_set_life(info, 3);
+  }
+  if(scene_get_status(scene)->isExpanded){
+    //scene_set_body(scene, 0, player_init(5, BALL_POS, BALL_RADIUS + 5, BALL_MASS, RED, 3));
+    body_set_shape(scene_get_body(scene, 0), create_star(5, body_get_centroid(body), BALL_RADIUS + 5));
+  }
+  else{
+    body_set_shape(scene_get_body(scene, 0), create_star(5, body_get_centroid(body), BALL_RADIUS));
   }
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;

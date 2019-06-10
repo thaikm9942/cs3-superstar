@@ -131,6 +131,9 @@ Body *gravity_ball_init(Vector position, double radius, double mass, RGBColor co
 // Initializes a MOVING_BALL type hazard ball using ball_init
 Body *moving_ball_init(Vector position, double radius, double mass, RGBColor color, size_t life);
 
+// Create a star shape that acts as the visual in counterclockwise
+List *create_star(int sides, Vector position, double radius);
+
 /**
  * Creates a Body with a spike shape and given parameters representing SPIKE type
  * hazard
