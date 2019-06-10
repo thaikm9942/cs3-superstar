@@ -16,7 +16,8 @@ typedef enum {
     GRAVITY_BALL,
     MOVING_BALL,
     POWERUP_EXPAND,
-    POWERUP_INVINCIBILITY
+    POWERUP_INVINCIBILITY,
+    BOUND
 } BodyType;
 
 // Defines a body_info struct to be passed in Body
@@ -97,6 +98,18 @@ Body *player_init(int sides, Vector position, double radius, double mass, RGBCol
  * number of lives
  */
 Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life, bool isTrigger);
+
+/**
+ * Creates a Boundary Body with a block shape and given parameters
+ * @param position the position to translate the block to after
+ * @param radius radius of the block
+ * @param mass the mass of the block
+ * @param RGBColor the color of the block
+ * @param life the number of lives the block has
+ * @returns a Body with a block shape with centroid at position, mass, color and
+ * number of lives
+ */
+Body *boundary_init(Vector position, Vector dimension, RGBColor color, size_t life);
 
 /**
  * Creates a Body with a ball shape and given parameters

@@ -63,7 +63,7 @@ void moving_ball_hazard_init(Vector position, Vector velocity, double mass, Scen
         //Moving Ball and Player collision type
         create_physics_collision(scene, 0.5, moving_ball_body, body);
       }
-      if(type == SPIKE){
+      if(type == SPIKE || type == BOUND){
         create_partial_destructive_collision_with_life(scene, body, moving_ball_body);
       }
     }

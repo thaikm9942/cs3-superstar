@@ -78,12 +78,7 @@ void add_point(Scene *scene) {
     }
   }
 }
-
-void add_platform_altitude(Scene *scene, int y, bool trigger) {
-  // Top of screen is Dimension.y, so make new platforms appear there.
-  Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1, trigger);
-  body_set_velocity(platform, DEFAULT_VEL);
-  scene_add_body(scene, platform);
+void add_platform_physics(Scene *scene, Body *platform){
   for(size_t i = 0; i < scene_bodies(scene); i++){
       Body* body = scene_get_body(scene, i);
       BodyInfo* info = body_get_info(body);
@@ -97,12 +92,20 @@ void add_platform_altitude(Scene *scene, int y, bool trigger) {
   }
 }
 
+void add_platform_altitude(Scene *scene, int y, bool trigger) {
+  // Top of screen is Dimension.y, so make new platforms appear there.
+  Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1, trigger);
+  body_set_velocity(platform, DEFAULT_VEL);
+  add_platform_physics(scene, platform);
+  scene_add_body(scene, platform);
+
+}
+
 void add_platform_first(Scene *scene){
   Body *platform = block_init((Vector){BALL_POS.x, BALL_POS.y - 2 * BALL_RADIUS}, (Vector){30, 5}, PLATFORM_COLOR, 1, false);
   body_set_velocity(platform, DEFAULT_VEL);
   scene_add_body(scene, platform);
-  Body* player = scene_get_body(scene, 0);
-  create_player_platform_collision(scene, player, platform);
+  add_platform_physics(scene, platform);
 }
 
 void add_fair_platforms(Scene *scene){
@@ -111,6 +114,13 @@ void add_fair_platforms(Scene *scene){
     add_platform_altitude(scene, i + 2 * BOUNDARY.y + (double) randomValue(-5, 5), trigger);
     trigger = false;
   }
+}
+
+void add_boundary(Scene *scene){
+  Body *right = boundary_init((Vector){BOUNDARY.x + 15, 0}, (Vector){5, BOUNDARY.y * 2}, (RGBColor){0.0, 0.0, 0.0}, INFINITY);
+  Body *left = boundary_init((Vector){-BOUNDARY.x - 15, 0}, (Vector){5, BOUNDARY.y * 2}, (RGBColor){0.0, 0.0, 0.0}, INFINITY);
+  scene_add_body(scene, right);
+  scene_add_body(scene, left);
 }
 
 void add_gravity_hazard(Scene *scene){
@@ -140,6 +150,7 @@ Scene *init_scene(Scene *scene){
   Body *player = player_init(5, BALL_POS, BALL_RADIUS, BALL_MASS, BALL_COLOR, 3);
   scene_add_body(scene, player);
   add_spikes(scene);
+  add_boundary(scene);
   create_gravity(scene, player);
   add_platform_first(scene);
   for(size_t i = 0; i < NSTART_PLATFORMS; i ++)
@@ -178,16 +189,21 @@ int step(Scene *scene, double dt){
      //add_gravity_hazard(scene);
    }
    //400
-   if(rand() % 40 == 4){
-     add_ball_hazard(scene);
-   }
+   // if(rand() % 40 == 4){
+   //   add_ball_hazard(scene);
+   // }
 
   if(next_platforms(scene)){
     add_fair_platforms(scene);
   }
   Body* body = scene_get_body(scene, 0);
+  BodyInfo* info = body_get_info(body);
   player_wrap(body, BOUNDARY);
   modulate_velocity(body);
+  if(scene_get_status(scene)->isInvincible){
+    body_info_set_life(info, body_info_get_life(info) + 5);
+    deactivate_invincibility(scene_get_status(scene));
+  }
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
   }
