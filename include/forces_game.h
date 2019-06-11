@@ -6,6 +6,8 @@
 #include "collision.h"
 
 /* ALL SUPERSTAR FUNCTIONS */
+
+// 
 void create_gravity(Scene *scene, Body *player);
 void create_special_collision(Scene *scene, Body *player, Body *platform,
 CollisionHandler handler, void *aux, FreeFunc freer);

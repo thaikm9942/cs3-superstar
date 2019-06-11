@@ -144,6 +144,10 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     }
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
+    if(isnan(impulse.x) || isnan(impulse.y)){
+      impulse.x = 0;
+      impulse.y = 0;
+    }
     body_add_impulse(body1, impulse);
     if(partial){
       body_remove(body2);
