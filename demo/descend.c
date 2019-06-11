@@ -104,9 +104,9 @@ void add_platform_first(Scene *scene){
   add_platform_physics(scene, platform);
 }
 
-void add_fair_platforms(Scene *scene){
+void add_fair_platforms(Scene *scene, double difficulty){
   bool trigger = true;
-  for(double i = -BOUNDARY.y; i < BOUNDARY.y; i += PLATFORM_DIST){
+  for(double i = -BOUNDARY.y; i < BOUNDARY.y; i += PLATFORM_DIST + difficulty){
     Body *platform = add_platform_altitude(scene, i + 2 * BOUNDARY.y + (double) randomValue(-5, 5), trigger);
     trigger = false;
     if(rand() % 15 == 1){
@@ -164,7 +164,7 @@ Scene *init_scene(Scene *scene){
   {
     add_platform_altitude(scene, randomValue(BOUNDARY.y * i / NSTART_PLATFORMS, BOUNDARY.y * (i + 1) / NSTART_PLATFORMS), false);
   }
-  add_fair_platforms(scene);
+  add_fair_platforms(scene, 0.0);
   //Experimental
   //add_gravity_hazard(scene);
   //add_ball_hazard(scene);
@@ -183,11 +183,11 @@ int next_platforms(Scene *scene){
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
    //1000
-   if(rand() % 300 == 2){
+   if(rand() % 5000 == 2){
      add_star_invincibility(scene);
    }
 
-   if(rand() % 300 == 2){
+   if(rand() % 3000 == 2){
      add_star_expand(scene);
    }
    //700
@@ -200,7 +200,7 @@ int step(Scene *scene, double dt){
    }
 
   if(next_platforms(scene)){
-    add_fair_platforms(scene);
+    add_fair_platforms(scene, scene_get_score(scene) * 3.0);
   }
   Body* body = scene_get_body(scene, 0);
   BodyInfo* info = body_get_info(body);
@@ -288,7 +288,7 @@ int main(int argc, char *argv[]){
   Scene *scene = scene_init();
   init_scene(scene);
   sdl_on_key(on_key, scene);
-  char* displayScore = (char *)malloc(sizeof(char)*10);
+  char* displayScore = (char *)malloc(sizeof(char)*100);
   char* displayLife = (char *)malloc(sizeof(char)*100);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
