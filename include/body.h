@@ -179,7 +179,15 @@ void body_set_radius(Body *body, double new_r);
  */
 void body_add_force(Body *body, Vector force);
 
+/**
+ * Sets a body's force to the given force.
+ * Should not change the body's position or velocity; see body_tick().
+ *
+ * @param body a pointer to a body
+ * @param force the force vector to set
+ */
 void body_set_force(Body *body, Vector force);
+
 /**
  * Applies an impulse to a body.
  * An impulse causes an instantaneous change in velocity,
@@ -192,7 +200,17 @@ void body_set_force(Body *body, Vector force);
  */
 void body_add_impulse(Body *body, Vector impulse);
 
+/**
+ * Sets a body's impulse to a given value.
+ * An impulse causes an instantaneous change in velocity,
+ * which is useful for modeling collisions.
+ * Should not change the body's position or velocity; see body_tick().
+ *
+ * @param body a pointer to a body
+ * @param impulse the impulse vector to set
+ */
 void body_set_impulse(Body* body, Vector impulse);
+
 /**
  * Updates the body after a given time interval has elapsed.
  * Sets acceleration and velocity according to the forces and impulses
