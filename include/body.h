@@ -224,6 +224,13 @@ void body_remove(Body *body);
  * @return whether body_remove() has been called on the body
  */
 bool body_is_removed(Body *body);
+
+/**
+ * Wraps the player to the other side of the screen if they exceed boundaries
+ *
+ * @param body the body to check
+ * @param max the coordinates to wrap with
+*/
 void player_wrap(Body *body, Vector max);
 
 
