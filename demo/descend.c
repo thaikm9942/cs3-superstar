@@ -54,32 +54,25 @@ void add_spikes(Scene *scene) {
 }
 
 /* Spawns a point on the last added platform on the screen aka the highest platform */
-void add_point(Scene *scene) {
+void add_point(Scene *scene, Body *platform) {
   Body* ball = scene_get_body(scene, 0);
-  for(size_t i = scene_bodies(scene) - 1; i > 0; i--) {
-    Body* body = scene_get_body(scene, i);
-    BodyInfo* info = body_get_info(body);
-    BodyType type = body_info_get_type(info);
-    if(type == PLATFORM){
-      // Spawn a point
-      Body *point = point_init((Vector){body_get_centroid(body).x, body_get_centroid(body).y + 8},
-      3.0, 20.0, RED, 1);
-      scene_add_body(scene, point);
-      body_set_velocity(point, DEFAULT_VEL);
-      // Creates collisions that destroy the point on collions. Scoring handled in
-      // the CollisionHandler
-      create_player_point_collision(scene, ball, point);
-      for(size_t j = 0; j < scene_bodies(scene); j++){
-        Body* spike = scene_get_body(scene, j);
-        BodyInfo* spike_info = body_get_info(spike);
-        BodyType spike_type = body_info_get_type(spike_info);
-        if(spike_type == SPIKE){
-          create_partial_destructive_collision_with_life(scene, spike, point);
-        }
-      }
-      break;
+  Body *point = point_init((Vector){body_get_centroid(platform).x, body_get_centroid(platform).y + 8},
+  3.0, 20.0, RED, 1);
+  scene_add_body(scene, point);
+  body_set_velocity(point, DEFAULT_VEL);
+  // Creates collisions that destroy the point on collions. Scoring handled in
+  // the CollisionHandler
+  create_player_point_collision(scene, ball, point);
+  for(size_t j = 0; j < scene_bodies(scene); j++){
+    Body* spike = scene_get_body(scene, j);
+    BodyInfo* spike_info = body_get_info(spike);
+    BodyType spike_type = body_info_get_type(spike_info);
+    if(spike_type == SPIKE){
+      create_partial_destructive_collision_with_life(scene, spike, point);
     }
   }
+
+
 }
 void add_platform_physics(Scene *scene, Body *platform){
   for(size_t i = 0; i < scene_bodies(scene); i++){
@@ -95,13 +88,13 @@ void add_platform_physics(Scene *scene, Body *platform){
   }
 }
 
-void add_platform_altitude(Scene *scene, int y, bool trigger) {
+Body *add_platform_altitude(Scene *scene, int y, bool trigger) {
   // Top of screen is Dimension.y, so make new platforms appear there.
   Body *platform = block_init((Vector){randomValue(0, BOUNDARY.x), y}, (Vector){30, 5}, PLATFORM_COLOR, 1, trigger);
   body_set_velocity(platform, DEFAULT_VEL);
   add_platform_physics(scene, platform);
   scene_add_body(scene, platform);
-
+  return platform;
 }
 
 void add_platform_first(Scene *scene){
@@ -114,8 +107,11 @@ void add_platform_first(Scene *scene){
 void add_fair_platforms(Scene *scene){
   bool trigger = true;
   for(double i = -BOUNDARY.y; i < BOUNDARY.y; i += PLATFORM_DIST){
-    add_platform_altitude(scene, i + 2 * BOUNDARY.y + (double) randomValue(-5, 5), trigger);
+    Body *platform = add_platform_altitude(scene, i + 2 * BOUNDARY.y + (double) randomValue(-5, 5), trigger);
     trigger = false;
+    if(rand() % 15 == 1){
+      add_point(scene, platform);
+    }
   }
 }
 
@@ -186,10 +182,6 @@ int next_platforms(Scene *scene){
 
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
-  //200
-   if(rand() % 20 == 1){
-     add_point(scene);
-   }
    //1000
    if(rand() % 300 == 2){
      add_star_invincibility(scene);
@@ -203,9 +195,9 @@ int step(Scene *scene, double dt){
      //add_gravity_hazard(scene);
    }
    //400
-   // if(rand() % 40 == 4){
-   //   add_ball_hazard(scene);
-   // }
+   if(rand() % 500 == 4){
+     add_ball_hazard(scene);
+   }
 
   if(next_platforms(scene)){
     add_fair_platforms(scene);

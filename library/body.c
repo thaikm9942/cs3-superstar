@@ -166,6 +166,9 @@ void player_wrap(Body *body, Vector max)
   }
   if(centroid.y > max.y){
     centroid.y = max.y;
+    Vector v = body_get_velocity(body);
+    v.y = 0;
+    body_set_velocity(body, v);
     body_set_centroid(body, centroid);
   }
 }
