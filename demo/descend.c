@@ -123,11 +123,11 @@ void add_boundary(Scene *scene){
 }
 
 void add_gravity_hazard(Scene *scene){
-  gravity_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, scene);
+  gravity_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y + 15}, scene);
 }
 
 void add_ball_hazard(Scene *scene){
-  moving_ball_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y}, (Vector) {randomValue(0, MAX_VEL.x/4), DEFAULT_VEL.y}, randomValue(1, 10) * BALL_MASS, scene);
+  moving_ball_hazard_init((Vector){randomValue(0, BOUNDARY.x), BOUNDARY.y + 15}, (Vector) {randomValue(0, MAX_VEL.x/4), DEFAULT_VEL.y}, randomValue(1, 10) * BALL_MASS, scene);
 }
 
 void add_power(Scene *scene, Body *power){
@@ -191,8 +191,8 @@ int step(Scene *scene, double dt){
      add_star_expand(scene);
    }
    //700
-   if(rand() % 70 == 3){
-     //add_gravity_hazard(scene);
+   if(rand() % 7000 == 3){
+     add_gravity_hazard(scene);
    }
    //400
    if(rand() % 500 == 4){
