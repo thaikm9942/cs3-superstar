@@ -126,6 +126,7 @@ void create_drag(Scene *scene, double gamma, Body *body) {
 }
 
 //Collision handlers
+// Partial Collision and Partial Physics Collision
 void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     PartialData *partial_data = (PartialData*) aux;
     double elasticity = partial_data->elasticity;
@@ -133,7 +134,12 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     double reduced_mass;
     double m1 = body_get_mass(body1);
     double m2 = body_get_mass(body2);
+    assert(!isnan(m1));
     double u_a = vec_dot(body_get_velocity(body1), axis);
+    Vector vel = body_get_velocity(body1);
+    printf("%d %d\n", body_info_get_type(body_get_info(body1)), body_info_get_type(body_get_info(body2)));
+    assert(!isnan(vel.y));
+    assert(!isnan(vel.x));
     double u_b = vec_dot(body_get_velocity(body2), axis);
     if(m1 == INFINITY){
       reduced_mass = m2;
@@ -144,13 +150,22 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     else {
       reduced_mass = (m1 * m2) / (m1 + m2);
     }
+    assert(!isnan(reduced_mass));
+    assert(!isnan(elasticity));
+    assert(!isnan(u_b));
+    assert(!isnan(u_a));
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
+    assert(!isnan(j_n));
     Vector impulse = vec_multiply(j_n, axis);
+    assert(!isnan(impulse.x) && !isnan(impulse.y));
+    printf("Adding impulse RB x: %f y: %f \n", impulse.x, impulse.y);
     body_add_impulse(body1, impulse);
     if(partial){
+      printf("Body removed\n");
       body_remove(body2);
     }
     else{
+      assert(!isnan(impulse.x) && !isnan(impulse.y));
       body_add_impulse(body2, vec_negate(impulse));
     }
 }
@@ -214,7 +229,6 @@ void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body
   PartialData *partial = partial_data_init(elasticity, false);
   create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) partial, free);
 }
-
 void create_partial_destructive_collision(Scene *scene, Body *object, Body *target){
   PartialData *partial = partial_data_init(0.0, true);
   create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, free);

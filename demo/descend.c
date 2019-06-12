@@ -175,7 +175,8 @@ int step(Scene *scene, double dt){
    if(rand() % 100 == 3){
      add_gravity_hazard(scene);
    }
-   if(rand() % 100 == 4){
+   //100
+   if(rand() % 25 == 4){
      add_ball_hazard(scene);
    }
 
@@ -258,10 +259,10 @@ int main(int argc, char *argv[]){
       break;
     }
     sdl_clear();
-    sprintf(displayScore, "Score: %zu", scene_get_score(scene));
-    drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
-    sprintf(displayLife, "Life: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
-    drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){200,0});
+    //sprintf(displayScore, "Score: %zu", scene_get_score(scene));
+    //drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
+    //sprintf(displayLife, "Life: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
+    //drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){200,0});
     draw(scene, frame);
     frame++;
     sdl_show();

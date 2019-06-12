@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
-#include <SDL2/SDL_ttf.h>
+//#include <SDL2/SDL_ttf.h>
 #include <time.h>
 #include "sdl_wrapper.h"
 
@@ -79,7 +79,7 @@ void sdl_init(Vector min, Vector max) {
         SDL_WINDOW_RESIZABLE
     );
     renderer = SDL_CreateRenderer(window, -1, 0);
-    TTF_Init();
+    //TTF_Init();
 
 }
 
@@ -196,7 +196,7 @@ double time_since_last_tick(void) {
     last_clock = now;
     return difference;
 }
-
+/*
 void drawText(char* string, int size, RGBColor c, Vector pos)
 {
 
@@ -219,3 +219,4 @@ SDL_DestroyTexture(texture);
 TTF_CloseFont(font);
 
 }
+*/

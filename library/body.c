@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "assert.h"
+#include "shape.h"
 #include <math.h>
 
 Body *body_init(List *shape, double mass, RGBColor color, double radius){
@@ -141,8 +142,26 @@ void body_add_impulse(Body *body, Vector impulse){
 
 void body_tick(Body *body, double dt){
   Vector vel_before = body_get_velocity(body);
+  assert(!isnan(vel_before.y) && !isnan(vel_before.x));
   Vector total_impulse = vec_add(body_get_impulse(body), vec_multiply(dt, body_get_force(body)));
-  body_set_velocity(body, vec_add(vel_before, vec_multiply(1.0 / body_get_mass(body), total_impulse)));
+  assert(!isnan(total_impulse.y) && (!isnan(total_impulse.x)));
+  assert(!isnan(body_get_mass(body)));
+  if(body_get_mass(body) == 0 && body_info_get_type(body_get_info(body)) == 6)
+  {
+    // THis is bad
+    printf("mass fixed");
+    body->m = 200;
+  }
+  //printf("Mass %f\n", body_get_mass(body));
+  //printf("Type %d\n", body_info_get_type(body_get_info(body)));
+  float repMass = 1.0 / body_get_mass(body);
+  //printf("Rep Mass%f\n", repMass);
+  assert(!isnan(repMass));
+  Vector addtions = vec_multiply(repMass, total_impulse);
+  assert(!isnan(addtions.y) && !isnan(addtions.x));
+  Vector new_vel = vec_add(vel_before, addtions);
+  body_set_velocity(body, new_vel);
+  assert(!isnan(new_vel.y) && !isnan(new_vel.x));
   Vector avg_vel = vec_multiply(1.0/2.0, vec_add(vel_before, body_get_velocity(body)));
   body_set_centroid(body, vec_add(body_get_centroid(body), vec_multiply(dt, avg_vel)));
   body_set_force(body, VEC_ZERO);
