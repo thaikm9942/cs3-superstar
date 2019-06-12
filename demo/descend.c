@@ -296,65 +296,59 @@ void draw(Scene *scene, int frame){
 }
 
 int main(int argc, char *argv[]){
-  int frame = 0;
-  size_t last_score = 0;
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
-  Start *start = malloc(sizeof(start));
-  start->ready = false;
-  sdl_on_key(start_key, start);
-  drawText("Press space to begin",27,(RGBColor){0,100,255}, (Vector){20,0});
-  sdl_show();
-  while(!sdl_is_done() && !start->ready){
-
-  }
-  free(start);
-  if(sdl_is_done()){
-    return 0;
-  }
-  sdl_clear();
-  Scene *scene = scene_init();
-  init_scene(scene);
-  sdl_on_key(on_key, scene);
-  char* displayScore = (char *)malloc(sizeof(char)*100);
-  char* displayLife = (char *)malloc(sizeof(char)*100);
   while(!sdl_is_done()){
-    double dt = time_since_last_tick();
-    last_score = step(scene, dt, last_score);
-    if(last_score == -1)
-    {
-      break;
+    int frame = 0;
+    size_t last_score = 0;
+    Start *start = malloc(sizeof(start));
+    start->ready = false;
+    sdl_on_key(start_key, start);
+    drawText("SUPERSTAR!",72,(RGBColor){150,100,35}, (Vector){270,50});
+    drawText("(Press space to begin)",72,(RGBColor){150,100,255}, (Vector){150,200});
+    sdl_show();
+    while(!sdl_is_done() && !start->ready){
+      if(sdl_is_done()){
+        free(start);
+        return 0;
+      }
+    }
+    free(start);
+    sdl_clear();
+    Scene *scene = scene_init();
+    init_scene(scene);
+    sdl_on_key(on_key, scene);
+    char* displayScore = (char *)malloc(sizeof(char)*100);
+    char* displayLife = (char *)malloc(sizeof(char)*100);
+      while(!sdl_is_done()){
+        double dt = time_since_last_tick();
+        last_score = step(scene, dt, last_score);
+        if(last_score == -1)
+        {
+          break;
+        }
+        sdl_clear();
+        sprintf(displayScore, "Score: %zu", scene_get_score(scene));
+        drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
+        sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
+        drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){870,0});
+        draw(scene, frame);
+        frame++;
+        sdl_show();
+        if(sdl_is_done()){
+          free(displayScore);
+          free(displayLife);
+          scene_free(scene);
+          return 0;
+        }
+        }
+    free(displayScore);
+    free(displayLife);
+    scene_free(scene);
+    if(sdl_is_done()){
+      return 0;
     }
     sdl_clear();
-    sprintf(displayScore, "Score: %zu", scene_get_score(scene));
-    drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
-    sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
-    drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){500,0});
-    draw(scene, frame);
-    frame++;
-    sdl_show();
-    //Experimental
-    /*Body* other = scene_get_body(scene, 1);
-    Body* player = scene_get_body(scene, 0);
-    BodyInfo* player_info = body_get_info(player);
-    BodyInfo* platform_info = body_get_info(other);
-    for(int i = 1; i < scene_bodies(scene); i++){
-      other =  scene_get_body(scene, i);
-      double distance = (body_get_centroid(player).y + 5 - body_get_radius(player)) -
-      (body_get_centroid(other).y + body_get_radius(other));
-      if((find_collision(body_get_shape(player), body_get_shape(other)).collided && body_info_get_collision(platform_info))|| (!body_info_get_collision(player_info) && fabs(distance) < MINI_DIST)){
-        body_info_set_collision(player_info, true);
-        body_info_set_collision(platform_info, true);
-        break;
-      }
-      else if(body_info_get_collision(player_info)){
-        body_info_set_collision(player_info, false);
-        body_info_set_collision(platform_info, false);
-      }
-    }*/
   }
-  free(displayScore);
-  free(displayLife);
-  scene_free(scene);
   return 0;
 }
