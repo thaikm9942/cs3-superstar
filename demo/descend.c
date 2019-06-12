@@ -216,7 +216,7 @@ int step(Scene *scene, double dt){
   }
   if(scene_get_status(scene)->isExpanded){
     //scene_set_body(scene, 0, player_init(5, BALL_POS, BALL_RADIUS + 5, BALL_MASS, RED, 3));
-    body_set_shape(scene_get_body(scene, 0), create_star(5, body_get_centroid(body), BALL_RADIUS + 5));
+    body_set_shape(scene_get_body(scene, 0), create_star(5, body_get_centroid(body), BALL_RADIUS * 2));
   }
   else{
     body_set_shape(scene_get_body(scene, 0), create_star(5, body_get_centroid(body), BALL_RADIUS));
@@ -232,6 +232,7 @@ int step(Scene *scene, double dt){
 void on_key(char key, KeyEventType type, void* aux_info) {
   Scene *scene = aux_info;
   Body* player = scene_get_body(scene, 0);
+  Body* other = scene_get_body(scene, 1);
   BodyInfo* info = body_get_info(player);
   bool colliding = body_info_get_collision(info);
   if (type == KEY_PRESSED) {
@@ -247,6 +248,7 @@ void on_key(char key, KeyEventType type, void* aux_info) {
             }
             break;
           case ' ':
+              /*
               if(colliding){
                 printf("collision\n");
                 if(!(body_get_velocity(player).y > MAX_VEL.y)){
@@ -258,6 +260,15 @@ void on_key(char key, KeyEventType type, void* aux_info) {
                 printf("no collision\n");
               }
               break;
+              */
+              for(int i = 1; i < scene_bodies(scene); i++){
+                other =  scene_get_body(scene, i);
+                if(find_collision(body_get_shape(player), body_get_shape(other)).collided){
+                  body_add_impulse(player, IMPULSE_UP);
+                  break;
+                }
+              }
+
       }
     }
     if(type == KEY_RELEASED)
