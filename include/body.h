@@ -108,7 +108,7 @@ double body_get_mass(Body *body);
  * @param body a pointer to a body returned from body_init()
  * @param color a pointer to a color returned from body_init()
  */
-RGBColor body_set_color(Body *body, RGBColor color);
+void body_set_color(Body *body, RGBColor color);
 
 /**
  * Gets the display color of a body.

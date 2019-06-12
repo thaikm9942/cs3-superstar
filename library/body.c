@@ -60,7 +60,7 @@ Vector body_get_velocity(Body *body){
     return body->vel;
 }
 
-RGBColor body_set_color(Body *body, RGBColor color){
+void body_set_color(Body *body, RGBColor color){
     body->c = color;
 }
 

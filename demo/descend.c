@@ -183,7 +183,7 @@ int next_platforms(Scene *scene){
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
    //1000
-   if(rand() % 5000 == 2){
+   if(rand() % 100 == 2){
      add_star_invincibility(scene);
    }
 
@@ -204,7 +204,6 @@ int step(Scene *scene, double dt){
   }
   Body* body = scene_get_body(scene, 0);
   BodyInfo* info = body_get_info(body);
-  size_t life = body_info_get_life(info);
   player_wrap(body, BOUNDARY);
   modulate_velocity(body);
   if(scene_get_status(scene)->isInvincible){

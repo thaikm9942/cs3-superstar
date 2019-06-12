@@ -37,4 +37,6 @@ void activate_expand(Status* status, int time);
 // Deactivates platform expansion
 void deactivate_expand(Status* status);
 
+// Decrements the power
+void status_tick(Status* status);
 #endif // #ifndef __STATUS_H_
