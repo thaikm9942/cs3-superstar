@@ -16,6 +16,9 @@ const Vector BOUNDARY = {
   .y = 100.0
 };
 
+typedef struct start {
+  bool ready;
+} Start;
 const int NUM_ROWS = 3;
 const Vector IMPULSE_X = (Vector){5000, 0};
 const Vector IMPULSE_UP = (Vector){0, 17500};
@@ -221,11 +224,10 @@ size_t step(Scene *scene, double dt, int last_score){
     body_info_set_life_lock(info, false);
   }
   if(scene_get_status(scene)->isExpanded){
-    //scene_set_body(scene, 0, player_init(5, BALL_POS, BALL_RADIUS + 5, BALL_MASS, RED, 3));
-    body_set_shape(scene_get_body(scene, 0), create_star(5 + scene_get_score(scene), body_get_centroid(body), BALL_RADIUS * 2));
+    body_star_set_radius_draw(body, BALL_RADIUS + 6, 5 + scene_get_score(scene));
   }
   else{
-    body_set_shape(scene_get_body(scene, 0), create_star(5+ scene_get_score(scene), body_get_centroid(body), BALL_RADIUS));
+    body_star_set_radius_draw(body, BALL_RADIUS, 5 + scene_get_score(scene));
   }
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
@@ -276,6 +278,13 @@ void on_key(char key, KeyEventType type, void* aux_info) {
     }
 }
 
+void start_key(char key, KeyEventType type, void* aux_info) {
+  Start *s = aux_info;
+  if(type == KEY_PRESSED && key == ' '){
+    s->ready = true;
+  }
+}
+
 // Draws the scene
 void draw(Scene *scene, int frame){
     for(size_t i = 0; i < scene_bodies(scene); i++)
@@ -291,6 +300,19 @@ int main(int argc, char *argv[]){
   size_t last_score = 0;
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
+  Start *start = malloc(sizeof(start));
+  start->ready = false;
+  sdl_on_key(start_key, start);
+  drawText("Press space to begin",27,(RGBColor){0,100,255}, (Vector){20,0});
+  sdl_show();
+  while(!sdl_is_done() && !start->ready){
+
+  }
+  free(start);
+  if(sdl_is_done()){
+    return 0;
+  }
+  sdl_clear();
   Scene *scene = scene_init();
   init_scene(scene);
   sdl_on_key(on_key, scene);
