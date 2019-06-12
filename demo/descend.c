@@ -231,6 +231,7 @@ int step(Scene *scene, double dt, int last_score){
     return -1;
   }
   scene_tick(scene, dt);
+  printf("Current score %d Last score %d \n", scene_get_score(scene), last_score);
   if(last_score != scene_get_score(scene))
   {
     printf("number of sides changed");
