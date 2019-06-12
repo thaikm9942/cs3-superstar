@@ -184,7 +184,7 @@ int next_platforms(Scene *scene){
 }
 
 // Return 0 if game running, return -1 if game over
-int step(Scene *scene, double dt, int last_score){
+size_t step(Scene *scene, double dt, int last_score){
    //1000
    if(rand() % 1000 == 2){
      add_star_invincibility(scene);
@@ -222,19 +222,17 @@ int step(Scene *scene, double dt, int last_score){
   }
   if(scene_get_status(scene)->isExpanded){
     //scene_set_body(scene, 0, player_init(5, BALL_POS, BALL_RADIUS + 5, BALL_MASS, RED, 3));
-    body_set_shape(scene_get_body(scene, 0), create_star(5, body_get_centroid(body), BALL_RADIUS * 2));
+    body_set_shape(scene_get_body(scene, 0), create_star(5 + scene_get_score(scene), body_get_centroid(body), BALL_RADIUS * 2));
   }
   else{
-    body_set_shape(scene_get_body(scene, 0), create_star(5, body_get_centroid(body), BALL_RADIUS));
+    body_set_shape(scene_get_body(scene, 0), create_star(5+ scene_get_score(scene), body_get_centroid(body), BALL_RADIUS));
   }
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
   }
   scene_tick(scene, dt);
-  printf("Current score %d Last score %d \n", scene_get_score(scene), last_score);
   if(last_score != scene_get_score(scene))
   {
-    printf("number of sides changed");
     body_star_set_num_sides(scene_get_body(scene, 0), (5 + scene_get_score(scene)));
   }
   return scene_get_score(scene);
@@ -290,7 +288,7 @@ void draw(Scene *scene, int frame){
 
 int main(int argc, char *argv[]){
   int frame = 0;
-  int last_score = 0;
+  size_t last_score = 0;
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = scene_init();
