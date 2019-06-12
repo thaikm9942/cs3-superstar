@@ -40,6 +40,9 @@ const int PLATFORM_DIST = 10;
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
 
+//Experimental
+const double MINI_DIST = 10;
+
 int randomValue(int min, int max){
   if(rand() % 2 == 1) {
     return rand() % (max - min + 1) + min;
@@ -183,7 +186,7 @@ int next_platforms(Scene *scene){
 // Return 0 if game running, return -1 if game over
 int step(Scene *scene, double dt){
    //1000
-   if(rand() % 100 == 2){
+   if(rand() % 1000 == 2){
      add_star_invincibility(scene);
    }
 
@@ -248,23 +251,12 @@ void on_key(char key, KeyEventType type, void* aux_info) {
             }
             break;
           case ' ':
-              /*
-              if(colliding){
-                printf("collision\n");
-                if(!(body_get_velocity(player).y > MAX_VEL.y)){
-                  body_add_impulse(player, IMPULSE_UP);
-                }
-                break;
-              }
-              else{
-                printf("no collision\n");
-              }
-              break;
-              */
               for(int i = 1; i < scene_bodies(scene); i++){
                 other =  scene_get_body(scene, i);
                 if(find_collision(body_get_shape(player), body_get_shape(other)).collided){
-                  body_add_impulse(player, IMPULSE_UP);
+                  if(!(body_get_velocity(player).y > MAX_VEL.y)){
+                    body_add_impulse(player, IMPULSE_UP);
+                  }
                   break;
                 }
               }
@@ -318,6 +310,25 @@ int main(int argc, char *argv[]){
     draw(scene, frame);
     frame++;
     sdl_show();
+    //Experimental
+    Body* other = scene_get_body(scene, 1);
+    Body* player = scene_get_body(scene, 0);
+    BodyInfo* player_info = body_get_info(player);
+    BodyInfo* platform_info = body_get_info(other);
+    for(int i = 1; i < scene_bodies(scene); i++){
+      other =  scene_get_body(scene, i);
+      double distance = (body_get_centroid(player).y + 5 - body_get_radius(player)) -
+      (body_get_centroid(other).y + body_get_radius(other));
+      if(find_collision(body_get_shape(player), body_get_shape(other)).collided && !body_info_get_collision(player_info) && !body_info_get_collision(platform_info) && fabs(distance) < MINI_DIST){
+        body_info_set_collision(player_info, true);
+        body_info_set_collision(platform_info, true);
+        break;
+      }
+      else if(body_info_get_collision(player_info)){
+        body_info_set_collision(player_info, false);
+        body_info_set_collision(platform_info, false);
+      }
+    }
   }
   free(displayScore);
   free(displayLife);
