@@ -176,7 +176,7 @@ int step(Scene *scene, double dt){
      add_gravity_hazard(scene);
    }
    //100
-   if(rand() % 25 == 4){
+   if(rand() % 10 == 4){
      add_ball_hazard(scene);
    }
 

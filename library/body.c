@@ -146,7 +146,7 @@ void body_tick(Body *body, double dt){
   Vector total_impulse = vec_add(body_get_impulse(body), vec_multiply(dt, body_get_force(body)));
   assert(!isnan(total_impulse.y) && (!isnan(total_impulse.x)));
   assert(!isnan(body_get_mass(body)));
-  if(body_get_mass(body) == 0 && body_info_get_type(body_get_info(body)) == 6)
+  if(body_get_mass(body) <= 0 && body_info_get_type(body_get_info(body)) == 6)
   {
     // THis is bad
     printf("mass fixed");

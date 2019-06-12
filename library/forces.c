@@ -133,29 +133,44 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     bool partial = partial_data->partial;
     double reduced_mass;
     double m1 = body_get_mass(body1);
+    printf("mass1 : %f\n", m1);
     double m2 = body_get_mass(body2);
+    printf("mass2 : %f\n", m2);
     assert(!isnan(m1));
     double u_a = vec_dot(body_get_velocity(body1), axis);
     Vector vel = body_get_velocity(body1);
     printf("%d %d\n", body_info_get_type(body_get_info(body1)), body_info_get_type(body_get_info(body2)));
     assert(!isnan(vel.y));
+    assert(vel.y != INFINITY);
     assert(!isnan(vel.x));
+    assert(vel.x != INFINITY);
     double u_b = vec_dot(body_get_velocity(body2), axis);
-    if(m1 == INFINITY){
+    if(m1 == INFINITY || m1 == -1 * INFINITY){
       reduced_mass = m2;
     }
-    else if(m2 == INFINITY){
+    else if(m2 == INFINITY || m2 == -1 * INFINITY){
       reduced_mass = m1;
     }
     else {
       reduced_mass = (m1 * m2) / (m1 + m2);
     }
+    printf("redmass : %f", reduced_mass);
     assert(!isnan(reduced_mass));
+    assert(reduced_mass != INFINITY);
+    assert(reduced_mass != -1 * INFINITY);
     assert(!isnan(elasticity));
+    assert(elasticity != INFINITY);
+    assert(u_b != INFINITY);
+    assert(u_a != INFINITY);
+    assert(elasticity != -1 * INFINITY);
+    assert(u_b != -1 * INFINITY);
+    assert(u_a != -1 * INFINITY);
     assert(!isnan(u_b));
     assert(!isnan(u_a));
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     assert(!isnan(j_n));
+    assert(j_n != INFINITY);
+    assert(-1 * j_n != INFINITY);
     Vector impulse = vec_multiply(j_n, axis);
     assert(!isnan(impulse.x) && !isnan(impulse.y));
     printf("Adding impulse RB x: %f y: %f \n", impulse.x, impulse.y);
