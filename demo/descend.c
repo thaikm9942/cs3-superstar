@@ -184,7 +184,7 @@ int next_platforms(Scene *scene){
 }
 
 // Return 0 if game running, return -1 if game over
-int step(Scene *scene, double dt){
+int step(Scene *scene, double dt, int last_score){
    //1000
    if(rand() % 1000 == 2){
      add_star_invincibility(scene);
@@ -231,7 +231,11 @@ int step(Scene *scene, double dt){
     return -1;
   }
   scene_tick(scene, dt);
-  return 0;
+  if(last_score != scene_get_score(scene))
+  {
+    body_star_set_num_sides(scene_get_body(scene, 0), (5 + scene_get_score(scene)));
+  }
+  return scene_get_score(scene);
 }
 
 // KeyHandler
@@ -284,6 +288,7 @@ void draw(Scene *scene, int frame){
 
 int main(int argc, char *argv[]){
   int frame = 0;
+  int last_score = 0;
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = scene_init();
@@ -293,7 +298,8 @@ int main(int argc, char *argv[]){
   char* displayLife = (char *)malloc(sizeof(char)*100);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
-    if(step(scene, dt) == -1)
+    last_score = step(scene, dt, last_score);
+    if(last_score == -1)
     {
       break;
     }

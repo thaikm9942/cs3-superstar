@@ -169,6 +169,8 @@ void body_set_rotation(Body *body, double angle);
  */
 void body_set_radius(Body *body, double new_r);
 
+/* Sets the star body to a new star with the given number of sides */
+void body_star_set_num_sides(Body *body, int sides);
 /**
  * Applies a force to a body over the current tick.
  * If multiple forces are applied in the same tick, they should be added.
