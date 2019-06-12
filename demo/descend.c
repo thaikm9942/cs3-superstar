@@ -233,6 +233,7 @@ int step(Scene *scene, double dt, int last_score){
   scene_tick(scene, dt);
   if(last_score != scene_get_score(scene))
   {
+    printf("number of sides changed");
     body_star_set_num_sides(scene_get_body(scene, 0), (5 + scene_get_score(scene)));
   }
   return scene_get_score(scene);
