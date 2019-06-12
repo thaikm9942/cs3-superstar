@@ -145,6 +145,14 @@ void body_star_set_num_sides(Body *body, int sides)
   list_free(old);
 }
 
+void body_star_set_radius_draw(Body *body, double radius, int sides)
+{
+  List* old = body->points;
+  body->radius = radius;
+  body->points = create_star(sides, body_get_centroid(body), radius);
+  list_free(old);
+}
+
 void body_add_force(Body *body, Vector force){
   body_set_force(body, vec_add(body_get_force(body), force));
 }
