@@ -7,6 +7,11 @@
 
 const double MIN_DISTANCE = 5;
 
+const int DEBUG = 0;
+// 0 is false 1 is true. When true, all assert statements and print statements
+// run. Used to handle the epic random crash problem.
+
+
 /**
  * Adds a Newtonian gravitational force between two bodies in a scene.
  * See https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation#Vector_form.
@@ -144,10 +149,41 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     }
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
-    if(isnan(impulse.x) || isnan(impulse.y)){
+    if(DEBUG)
+    {
+      printf("mass1 : %f\n", m1);
+      printf("mass2 : %f\n", m2);
+      assert(!isnan(m1));
+      Vector vel = body_get_velocity(body1);
+      printf("%d %d\n", body_info_get_type(body_get_info(body1)), body_info_get_type(body_get_info(body2)));
+      assert(!isnan(vel.y));
+      assert(vel.y != INFINITY);
+      assert(!isnan(vel.x));
+      assert(vel.x != INFINITY);
+      printf("redmass : %f", reduced_mass);
+      assert(!isnan(reduced_mass));
+      assert(reduced_mass != INFINITY);
+      assert(reduced_mass != -1 * INFINITY);
+      assert(!isnan(elasticity));
+      assert(elasticity != INFINITY);
+      assert(u_b != INFINITY);
+      assert(u_a != INFINITY);
+      assert(elasticity != -1 * INFINITY);
+      assert(u_b != -1 * INFINITY);
+      assert(u_a != -1 * INFINITY);
+      assert(!isnan(u_b));
+      assert(!isnan(u_a));
+      assert(!isnan(j_n));
+      assert(j_n != INFINITY);
+      assert(-1 * j_n != INFINITY);
+      assert(!isnan(impulse.x) && !isnan(impulse.y));
+      printf("Adding impulse RB x: %f y: %f \n", impulse.x, impulse.y);
+
+    }
+    /*if(isnan(impulse.x) || isnan(impulse.y)){
       impulse.x = 0;
       impulse.y = 0;
-    }
+    }*/
     body_add_impulse(body1, impulse);
     if(partial){
       body_remove(body2);

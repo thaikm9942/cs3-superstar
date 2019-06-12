@@ -3,6 +3,11 @@
 #include "stdlib.h"
 #include "assert.h"
 #include <math.h>
+#include "shape.h"
+
+const int DEBUG = 0;
+// 0 is false 1 is true. When true, all assert statements and print statements
+// run. Used to handle the epic random crash problem.
 
 Body *body_init(List *shape, double mass, RGBColor color, double radius){
     Body *thisBod = malloc(sizeof(Body));
@@ -144,6 +149,37 @@ void body_add_impulse(Body *body, Vector impulse){
 void body_tick(Body *body, double dt){
   Vector vel_before = body_get_velocity(body);
   Vector total_impulse = vec_add(body_get_impulse(body), vec_multiply(dt, body_get_force(body)));
+  if(DEBUG)
+  {
+    // Legacy of the random crashing bug. The Nan was traced using this code
+    // and this code is left for use if the bug is not fully gone as thought.
+    // Set the const to DEBUG to use.
+    assert(!isnan(vel_before.y) && !isnan(vel_before.x));
+    assert(!isnan(total_impulse.y) && (!isnan(total_impulse.x)));
+    assert(!isnan(body_get_mass(body)));
+    printf("Mass %f\n", body_get_mass(body));
+    printf("Type %d\n", body_info_get_type(body_get_info(body)));
+    float repMass = 1.0 / body_get_mass(body);
+    // 1 over 0 is infinity and infinity * another number is nan
+    printf("Reciprocal Mass%f\n", repMass);
+    assert(!isnan(repMass));
+    Vector addtions = vec_multiply(repMass, total_impulse);
+    assert(!isnan(addtions.y) && !isnan(addtions.x));
+    Vector new_vel = vec_add(vel_before, addtions);
+    assert(!isnan(new_vel.y) && !isnan(new_vel.x));
+  }
+  if(body_get_mass(body) <= 0 && body_info_get_type(body_get_info(body)) == 6)
+  {
+    // THis is bad
+    // Periodically, the mass of an object of type 6 become negative or zero
+    // We don't know why, but if so the mass is reset to 200 (default value)
+    if(DEBUG){
+      printf("Mass fixed to be non negative");
+    }
+    body->m = 200;
+  }
+
+
   body_set_velocity(body, vec_add(vel_before, vec_multiply(1.0 / body_get_mass(body), total_impulse)));
   Vector avg_vel = vec_multiply(1.0/2.0, vec_add(vel_before, body_get_velocity(body)));
   body_set_centroid(body, vec_add(body_get_centroid(body), vec_multiply(dt, avg_vel)));
