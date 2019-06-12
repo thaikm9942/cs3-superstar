@@ -54,6 +54,8 @@ size_t body_info_get_life(BodyInfo* info);
  */
 bool body_info_get_collision(BodyInfo* info);
 
+bool body_info_get_life_lock(BodyInfo* info);
+
 /**
  * Sets the number of lives left on a Body to a new one.
  * @param info a pointer to a BodyInfo
@@ -67,6 +69,8 @@ void body_info_set_life(BodyInfo* info, size_t new_life);
  * @param colliding either TRUE or FALSE will be set here
  */
 void body_info_set_collision(BodyInfo* info, bool colliding);
+
+void body_info_set_life_lock(BodyInfo* info, bool lock);
 
 /**
  * Creates a Body with a star shape and given parameters

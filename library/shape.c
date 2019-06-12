@@ -8,6 +8,7 @@ struct body_info{
   BodyType* type;
   size_t life;
   bool isColliding;
+  bool life_lock;
 };
 
 BodyInfo* body_info_init(BodyType* type, size_t life){
@@ -16,6 +17,7 @@ BodyInfo* body_info_init(BodyType* type, size_t life){
   info->type = type;
   info->life = life;
   info->isColliding = false;
+  info->life_lock = false;
   return info;
 }
 
@@ -37,12 +39,20 @@ bool body_info_get_collision(BodyInfo* info){
   return info->isColliding;
 }
 
+bool body_info_get_life_lock(BodyInfo* info){
+  return info->life_lock;
+}
+
 void body_info_set_life(BodyInfo* info, size_t new_life){
   info->life = new_life;
 }
 
 void body_info_set_collision(BodyInfo* info, bool colliding){
   info->isColliding = colliding;
+}
+
+void body_info_set_life_lock(BodyInfo* info, bool lock){
+  info->life_lock = lock;
 }
 
 List *rotate_points(int sides, Vector point){

@@ -84,7 +84,9 @@ void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
       }
       else {
         printf("Life lost\n");
-        body_info_set_life(info, body_info_get_life(info) - 1);
+        if(!body_info_get_life_lock(body_get_info(body2))){
+          body_info_set_life(info, body_info_get_life(info) - 1);
+        }
         body_add_impulse(body2, vec_negate(impulse));
       }
     }
@@ -104,7 +106,7 @@ void destroy_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
     if(body_info_get_life(info) == 0) {
       body_remove(body2);
     }
-    else {
+    else if (!body_info_get_life_lock(info)) {
       body_info_set_life(info, body_info_get_life(info) - 1);
     }
   }

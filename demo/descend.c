@@ -209,13 +209,11 @@ int step(Scene *scene, double dt){
   modulate_velocity(body);
   if(scene_get_status(scene)->isInvincible){
     body_set_color(body, YELLOW);
-    if(life < 10000){
-      body_info_set_life(info, life + 10000);
-    }
+    body_info_set_life_lock(info, true);
   }
-  else if(life > 10){
+  else{
     body_set_color(body, RED);
-    body_info_set_life(info, 3);
+    body_info_set_life_lock(info, false);
   }
   if(scene_get_status(scene)->isExpanded){
     //scene_set_body(scene, 0, player_init(5, BALL_POS, BALL_RADIUS + 5, BALL_MASS, RED, 3));

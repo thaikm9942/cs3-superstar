@@ -5,7 +5,7 @@
 #include "powerup.h"
 
 const int EXP_TIME = 1500;
-const int INV_TIME = 300;
+const int INV_TIME = 1000;
 
 // CollisionHandler that is used by the ForceCreator to handle collisions between
 // player and powerup stars
