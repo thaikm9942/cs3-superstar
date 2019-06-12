@@ -41,7 +41,7 @@ const int PLATFORM_DIST = 10;
 #define R (sqrt(G * M / g)) // m
 
 //Experimental
-const double MINI_DIST = 10;
+//const double MINI_DIST = 10;
 
 int randomValue(int min, int max){
   if(rand() % 2 == 1) {
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]){
     frame++;
     sdl_show();
     //Experimental
-    Body* other = scene_get_body(scene, 1);
+    /*Body* other = scene_get_body(scene, 1);
     Body* player = scene_get_body(scene, 0);
     BodyInfo* player_info = body_get_info(player);
     BodyInfo* platform_info = body_get_info(other);
@@ -319,7 +319,7 @@ int main(int argc, char *argv[]){
       other =  scene_get_body(scene, i);
       double distance = (body_get_centroid(player).y + 5 - body_get_radius(player)) -
       (body_get_centroid(other).y + body_get_radius(other));
-      if(find_collision(body_get_shape(player), body_get_shape(other)).collided && !body_info_get_collision(player_info) && !body_info_get_collision(platform_info) && fabs(distance) < MINI_DIST){
+      if((find_collision(body_get_shape(player), body_get_shape(other)).collided && body_info_get_collision(platform_info))|| (!body_info_get_collision(player_info) && fabs(distance) < MINI_DIST)){
         body_info_set_collision(player_info, true);
         body_info_set_collision(platform_info, true);
         break;
@@ -328,7 +328,7 @@ int main(int argc, char *argv[]){
         body_info_set_collision(player_info, false);
         body_info_set_collision(platform_info, false);
       }
-    }
+    }*/
   }
   free(displayScore);
   free(displayLife);
