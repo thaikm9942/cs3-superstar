@@ -211,6 +211,9 @@ int step(Scene *scene, double dt){
   modulate_velocity(body);
   if(scene_get_status(scene)->isInvincible){
     body_set_color(body, YELLOW);
+    if(!body_info_get_life_lock(info)){
+      body_info_set_life(info, body_info_get_life(info) + 1);
+    }
     body_info_set_life_lock(info, true);
   }
   else{
@@ -236,8 +239,6 @@ void on_key(char key, KeyEventType type, void* aux_info) {
   Scene *scene = aux_info;
   Body* player = scene_get_body(scene, 0);
   Body* other = scene_get_body(scene, 1);
-  BodyInfo* info = body_get_info(player);
-  bool colliding = body_info_get_collision(info);
   if (type == KEY_PRESSED) {
     switch(key) {
           case LEFT_ARROW:
@@ -299,13 +300,7 @@ int main(int argc, char *argv[]){
     sdl_clear();
     sprintf(displayScore, "Score: %zu", scene_get_score(scene));
     drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
-    if(body_info_get_life(body_get_info(scene_get_body(scene, 0))) > 10) {
-      sprintf(displayLife, "Lives: INVINCIBLE");
-    }
-    else{
-      sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
-    }
-
+    sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
     drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){500,0});
     draw(scene, frame);
     frame++;
