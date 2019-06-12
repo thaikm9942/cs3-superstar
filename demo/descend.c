@@ -246,6 +246,11 @@ void draw(Scene *scene, int frame){
 int main(int argc, char *argv[]){
   int frame = 0;
   srand(time(0));
+  for(int i = 0; i < 1000; i++)
+  {
+    printf("\a");
+  }
+
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = scene_init();
   init_scene(scene);
