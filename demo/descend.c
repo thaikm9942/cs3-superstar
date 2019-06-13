@@ -134,7 +134,7 @@ void add_gravity_hazard(Scene *scene){
 }
 
 void add_ball_hazard(Scene *scene){
-  moving_ball_hazard_init((Vector){BOUNDARY.x - 15, randomValue(0,BOUNDARY.y)}, (Vector) {-abs(randomValue(MAX_VEL.x, 4 * MAX_VEL.x)), DEFAULT_VEL.y}, abs(randomValue(1, 10)) * BALL_MASS, scene);
+  moving_ball_hazard_init((Vector){BOUNDARY.x - 15, randomValue(0,BOUNDARY.y)}, (Vector) {-abs(randomValue(MAX_VEL.x, 10 * MAX_VEL.x)), DEFAULT_VEL.y}, abs(randomValue(1, 10)) * BALL_MASS, scene);
 }
 
 void add_power(Scene *scene, Body *power){
