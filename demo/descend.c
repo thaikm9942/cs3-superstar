@@ -380,8 +380,9 @@ int main(int argc, char *argv[]){
         drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
         sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
         drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){870,0});
-        draw(scene, frame);
         draw(background, frame);
+        draw(scene, frame);
+
         frame++;
         sdl_show();
         if(sdl_is_done()){
