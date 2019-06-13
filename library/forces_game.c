@@ -86,6 +86,8 @@ void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
         printf("Life lost\n");
         if(!body_info_get_life_lock(body_get_info(body2))){
           body_info_set_life(info, body_info_get_life(info) - 1);
+          body_info_set_life_lock(info, true);
+          //activate_invincibility(scene_get_status(aux), IFRAMES);
         }
         body_add_impulse(body2, vec_negate(impulse));
       }
@@ -108,6 +110,8 @@ void destroy_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
     }
     else if (!body_info_get_life_lock(info)) {
       body_info_set_life(info, body_info_get_life(info) - 1);
+      body_info_set_life_lock(info, true);
+      //activate_invincibility(scene_get_status(aux), IFRAMES);
     }
   }
   else{

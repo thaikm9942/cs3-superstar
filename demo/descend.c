@@ -41,6 +41,7 @@ const int PLATFORM_DIST = 10;
 #define R (sqrt(G * M / g)) // m
 
 //Experimental
+const int IFRAMES = 100;
 //const double MINI_DIST = 10;
 
 int randomValue(int min, int max){
@@ -296,9 +297,14 @@ int main(int argc, char *argv[]){
   sdl_on_key(on_key, scene);
   char* displayScore = (char *)malloc(sizeof(char)*100);
   char* displayLife = (char *)malloc(sizeof(char)*100);
+  int last_life;
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
+    last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
     last_score = step(scene, dt, last_score);
+    if(last_life > body_info_get_life(body_get_info(scene_get_body(scene, 0)))){
+      activate_invincibility(scene_get_status(scene), IFRAMES);
+    }
     if(last_score == -1)
     {
       break;
