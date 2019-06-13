@@ -188,7 +188,7 @@ int next_platforms(Scene *scene){
 }
 
 // Return 0 if game running, return -1 if game over
-size_t step(Scene *scene, double dt, int last_score){
+size_t step(Scene *scene, double dt, int last_score, Scene *background){
    //1000
    if(rand() % 1000 == 2){
      add_star_invincibility(scene);
@@ -234,6 +234,7 @@ size_t step(Scene *scene, double dt, int last_score){
     return -1;
   }
   scene_tick(scene, dt);
+  scene_background_tick(background, dt, BOUNDARY);
   if(last_score != scene_get_score(scene))
   {
     body_star_set_num_sides(scene_get_body(scene, 0), (5 + scene_get_score(scene)));
@@ -286,6 +287,41 @@ void start_key(char key, KeyEventType type, void* aux_info) {
   }
 }
 
+void init_background(Scene * background)
+{
+  RGBColor one = (RGBColor){0.576, 0.439, 0.858};
+  RGBColor two = (RGBColor){0.729, 0.337, 0.827};
+  RGBColor three = (RGBColor){1.0, 0.0, 1.0};
+  RGBColor four = (RGBColor){0.854, 0.439, 0.839};
+  RGBColor five = (RGBColor){0.933, 0.509, 0.933};
+  RGBColor six = (RGBColor){0.827, 0.627, 0.827};
+  List* shape1 = create_block((Vector){0, 25}, (Vector){400, 50});
+  Body* block1 = body_init(shape1, 10, one, 10);
+  body_set_velocity(block1, DEFAULT_VEL);
+  List* shape2 = create_block((Vector){0, 75}, (Vector){400, 50});
+  Body* block2 = body_init(shape2, 10, two, 10);
+  body_set_velocity(block2, DEFAULT_VEL);
+  List* shape3 = create_block((Vector){0, 125}, (Vector){400, 50});
+  Body* block3 = body_init(shape3, 10, three, 10);
+  body_set_velocity(block3, DEFAULT_VEL);
+  List* shape4 = create_block((Vector){0, -125}, (Vector){400, 50});
+  Body* block4 = body_init(shape4, 10, four, 10);
+  body_set_velocity(block4, DEFAULT_VEL);
+  List* shape5 = create_block((Vector){0, -75}, (Vector){400, 50});
+  Body* block5 = body_init(shape5, 10, five, 10);
+  body_set_velocity(block5, DEFAULT_VEL);
+  List* shape6 = create_block((Vector){0, -25}, (Vector){400, 50});
+  Body* block6 = body_init(shape6, 10, six, 10);
+  body_set_velocity(block6, DEFAULT_VEL);
+  scene_add_body(background, block1);
+  scene_add_body(background, block2);
+  scene_add_body(background, block3);
+  scene_add_body(background, block4);
+  scene_add_body(background, block5);
+  scene_add_body(background, block6);
+}
+
+
 // Draws the scene
 void draw(Scene *scene, int frame){
     for(size_t i = 0; i < scene_bodies(scene); i++)
@@ -299,6 +335,10 @@ void draw(Scene *scene, int frame){
 int main(int argc, char *argv[]){
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
+  for(int i = 0; i < 1000; i++)
+  {
+    printf("\a");
+  }
   while(!sdl_is_done()){
     int frame = 0;
     size_t last_score = 0;
@@ -317,7 +357,9 @@ int main(int argc, char *argv[]){
     free(start);
     sdl_clear();
     Scene *scene = scene_init();
+    Scene * background = scene_init();
     init_scene(scene);
+    init_background(background);
     sdl_on_key(on_key, scene);
     char* displayScore = (char *)malloc(sizeof(char)*100);
     char* displayLife = (char *)malloc(sizeof(char)*100);
@@ -325,7 +367,7 @@ int main(int argc, char *argv[]){
       while(!sdl_is_done()){
         double dt = time_since_last_tick();last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
         last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
-        last_score = step(scene, dt, last_score);
+        last_score = step(scene, dt, last_score, background);
         if(last_life > body_info_get_life(body_get_info(scene_get_body(scene, 0)))){
           activate_invincibility(scene_get_status(scene), IFRAMES);
         }
@@ -339,6 +381,7 @@ int main(int argc, char *argv[]){
         sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
         drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){870,0});
         draw(scene, frame);
+        draw(background, frame);
         frame++;
         sdl_show();
         if(sdl_is_done()){
@@ -351,6 +394,7 @@ int main(int argc, char *argv[]){
     free(displayScore);
     free(displayLife);
     scene_free(scene);
+    scene_free(background);
     if(sdl_is_done()){
       return 0;
     }

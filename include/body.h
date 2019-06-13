@@ -250,6 +250,10 @@ void body_remove(Body *body);
  */
 bool body_is_removed(Body *body);
 
+
+void background_wrap(Body * body, Vector max);
+
+
 /**
  * Wraps the player to the other side of the screen if they exceed boundaries
  *

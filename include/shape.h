@@ -89,6 +89,10 @@ Body *star_init(int sides, Vector position, double radius, double mass, RGBColor
 // Calls on star_init to create a PLAYER type star
 Body *player_init(int sides, Vector position, double radius, double mass, RGBColor color, size_t life);
 
+// Draws a block at the given position with the given dimension.
+List *create_block(Vector position, Vector dimension);
+
+
 /**
  * Creates a Body with a block shape and given parameters
  * @param position the position to translate the block to after

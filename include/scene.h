@@ -133,6 +133,10 @@ void scene_add_bodies_force_creator(
     Scene *scene, ForceCreator forcer, void *aux, List *bodies, FreeFunc freer
 );
 
+
+void scene_background_tick(Scene * scene, double dt, Vector max);
+
+
 /**
  * Executes a tick of a given scene over a small time interval.
  * This requires executing all the force creators
