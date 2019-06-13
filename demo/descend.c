@@ -354,6 +354,10 @@ int main(int argc, char *argv[]){
         return 0;
       }
     }
+    for(int i = 0; i < 1000; i++)
+    {
+    printf("\a");
+    }
     free(start);
     sdl_clear();
     Scene *scene = scene_init();
