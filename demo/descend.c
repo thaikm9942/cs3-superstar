@@ -324,8 +324,8 @@ int main(int argc, char *argv[]){
     int last_life = 0;
       while(!sdl_is_done()){
         double dt = time_since_last_tick();last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
-        last_score = step(scene, dt, last_score);
         last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
+        last_score = step(scene, dt, last_score);
         if(last_life > body_info_get_life(body_get_info(scene_get_body(scene, 0)))){
           activate_invincibility(scene_get_status(scene), IFRAMES);
         }
