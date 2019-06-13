@@ -7,7 +7,7 @@
 
 // Constants:
 const Vector DEFAULT_HAZARD_VEL = (Vector){0, -10};
-const double HAZARD_RADIUS = 10;
+const double HAZARD_RADIUS = 1;
 const double HAZARD_MASS = 5E14;
 // GRAV_COLOR and SPIKE_COLOR are both BLACK
 const RGBColor GRAV_COLOR = (RGBColor){0.0, 0.0, 0.0};
@@ -33,7 +33,7 @@ void spike_hazard_init(Vector position, Scene* scene) {
 }
 
 void gravity_hazard_init(Vector position, Scene* scene){
-    Body* grav_body = gravity_ball_init(position, 0.5 * HAZARD_RADIUS, HAZARD_MASS, GRAV_COLOR, 1);
+    Body* grav_body = gravity_ball_init(position, 5 * HAZARD_RADIUS, HAZARD_MASS, GRAV_COLOR, 1);
     body_set_velocity(grav_body, DEFAULT_HAZARD_VEL);
     scene_add_body(scene, grav_body);
     for(size_t i = 0; i < scene_bodies(scene); i++){
@@ -52,8 +52,8 @@ void gravity_hazard_init(Vector position, Scene* scene){
 
 
 void moving_ball_hazard_init(Vector position, Vector velocity, double mass, Scene* scene){
-    Body* moving_ball_body = moving_ball_init(position, HAZARD_RADIUS, mass, BAD_BALL_COLOR, 1);
-    body_set_velocity(moving_ball_body, vec_add(DEFAULT_HAZARD_VEL, velocity));
+    Body* moving_ball_body = moving_ball_init(position, 5 * HAZARD_RADIUS, mass, BAD_BALL_COLOR, 1);
+    body_set_velocity(moving_ball_body, velocity);
     scene_add_body(scene, moving_ball_body);
     for(size_t i = 0; i < scene_bodies(scene); i++){
       Body* body = scene_get_body(scene, i);
