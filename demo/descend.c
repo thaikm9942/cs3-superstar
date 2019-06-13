@@ -393,6 +393,7 @@ int main(int argc, char *argv[]){
           free(displayScore);
           free(displayLife);
           scene_free(scene);
+          scene_free(background);
           return 0;
         }
         }
