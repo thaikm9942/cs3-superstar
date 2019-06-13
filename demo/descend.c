@@ -5,6 +5,7 @@
 #include "hazard.h"
 #include "powerup.h"
 #include "body.h"
+#include "shape.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -164,7 +165,7 @@ int next_platforms(Scene *scene){
 }
 
 // Return 0 if game running, return -1 if game over
-int step(Scene *scene, double dt){
+int step(Scene *scene, double dt, Scene * background){
 
    if(rand() % 100 == 1){
      add_point(scene);
@@ -190,6 +191,7 @@ int step(Scene *scene, double dt){
     return -1;
   }
   scene_tick(scene, dt);
+  scene_tick(background, dt);
   return 0;
 }
 
@@ -232,7 +234,40 @@ void on_key(char key, KeyEventType type, void* aux_info) {
       body_set_velocity(player, vec);
     }
 }
+void init_background(Scene * background)
+{
+  RGBColor one = (RGBColor){0.576, 0.439, 0.858};
+  RGBColor two = (RGBColor){0.729, 0.337, 0.827};
+  RGBColor three = (RGBColor){1.0, 0.0, 1.0};
+  RGBColor four = (RGBColor){0.854, 0.439, 0.839};
+  RGBColor five = (RGBColor){0.933, 0.509, 0.933};
+  RGBColor six = (RGBColor){0.827, 0.627, 0.827};
+  List* shape1 = create_block((Vector){0, 25}, (Vector){400, 50});
+  Body* block1 = body_init(shape1, 10, one, 10);
+  body_set_velocity(block1, DEFAULT_VEL);
+  List* shape2 = create_block((Vector){0, 75}, (Vector){400, 50});
+  Body* block2 = body_init(shape2, 10, two, 10);
+  body_set_velocity(block2, DEFAULT_VEL);
 
+  List* shape3 = create_block((Vector){0, 125}, (Vector){400, 50});
+  Body* block3 = body_init(shape3, 10, three, 10);
+  body_set_velocity(block3, DEFAULT_VEL);
+  List* shape4 = create_block((Vector){0, -125}, (Vector){400, 50});
+  Body* block4 = body_init(shape4, 10, four, 10);
+  body_set_velocity(block4, DEFAULT_VEL);
+  List* shape5 = create_block((Vector){0, -75}, (Vector){400, 50});
+  Body* block5 = body_init(shape5, 10, five, 10);
+  body_set_velocity(block5, DEFAULT_VEL);
+  List* shape6 = create_block((Vector){0, -25}, (Vector){400, 50});
+  Body* block6 = body_init(shape6, 10, six, 10);
+  body_set_velocity(block6, DEFAULT_VEL);
+  scene_add_body(background, block1);
+  scene_add_body(background, block2);
+  scene_add_body(background, block3);
+  scene_add_body(background, block4);
+  scene_add_body(background, block5);
+  scene_add_body(background, block6);
+}
 // Draws the scene
 void draw(Scene *scene, int frame){
     for(size_t i = 0; i < scene_bodies(scene); i++)
@@ -253,13 +288,15 @@ int main(int argc, char *argv[]){
 
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
   Scene *scene = scene_init();
+  Scene * background = scene_init();
   init_scene(scene);
+  init_background(background);
   sdl_on_key(on_key, scene);
   char* displayScore = (char *)malloc(sizeof(char)*10);
   char* displayLife = (char *)malloc(sizeof(char)*100);
   while(!sdl_is_done()){
     double dt = time_since_last_tick();
-    if(step(scene, dt) == -1)
+    if(step(scene, dt, background) == -1)
     {
       break;
     }
@@ -268,12 +305,15 @@ int main(int argc, char *argv[]){
     //drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
     //sprintf(displayLife, "Life: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
     //drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){200,0});
+    draw(background, frame);
     draw(scene, frame);
+
     frame++;
     sdl_show();
   }
   free(displayScore);
   free(displayLife);
   scene_free(scene);
+  scene_free(background);
   return 0;
 }

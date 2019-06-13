@@ -109,6 +109,8 @@ Body *block_init(Vector position, Vector dimension, RGBColor color, size_t life,
  */
 Body *ball_init(Vector position, double radius, double mass, RGBColor color, size_t life, BodyType* type);
 
+// Draws a block at the given position with the given dimension.
+List *create_block(Vector position, Vector dimension);
 // Initializes a POINT type ball using ball_init
 Body *point_init(Vector position, double radius, double mass, RGBColor color, size_t life);
 
