@@ -16,6 +16,9 @@ const Vector BOUNDARY = {
   .y = 100.0
 };
 
+typedef struct start {
+  bool ready;
+} Start;
 const int NUM_ROWS = 3;
 const Vector IMPULSE_X = (Vector){5000, 0};
 const Vector IMPULSE_UP = (Vector){0, 17500};
@@ -222,11 +225,10 @@ size_t step(Scene *scene, double dt, int last_score){
     body_info_set_life_lock(info, false);
   }
   if(scene_get_status(scene)->isExpanded){
-    //scene_set_body(scene, 0, player_init(5, BALL_POS, BALL_RADIUS + 5, BALL_MASS, RED, 3));
-    body_set_shape(scene_get_body(scene, 0), create_star(5 + scene_get_score(scene), body_get_centroid(body), BALL_RADIUS * 2));
+    body_star_set_radius_draw(body, BALL_RADIUS + 6, 5 + scene_get_score(scene));
   }
   else{
-    body_set_shape(scene_get_body(scene, 0), create_star(5+ scene_get_score(scene), body_get_centroid(body), BALL_RADIUS));
+    body_star_set_radius_draw(body, BALL_RADIUS, 5 + scene_get_score(scene));
   }
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
@@ -277,6 +279,13 @@ void on_key(char key, KeyEventType type, void* aux_info) {
     }
 }
 
+void start_key(char key, KeyEventType type, void* aux_info) {
+  Start *s = aux_info;
+  if(type == KEY_PRESSED && key == ' '){
+    s->ready = true;
+  }
+}
+
 // Draws the scene
 void draw(Scene *scene, int frame){
     for(size_t i = 0; i < scene_bodies(scene); i++)
@@ -288,57 +297,64 @@ void draw(Scene *scene, int frame){
 }
 
 int main(int argc, char *argv[]){
-  int frame = 0;
-  size_t last_score = 0;
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
-  Scene *scene = scene_init();
-  init_scene(scene);
-  sdl_on_key(on_key, scene);
-  char* displayScore = (char *)malloc(sizeof(char)*100);
-  char* displayLife = (char *)malloc(sizeof(char)*100);
-  int last_life;
   while(!sdl_is_done()){
-    double dt = time_since_last_tick();
-    last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
-    last_score = step(scene, dt, last_score);
-    if(last_life > body_info_get_life(body_get_info(scene_get_body(scene, 0)))){
-      activate_invincibility(scene_get_status(scene), IFRAMES);
+    int frame = 0;
+    size_t last_score = 0;
+    Start *start = malloc(sizeof(start));
+    start->ready = false;
+    sdl_on_key(start_key, start);
+    drawText("SUPERSTAR!",72,(RGBColor){150,100,35}, (Vector){270,50});
+    drawText("(Press space to begin)",72,(RGBColor){150,100,255}, (Vector){150,200});
+    sdl_show();
+    while(!sdl_is_done() && !start->ready){
+      if(sdl_is_done()){
+        free(start);
+        return 0;
+      }
     }
-    if(last_score == -1)
-    {
-      break;
+    free(start);
+    sdl_clear();
+    Scene *scene = scene_init();
+    init_scene(scene);
+    sdl_on_key(on_key, scene);
+    char* displayScore = (char *)malloc(sizeof(char)*100);
+    char* displayLife = (char *)malloc(sizeof(char)*100);
+    int last_life = 0;
+      while(!sdl_is_done()){
+        double dt = time_since_last_tick();last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
+        last_score = step(scene, dt, last_score);
+        last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
+        if(last_life > body_info_get_life(body_get_info(scene_get_body(scene, 0)))){
+          activate_invincibility(scene_get_status(scene), IFRAMES);
+        }
+        if(last_score == -1)
+        {
+          break;
+        }
+        sdl_clear();
+        sprintf(displayScore, "Score: %zu", scene_get_score(scene));
+        drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
+        sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
+        drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){870,0});
+        draw(scene, frame);
+        frame++;
+        sdl_show();
+        if(sdl_is_done()){
+          free(displayScore);
+          free(displayLife);
+          scene_free(scene);
+          return 0;
+        }
+        }
+    free(displayScore);
+    free(displayLife);
+    scene_free(scene);
+    if(sdl_is_done()){
+      return 0;
     }
     sdl_clear();
-    sprintf(displayScore, "Score: %zu", scene_get_score(scene));
-    drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
-    sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
-    drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){500,0});
-    draw(scene, frame);
-    frame++;
-    sdl_show();
-    //Experimental
-    /*Body* other = scene_get_body(scene, 1);
-    Body* player = scene_get_body(scene, 0);
-    BodyInfo* player_info = body_get_info(player);
-    BodyInfo* platform_info = body_get_info(other);
-    for(int i = 1; i < scene_bodies(scene); i++){
-      other =  scene_get_body(scene, i);
-      double distance = (body_get_centroid(player).y + 5 - body_get_radius(player)) -
-      (body_get_centroid(other).y + body_get_radius(other));
-      if((find_collision(body_get_shape(player), body_get_shape(other)).collided && body_info_get_collision(platform_info))|| (!body_info_get_collision(player_info) && fabs(distance) < MINI_DIST)){
-        body_info_set_collision(player_info, true);
-        body_info_set_collision(platform_info, true);
-        break;
-      }
-      else if(body_info_get_collision(player_info)){
-        body_info_set_collision(player_info, false);
-        body_info_set_collision(platform_info, false);
-      }
-    }*/
   }
-  free(displayScore);
-  free(displayLife);
-  scene_free(scene);
   return 0;
 }
