@@ -112,6 +112,15 @@ void scene_remove_body(Scene *scene, size_t index) {
   body_remove((Body*)list_get(scene->bodies, index));
 }
 
+void scene_background_tick(Scene * scene, double dt, Vector max)
+{
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body *body = scene_get_body(scene, i);
+    body_tick(body, dt);
+    background_wrap(body, max);
+  }
+}
+
 void scene_tick(Scene *scene, double dt) {
   // Iterate over every force creator
   for(size_t i = 0; i < list_size(scene->scene_forcers); i++){

@@ -191,7 +191,7 @@ int step(Scene *scene, double dt, Scene * background){
     return -1;
   }
   scene_tick(scene, dt);
-  scene_tick(background, dt);
+  scene_background_tick(background, dt, BOUNDARY);
   return 0;
 }
 

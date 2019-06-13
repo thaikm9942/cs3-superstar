@@ -174,6 +174,15 @@ void body_accelerate(Body * body, Vector a, double dt)
   body_set_velocity(body, vec_add(body_get_velocity(body), (vec_multiply(dt, a))));
 }
 
+void background_wrap(Body * body, Vector max)
+{
+  Vector centroid = body_get_centroid(body);
+  if(centroid.y + (max.y * 3.0 / 8.0) < -1 * max.y){
+    centroid.y = max.y * 9.0 / 8.0;
+    body_set_centroid(body, centroid);
+  }
+}
+
 void player_wrap(Body *body, Vector max)
 {
   Vector centroid = body_get_centroid(body);
