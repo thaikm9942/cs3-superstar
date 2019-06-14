@@ -83,11 +83,10 @@ void repel_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
         body_remove(body2);
       }
       else {
-        printf("Life lost\n");
+        //printf("Life lost\n");
         if(!body_info_get_life_lock(body_get_info(body2))){
           body_info_set_life(info, body_info_get_life(info) - 1);
           body_info_set_life_lock(info, true);
-          //activate_invincibility(scene_get_status(aux), IFRAMES);
         }
         body_add_impulse(body2, vec_negate(impulse));
       }
@@ -111,7 +110,6 @@ void destroy_body_with_life(Body* body1, Body* body2, Vector axis, void* aux){
     else if (!body_info_get_life_lock(info)) {
       body_info_set_life(info, body_info_get_life(info) - 1);
       body_info_set_life_lock(info, true);
-      //activate_invincibility(scene_get_status(aux), IFRAMES);
     }
   }
   else{
@@ -166,7 +164,7 @@ void attach_body(Body* player, Body* platform, Vector axis, void* aux) {
   if(player_vel.y < 0 && fabs(distance) < MIN_COLLISION_DISTANCE){
     body_set_velocity(player, (Vector){player_vel.x, body_get_velocity(platform).y});
     //Code below locks your Y-position immediately above the platform
-    body_set_centroid(player, (Vector){body_get_centroid(player).x, body_get_centroid(platform).y + 10});
+    body_set_centroid(player, (Vector){body_get_centroid(player).x, body_get_centroid(platform).y + body_get_radius(player)});
   }
 }
 

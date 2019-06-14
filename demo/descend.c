@@ -17,7 +17,7 @@ const Vector BOUNDARY = {
 };
 
 typedef struct start {
-  bool ready;
+  int ready;
 } Start;
 const int NUM_ROWS = 3;
 const Vector IMPULSE_X = (Vector){5000, 0};
@@ -43,9 +43,22 @@ const int PLATFORM_DIST = 10;
 #define g 9.8 // m / s^2
 #define R (sqrt(G * M / g)) // m
 
-//Experimental
 const int IFRAMES = 100;
-//const double MINI_DIST = 10;
+
+const int NORM_INV = 1000;
+const int NORM_GROW = 3000;
+const int NORM_GRAV = 7000;
+const int NORM_BALL = 500;
+
+const int HAZ_INV = 2000;
+const int HAZ_GROW = 6000;
+const int HAZ_GRAV = 700;
+const int HAZ_BALL = 50;
+
+const int BALL_INV = 4000;
+const int BALL_GROW = 12000;
+const int BALL_GRAV = 28000;
+const int BALL_BALL = 10;
 
 int randomValue(int min, int max){
   if(rand() % 2 == 1) {
@@ -188,21 +201,18 @@ int next_platforms(Scene *scene){
 }
 
 // Return 0 if game running, return -1 if game over
-size_t step(Scene *scene, double dt, int last_score, Scene *background){
-   //1000
-   if(rand() % 1000 == 2){
+size_t step(Scene *scene, double dt, int last_score, Scene *background, int inv_rate, int grow_rate, int grav_rate, int ball_rate){
+   if(rand() % inv_rate == 0){
      add_star_invincibility(scene);
    }
 
-   if(rand() % 3000 == 2){
+   if(rand() % grow_rate == 0){
      add_star_expand(scene);
    }
-   //700
-   if(rand() % 7000 == 3){
+   if(rand() % grav_rate == 0){
      add_gravity_hazard(scene);
    }
-   //400
-   if(rand() % 500 == 4){
+   if(rand() % ball_rate == 0){
      add_ball_hazard(scene);
    }
 
@@ -283,7 +293,13 @@ void on_key(char key, KeyEventType type, void* aux_info) {
 void start_key(char key, KeyEventType type, void* aux_info) {
   Start *s = aux_info;
   if(type == KEY_PRESSED && key == ' '){
-    s->ready = true;
+    s->ready = 1;
+  }
+  else if(type == KEY_PRESSED && key == 'h'){
+    s->ready = 2;
+  }
+  else if(type == KEY_PRESSED && key == 'b'){
+    s->ready = 3;
   }
 }
 
@@ -297,22 +313,22 @@ void init_background(Scene * background)
   RGBColor six = (RGBColor){0.827, 0.627, 0.827};
   List* shape1 = create_block((Vector){0, 25}, (Vector){400, 50});
   Body* block1 = body_init(shape1, 10, one, 10);
-  body_set_velocity(block1, DEFAULT_VEL);
+  body_set_velocity(block1, (Vector) {0, DEFAULT_VEL.y/2});
   List* shape2 = create_block((Vector){0, 75}, (Vector){400, 50});
   Body* block2 = body_init(shape2, 10, two, 10);
-  body_set_velocity(block2, DEFAULT_VEL);
+  body_set_velocity(block2, (Vector) {0, DEFAULT_VEL.y/2});
   List* shape3 = create_block((Vector){0, 125}, (Vector){400, 50});
   Body* block3 = body_init(shape3, 10, three, 10);
-  body_set_velocity(block3, DEFAULT_VEL);
+  body_set_velocity(block3, (Vector) {0, DEFAULT_VEL.y/2});
   List* shape4 = create_block((Vector){0, -125}, (Vector){400, 50});
   Body* block4 = body_init(shape4, 10, four, 10);
-  body_set_velocity(block4, DEFAULT_VEL);
+  body_set_velocity(block4, (Vector) {0, DEFAULT_VEL.y/2});
   List* shape5 = create_block((Vector){0, -75}, (Vector){400, 50});
   Body* block5 = body_init(shape5, 10, five, 10);
-  body_set_velocity(block5, DEFAULT_VEL);
+  body_set_velocity(block5, (Vector) {0, DEFAULT_VEL.y/2});
   List* shape6 = create_block((Vector){0, -25}, (Vector){400, 50});
   Body* block6 = body_init(shape6, 10, six, 10);
-  body_set_velocity(block6, DEFAULT_VEL);
+  body_set_velocity(block6, (Vector) {0, DEFAULT_VEL.y/2});
   scene_add_body(background, block1);
   scene_add_body(background, block2);
   scene_add_body(background, block3);
@@ -335,30 +351,21 @@ void draw(Scene *scene, int frame){
 int main(int argc, char *argv[]){
   srand(time(0));
   sdl_init(vec_negate(BOUNDARY), BOUNDARY);
-  for(int i = 0; i < 1000; i++)
-  {
-    printf("\a");
-  }
+  sdl_clear();
   while(!sdl_is_done()){
     int frame = 0;
-    size_t last_score = 0;
     Start *start = malloc(sizeof(start));
-    start->ready = false;
+    start->ready = 0;
     sdl_on_key(start_key, start);
-    drawText("SUPERSTAR!",72,(RGBColor){150,100,35}, (Vector){270,50});
-    drawText("(Press space to begin)",72,(RGBColor){150,100,255}, (Vector){150,200});
+    drawText("SUPERSTAR!",72,(RGBColor){0,0,0}, (Vector){270,50});
+    drawText("(Press space to begin)",72,(RGBColor){0,0,0}, (Vector){150,200});
     sdl_show();
-    while(!sdl_is_done() && !start->ready){
+    while(!sdl_is_done() && start->ready == 0){
       if(sdl_is_done()){
         free(start);
         return 0;
       }
     }
-    for(int i = 0; i < 1000; i++)
-    {
-    printf("\a");
-    }
-    free(start);
     sdl_clear();
     Scene * background = scene_init();
     Scene *scene = scene_init();
@@ -368,10 +375,19 @@ int main(int argc, char *argv[]){
     char* displayScore = (char *)malloc(sizeof(char)*100);
     char* displayLife = (char *)malloc(sizeof(char)*100);
     int last_life = 0;
+    size_t last_score = 0;
       while(!sdl_is_done()){
-        double dt = time_since_last_tick();last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
+        double dt = time_since_last_tick();
         last_life = body_info_get_life(body_get_info(scene_get_body(scene, 0)));
-        last_score = step(scene, dt, last_score, background);
+        if(start->ready == 1){
+          last_score = step(scene, dt, last_score, background, NORM_INV, NORM_GROW, NORM_GRAV, NORM_BALL);
+        }
+        else if(start->ready == 2){
+          last_score = step(scene, dt, last_score, background, HAZ_INV, HAZ_GROW, HAZ_GRAV, HAZ_BALL);
+        }
+        else if(start->ready == 3){
+          last_score = step(scene, dt, last_score, background, BALL_INV, BALL_GROW, BALL_GRAV, BALL_BALL);
+        }
         if(last_life > body_info_get_life(body_get_info(scene_get_body(scene, 0)))){
           activate_invincibility(scene_get_status(scene), IFRAMES);
         }
@@ -399,6 +415,7 @@ int main(int argc, char *argv[]){
         }
         }
 
+    free(start);
     free(displayScore);
     free(displayLife);
     scene_free(scene);
