@@ -169,6 +169,14 @@ void body_set_rotation(Body *body, double angle);
  */
 void body_set_radius(Body *body, double new_r);
 
+/**
+ * Sets the mass of a body to a new mass
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param mass the body's new mass
+ */
+void body_set_mass(Body* body, double mass);
+
 /* Sets the star body to a new star with the given number of sides */
 void body_star_set_num_sides(Body *body, int sides);
 

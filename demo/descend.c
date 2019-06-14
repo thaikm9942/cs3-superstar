@@ -45,7 +45,7 @@ const int PLATFORM_DIST = 10;
 
 const int IFRAMES = 100;
 
-const int NORM_INV = 1000;
+const int NORM_INV = 3000;
 const int NORM_GROW = 3000;
 const int NORM_GRAV = 7000;
 const int NORM_BALL = 500;
@@ -235,9 +235,13 @@ size_t step(Scene *scene, double dt, int last_score, Scene *background, int inv_
   }
   if(scene_get_status(scene)->isExpanded){
     body_star_set_radius_draw(body, BALL_RADIUS + 6, 5 + scene_get_score(scene));
+    if(body_get_mass(body) == BALL_MASS){
+      body_set_mass(body, BALL_MASS * 2);
+    }
   }
   else{
     body_star_set_radius_draw(body, BALL_RADIUS, 5 + scene_get_score(scene));
+    body_set_mass(body, BALL_MASS);
   }
   if(body_info_get_type(body_get_info(body)) != PLAYER){
     return -1;
@@ -356,8 +360,10 @@ int main(int argc, char *argv[]){
     Start *start = malloc(sizeof(start));
     start->ready = 0;
     sdl_on_key(start_key, start);
-    drawText("SUPERSTAR!",72,(RGBColor){0,0,0}, (Vector){270,50});
-    drawText("(Press space to begin)",72,(RGBColor){0,0,0}, (Vector){150,200});
+    drawText("SUPERSTAR!",72,(RGBColor){160,200,240}, (Vector){270,50});
+    drawText("Space: normal mode",72,(RGBColor){0,0,0}, (Vector){150,175});
+    drawText("h: hazard mode",72,(RGBColor){0,0,0}, (Vector){150,275});
+    drawText("b: ball mode",72,(RGBColor){0,0,0}, (Vector){150,375});
     sdl_show();
     while(!sdl_is_done() && start->ready == 0){
       if(sdl_is_done()){

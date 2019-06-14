@@ -116,6 +116,10 @@ void body_set_radius(Body* body, double new_r){
   body->radius = new_r;
 }
 
+void body_set_mass(Body* body, double mass){
+  body->m = mass;
+}
+
 void body_set_centroid(Body *body, Vector x){
     polygon_translate(body->points, vec_negate(body_get_centroid(body)));
     polygon_translate(body->points, x);
