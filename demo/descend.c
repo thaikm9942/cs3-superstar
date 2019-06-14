@@ -360,10 +360,10 @@ int main(int argc, char *argv[]){
     }
     free(start);
     sdl_clear();
-    Scene *scene = scene_init();
     Scene * background = scene_init();
-    init_scene(scene);
+    Scene *scene = scene_init();
     init_background(background);
+    init_scene(scene);
     sdl_on_key(on_key, scene);
     char* displayScore = (char *)malloc(sizeof(char)*100);
     char* displayLife = (char *)malloc(sizeof(char)*100);
@@ -380,11 +380,12 @@ int main(int argc, char *argv[]){
           break;
         }
         sdl_clear();
+
+        draw(background, frame);
         sprintf(displayScore, "Score: %zu", scene_get_score(scene));
         drawText(displayScore,27,(RGBColor){0,100,255}, (Vector){20,0});
         sprintf(displayLife, "Lives: %zu", body_info_get_life(body_get_info(scene_get_body(scene, 0))));
         drawText(displayLife,27,(RGBColor){0,100,255}, (Vector){870,0});
-        draw(background, frame);
         draw(scene, frame);
 
         frame++;
@@ -397,6 +398,7 @@ int main(int argc, char *argv[]){
           return 0;
         }
         }
+
     free(displayScore);
     free(displayLife);
     scene_free(scene);
