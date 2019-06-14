@@ -215,7 +215,6 @@ size_t step(Scene *scene, double dt, int last_score, Scene *background, int inv_
    if(rand() % ball_rate == 0){
      add_ball_hazard(scene);
    }
-
   if(next_platforms(scene)){
     add_fair_platforms(scene, scene_get_score(scene) * 3.0);
   }
