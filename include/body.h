@@ -2,7 +2,6 @@
 #define __BODY_H__
 
 #include <stdbool.h>
-
 #include "polygon.h"
 #include "color.h"
 #include "list.h"
@@ -14,13 +13,25 @@
  * Bodies can accumulate forces and impulses during each tick.
  * Angular physics (i.e. torques) are not currently implemented.
  */
-typedef struct body Body;
+typedef struct body {
+  List *points;
+  double m;
+  RGBColor c;
+  Vector vel;
+  double theta;
+  Vector force;
+  Vector impulse;
+  void *info;
+  FreeFunc info_freer;
+  bool removed;
+  double radius;
+} Body;
 
 /**
  * Initializes a body without any info.
  * Acts like body_init_with_info() where info and info_freer are NULL.
  */
-Body *body_init(List *shape, double mass, RGBColor color);
+Body *body_init(List *shape, double mass, RGBColor color, double radius);
 
 /**
  * Allocates memory for a body with the given parameters.
@@ -36,8 +47,8 @@ Body *body_init(List *shape, double mass, RGBColor color);
  * @return a pointer to the newly allocated body
  */
 Body *body_init_with_info(
-    List *shape, double mass, RGBColor color, void *info, FreeFunc info_freer
-);
+    List *shape, double mass, RGBColor color, void *info, FreeFunc info_freer,
+double radius);
 
 /**
  * Releases the memory allocated for a body.
@@ -54,6 +65,15 @@ void body_free(Body *body);
  * @return the polygon describing the body's current position
  */
 List *body_get_shape(Body *body);
+
+/**
+ * Sets the current shape of a body.
+ * Returns a newly allocated vector list, which must be list_free()d.
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param new_shape a list of vectors describing the initial shape of the body
+ */
+void body_set_shape(Body *body, List* new_shape);
 
 /**
  * Gets the current center of mass of a body.
@@ -83,6 +103,14 @@ Vector body_get_velocity(Body *body);
 double body_get_mass(Body *body);
 
 /**
+ * Sets the display color of a body.
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param color a pointer to a color returned from body_init()
+ */
+void body_set_color(Body *body, RGBColor color);
+
+/**
  * Gets the display color of a body.
  *
  * @param body a pointer to a body returned from body_init()
@@ -97,6 +125,14 @@ RGBColor body_get_color(Body *body);
  * @return the info passed to body_init()
  */
 void *body_get_info(Body *body);
+
+/**
+ * Gets the radius associated with a body
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @return the radius/ 1/2 y-dimension of a body
+ */
+double body_get_radius(Body *body);
 
 /**
  * Translates a body to a new position.
@@ -126,6 +162,29 @@ void body_set_velocity(Body *body, Vector v);
 void body_set_rotation(Body *body, double angle);
 
 /**
+ * Sets the radius of a body to a new radius
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param new_r the body's new radius
+ */
+void body_set_radius(Body *body, double new_r);
+
+/**
+ * Sets the mass of a body to a new mass
+ *
+ * @param body a pointer to a body returned from body_init()
+ * @param mass the body's new mass
+ */
+void body_set_mass(Body* body, double mass);
+
+/* Sets the star body to a new star with the given number of sides */
+void body_star_set_num_sides(Body *body, int sides);
+
+/* Makes a new List * with new radius and num sides */
+void body_star_set_radius_draw(Body *body, double radius, int sides);
+
+
+/**
  * Applies a force to a body over the current tick.
  * If multiple forces are applied in the same tick, they should be added.
  * Should not change the body's position or velocity; see body_tick().
@@ -134,6 +193,15 @@ void body_set_rotation(Body *body, double angle);
  * @param force the force vector to apply
  */
 void body_add_force(Body *body, Vector force);
+
+/**
+ * Sets a body's force to the given force.
+ * Should not change the body's position or velocity; see body_tick().
+ *
+ * @param body a pointer to a body
+ * @param force the force vector to set
+ */
+void body_set_force(Body *body, Vector force);
 
 /**
  * Applies an impulse to a body.
@@ -146,6 +214,17 @@ void body_add_force(Body *body, Vector force);
  * @param impulse the impulse vector to apply
  */
 void body_add_impulse(Body *body, Vector impulse);
+
+/**
+ * Sets a body's impulse to a given value.
+ * An impulse causes an instantaneous change in velocity,
+ * which is useful for modeling collisions.
+ * Should not change the body's position or velocity; see body_tick().
+ *
+ * @param body a pointer to a body
+ * @param impulse the impulse vector to set
+ */
+void body_set_impulse(Body* body, Vector impulse);
 
 /**
  * Updates the body after a given time interval has elapsed.
@@ -178,7 +257,18 @@ void body_remove(Body *body);
  * @return whether body_remove() has been called on the body
  */
 bool body_is_removed(Body *body);
+
+
+void background_wrap(Body * body, Vector max);
+
+
+/**
+ * Wraps the player to the other side of the screen if they exceed boundaries
+ *
+ * @param body the body to check
+ * @param max the coordinates to wrap with
+*/
 void player_wrap(Body *body, Vector max);
-void alien_wrap(Body *body, Vector max);
+
 
 #endif // #ifndef __BODY_H__

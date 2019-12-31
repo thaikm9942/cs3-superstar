@@ -2,6 +2,7 @@
 #define __FORCES_H__
 
 #include "scene.h"
+#include "shape.h"
 #include "collision.h"
 
 /**
@@ -12,11 +13,46 @@
  *   that defines the direction the two bodies are colliding in
  * @param aux the auxiliary value passed to create_collision()
  */
-typedef struct partial_data PartialData;
-typedef struct force_data ForceData;
 typedef void (*CollisionHandler)
     (Body *body1, Body *body2, Vector axis, void *aux);
-typedef struct collision_data CollisionData;
+
+typedef struct partial_data{
+  double elasticity;
+  bool partial;
+} PartialData;
+
+// Initializer for PartialData
+PartialData *partial_data_init(double elasticity, bool partial);
+
+typedef struct force_data {
+  double force_constant;
+  Body *body1;
+  Body *body2;
+} ForceData;
+
+// Initializer for ForceData
+ForceData *force_data_init(double force_constant, Body *body1, Body *body2);
+
+typedef struct collision_data {
+  //Checks to see if collision has occurred between two bodies before
+  bool colliding;
+  CollisionHandler collision_handler;
+  void *aux;
+  FreeFunc freer;
+  Body *body1;
+  Body *body2;
+} CollisionData;
+
+
+// Initializer for CollisionData
+CollisionData *collision_data_init(CollisionHandler handler, void* aux,
+  bool colliding, FreeFunc freer, Body *body1, Body *body2);
+
+/**
+  * Releases memory allocated for CollisionData
+  * @param data a pointer to the CollisionData to be freed
+  */
+void collision_data_free(CollisionData* data);
 
 /**
  * Adds a Newtonian gravitational force between two bodies in a scene.
@@ -108,6 +144,28 @@ void create_physics_collision(
     Scene *scene, double elasticity, Body *body1, Body *body2
 );
 
+/*Extra functionality*/
+
+/**
+ * Creates a partial collision where one body is reflected as a result of collision
+ * and the other body is destroyed.
+ *
+ * @param scene the scene containing the bodies
+ * @param elasticity the "coefficient of restitution" of the collision;
+ * 0 is a perfectly inelastic collision and 1 is a perfectly elastic collision
+ * @param body the body to add the impulse from collision to
+ * @param target the body to be destroyed during collision
+ */
 void create_partial_collision(Scene *scene, double elasticity, Body *body, Body *target);
 
+/**
+ * Creates a partial destructive collision in which only a specified body is destroyed
+ *
+ * @param scene the scene containing the bodies
+ * @param elasticity the "coefficient of restitution" of the collision;
+ * 0 is a perfectly inelastic collision and 1 is a perfectly elastic collision
+ * @param body the body that is not destroyed
+ * @param target the body to be destroyed during collision
+ */
+void create_partial_destructive_collision(Scene *scene, Body *object, Body *target);
 #endif // #ifndef __FORCES_H__

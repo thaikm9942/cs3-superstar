@@ -39,10 +39,10 @@ typedef enum {
     BLOCK,
     PADDLE,
     B_WALL
-} BodyType;
+} BoType;
 
-BodyType get_type(Body *body) {
-    return *(BodyType *) body_get_info(body);
+BoType get_type(Body *body) {
+    return *(BoType *) body_get_info(body);
 }
 
 RGBColor rainbow(double seed){
@@ -50,7 +50,7 @@ RGBColor rainbow(double seed){
   return (RGBColor){(1 + sin(seed))/2.0, (1 + sin(seed + 2))/2.0, (1+sin(seed + 4))/2.0};
 }
 
-List *create_block(Vector position, Vector dimension){
+List *create_block_yeet(Vector position, Vector dimension){
   List *block = list_init(4, free);
   list_add(block, vec_init((Vector){dimension.x / 2.0, dimension.y / 2.0}));
   list_add(block, vec_init((Vector){dimension.x / 2.0, -dimension.y / 2.0}));
@@ -59,33 +59,34 @@ List *create_block(Vector position, Vector dimension){
   polygon_translate(block, position);
   return block;
 }
+
 Body *init_block(Vector position, Vector dimension, RGBColor color){
-  BodyType *type = malloc(sizeof(*type));
+  BoType *type = malloc(sizeof(*type));
   *type = BLOCK;
-  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
+  return body_init_with_info(create_block_yeet(position, dimension), INFINITY, color, type, free);
 }
 
 Body *init_paddle(Vector position, Vector dimension, RGBColor color){
-  BodyType *type = malloc(sizeof(*type));
+  BoType *type = malloc(sizeof(*type));
   *type = PADDLE;
-  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
+  return body_init_with_info(create_block_yeet(position, dimension), INFINITY, color, type, free);
 }
 
 Body *init_wall(Vector position, Vector dimension, RGBColor color){
-  BodyType *type = malloc(sizeof(*type));
+  BoType *type = malloc(sizeof(*type));
   *type = WALL;
-  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
+  return body_init_with_info(create_block_yeet(position, dimension), INFINITY, color, type, free);
 }
 
 Body *init_bottom_wall(Vector position, Vector dimension, RGBColor color){
-  BodyType *type = malloc(sizeof(*type));
+  BoType *type = malloc(sizeof(*type));
   *type = B_WALL;
-  return body_init_with_info(create_block(position, dimension), INFINITY, color, type, free);
+  return body_init_with_info(create_block_yeet(position, dimension), INFINITY, color, type, free);
 }
 
 Body *init_ball(Vector position, double mass, double radius, RGBColor color){
   List *ball = list_init(75, free);
-  BodyType *type = malloc(sizeof(*type));
+  BoType *type = malloc(sizeof(*type));
   *type = BALL;
   for(double angle = 0.0; angle < 2 * M_PI; angle += 0.05){
     list_add(ball, vec_init(vec_multiply(radius, (Vector){cos(angle), sin(angle)})));

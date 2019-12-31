@@ -5,28 +5,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-struct partial_data {
-  double elasticity;
-  bool partial;
-};
+const double MIN_DISTANCE = 5;
 
-struct force_data {
-  double force_constant;
-  Body *body1;
-  Body *body2;
-};
+const int DEBUG = 0;
+// 0 is false 1 is true. When true, all assert statements and print statements
+// run. Used to handle the epic random crash problem.
 
-struct collision_data {
-  //Checks to see if collision has occurred between two bodies before
-  bool colliding;
-  CollisionHandler collision_handler;
-  void *aux;
-  FreeFunc freer;
-  Body *body1;
-  Body *body2;
-};
-
-const double MIN_DISTANCE = 10;
 
 /**
  * Adds a Newtonian gravitational force between two bodies in a scene.
@@ -68,10 +52,6 @@ CollisionData *collision_data_init(CollisionHandler handler, void* aux,
   collision_data->body1 = body1;
   collision_data->body2 = body2;
   return collision_data;
-}
-
-void force_data_free(ForceData* data){
-  free(data);
 }
 
 void collision_data_free(CollisionData* data){
@@ -130,7 +110,7 @@ void create_newtonian_gravity(Scene *scene, double G, Body *body1, Body *body2){
   List *bodies_affected = list_init(2, NULL);
   list_add(bodies_affected, body1);
   list_add(bodies_affected, body2);
-  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_g, data, bodies_affected, (FreeFunc) force_data_free);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_g, data, bodies_affected, free);
 }
 
 void create_spring(Scene *scene, double k, Body *body1, Body *body2){
@@ -138,14 +118,14 @@ void create_spring(Scene *scene, double k, Body *body1, Body *body2){
   List *bodies_affected = list_init(2, NULL);
   list_add(bodies_affected, body1);
   list_add(bodies_affected, body2);
-  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_k, data, bodies_affected, (FreeFunc) force_data_free);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_k, data, bodies_affected, free);
 }
 
 void create_drag(Scene *scene, double gamma, Body *body) {
   ForceData *data = force_data_init(gamma, body, NULL);
   List *bodies_affected = list_init(1, NULL);
   list_add(bodies_affected, body);
-  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_gamma, data, bodies_affected, (FreeFunc) force_data_free);
+  scene_add_bodies_force_creator(scene, (ForceCreator) calculate_gamma, data, bodies_affected, free);
 }
 
 //Collision handlers
@@ -169,6 +149,41 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     }
     double j_n = reduced_mass * (1 + elasticity) * (u_b - u_a);
     Vector impulse = vec_multiply(j_n, axis);
+    if(DEBUG)
+    {
+      printf("mass1 : %f\n", m1);
+      printf("mass2 : %f\n", m2);
+      assert(!isnan(m1));
+      Vector vel = body_get_velocity(body1);
+      printf("%d %d\n", body_info_get_type(body_get_info(body1)), body_info_get_type(body_get_info(body2)));
+      assert(!isnan(vel.y));
+      assert(vel.y != INFINITY);
+      assert(!isnan(vel.x));
+      assert(vel.x != INFINITY);
+      printf("redmass : %f", reduced_mass);
+      assert(!isnan(reduced_mass));
+      assert(reduced_mass != INFINITY);
+      assert(reduced_mass != -1 * INFINITY);
+      assert(!isnan(elasticity));
+      assert(elasticity != INFINITY);
+      assert(u_b != INFINITY);
+      assert(u_a != INFINITY);
+      assert(elasticity != -1 * INFINITY);
+      assert(u_b != -1 * INFINITY);
+      assert(u_a != -1 * INFINITY);
+      assert(!isnan(u_b));
+      assert(!isnan(u_a));
+      assert(!isnan(j_n));
+      assert(j_n != INFINITY);
+      assert(-1 * j_n != INFINITY);
+      assert(!isnan(impulse.x) && !isnan(impulse.y));
+      printf("Adding impulse RB x: %f y: %f \n", impulse.x, impulse.y);
+
+    }
+    /*if(isnan(impulse.x) || isnan(impulse.y)){
+      impulse.x = 0;
+      impulse.y = 0;
+    }*/
     body_add_impulse(body1, impulse);
     if(partial){
       body_remove(body2);
@@ -178,8 +193,27 @@ void repel_body(Body* body1, Body* body2, Vector axis, void* aux){
     }
 }
 
+
+/* This method is now obsolete.
 void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
   body_remove(body1);
+  body_remove(body2);
+}
+*/
+
+// This accounts for partial destructive collision as well, in which if the
+// collision is partial, then only the 2nd body is destroyed
+void destroy_body(Body* body1, Body* body2, Vector axis, void* aux){
+  if(aux != NULL){
+    PartialData *partial_data = (PartialData*) aux;
+    bool partial = partial_data->partial;
+    if(!partial){
+        body_remove(body1);
+    }
+  }
+  else {
+    body_remove(body1);
+  }
   body_remove(body2);
 }
 
@@ -191,7 +225,7 @@ void calculate_collision(CollisionData* data){
     data->collision_handler(body1, body2, info.axis, data->aux);
     data->colliding = true;
   }
-  if(!info.collided){
+  else{
     data->colliding = false;
   }
 }
@@ -217,4 +251,9 @@ void create_partial_collision(Scene *scene, double elasticity, Body *body, Body 
 void create_physics_collision(Scene *scene, double elasticity, Body *body1, Body *body2){
   PartialData *partial = partial_data_init(elasticity, false);
   create_collision(scene, body1, body2, (CollisionHandler) repel_body, (void*) partial, free);
+}
+
+void create_partial_destructive_collision(Scene *scene, Body *object, Body *target){
+  PartialData *partial = partial_data_init(0.0, true);
+  create_collision(scene, object, target, (CollisionHandler) destroy_body, (void*) partial, free);
 }

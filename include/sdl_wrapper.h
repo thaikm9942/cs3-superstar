@@ -119,4 +119,6 @@ void sdl_on_key(KeyHandler handler, void* aux);
  */
 double time_since_last_tick(void);
 
+void drawText(char* string, int size, RGBColor c, Vector pos);
+
 #endif // #ifndef __SDL_WRAPPER_H__

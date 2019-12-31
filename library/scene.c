@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "status.h"
 const size_t INITIAL_SIZE = 10;
 
 struct scene_forcer {
@@ -16,6 +16,8 @@ struct scene_forcer {
 struct scene {
   List* bodies;
   List* scene_forcers;
+  Status* status;
+  size_t score;
 };
 
 Scene *scene_init(void) {
@@ -27,6 +29,8 @@ Scene *scene_init(void) {
   assert(scene_forcers != NULL);
   scene->bodies = bodies;
   scene->scene_forcers = scene_forcers;
+  scene->status = status_init();
+  scene->score = 0;
   return scene;
 }
 
@@ -61,6 +65,8 @@ void scene_free(Scene *scene) {
   list_free(scene->bodies);
   scene_forcer_free(scene);
   list_free(scene->scene_forcers);
+  // Frees status board
+  status_free(scene->status);
   free(scene);
 }
 
@@ -68,10 +74,30 @@ size_t scene_bodies(Scene *scene) {
   return list_size(scene->bodies);
 }
 
+// Returns a status board keep tracking of the powerups active
+Status* scene_get_status(Scene *scene){
+  return scene->status;
+}
+
 Body *scene_get_body(Scene *scene, size_t index) {
   assert(index < scene_bodies(scene));
   return list_get(scene->bodies, index);
 }
+
+void scene_set_body(Scene *scene, size_t index, Body *body) {
+  assert(index < scene_bodies(scene));
+  body_free(list_get(scene->bodies, index));
+  list_set(scene->bodies, index, body);
+}
+
+size_t scene_get_score(Scene *scene) {
+  return scene->score;
+}
+
+void scene_set_score(Scene *scene, size_t new_score) {
+  scene->score = new_score;
+}
+
 
 void scene_add_body(Scene *scene, Body *body) {
   list_add(scene->bodies, body);
@@ -91,6 +117,16 @@ void scene_remove_body(Scene *scene, size_t index) {
   assert(index < scene_bodies(scene));
   body_remove((Body*)list_get(scene->bodies, index));
 }
+
+void scene_background_tick(Scene * scene, double dt, Vector max)
+{
+  for(size_t i = 0; i < scene_bodies(scene); i++){
+    Body *body = scene_get_body(scene, i);
+    body_tick(body, dt);
+    background_wrap(body, max);
+  }
+}
+
 
 void scene_tick(Scene *scene, double dt) {
   // Iterate over every force creator
@@ -122,4 +158,5 @@ void scene_tick(Scene *scene, double dt) {
       i--;
     }
   }
+  status_tick(scene_get_status(scene));
 }

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdbool.h>
 
 // Declaring the constant zero vector, i.e. (0, 0).
 const Vector VEC_ZERO = {
@@ -59,6 +60,15 @@ double vec_get_x(Vector v)
 double vec_get_y(Vector v)
 {
   return v.y;
+}
+
+bool vec_equal(Vector x, Vector y)
+{
+  if(x.x == y.x && x.y == y.y)
+  {
+    return true;
+  }
+  return false;
 }
 
 double vec_magnitude(Vector v){

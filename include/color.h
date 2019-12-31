@@ -20,6 +20,7 @@ RGBColor color_init(float red, float green, float blue);
 // Random color generator
 RGBColor get_new_color();
 
+// Checks whether each components of two colors are equal
 bool color_equal(RGBColor one, RGBColor two);
 
 #endif // #ifndef __COLOR_H__

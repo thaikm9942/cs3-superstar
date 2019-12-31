@@ -98,7 +98,8 @@ void add_collision(Scene *scene, Body *body, size_t tag){
       otherBod = scene_get_body(scene, i);
       Info* info = body_get_info(otherBod);
       if(info->tag == tag || info->tag == 3){
-        create_destructive_collision(scene, body, otherBod);
+        create_partial_destructive_collision(scene, body, otherBod);
+        //create_destructive_collision(scene, body, otherBod);
       }
   }
 }

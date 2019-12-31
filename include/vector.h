@@ -1,6 +1,6 @@
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
-
+#include <stdbool.h>
 /**
  * A real-valued 2-dimensional vector.
  * Positive x is towards the right; positive y is towards the top.
@@ -72,6 +72,8 @@ double vec_dot(Vector v1, Vector v2);
 double vec_get_x(Vector v);
 
 double vec_get_y(Vector v);
+
+bool vec_equal(Vector x, Vector y);
 
 double vec_magnitude(Vector v);
 /**

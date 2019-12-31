@@ -4,12 +4,14 @@
 #include <stdbool.h>
 #include "body.h"
 #include "list.h"
+#include "status.h"
 
 /**
  * A collection of bodies and force creators.
  * The scene automatically resizes to store
  * arbitrarily many bodies and force creators.
  */
+
 typedef struct scene Scene;
 typedef struct scene_forcer SceneForcer;
 
@@ -58,6 +60,34 @@ size_t scene_bodies(Scene *scene);
 Body *scene_get_body(Scene *scene, size_t index);
 
 /**
+ * Sets the body at a given index in a scene.
+ * Asserts that the index is valid.
+ *
+ * @param scene a pointer to a scene returned from scene_init()
+ * @param index the index of the body in the scene (starting at 0)
+ * @param body to be placed at given index
+ */
+void scene_set_body(Scene *scene, size_t index, Body *body);
+
+/**
+ * Gets the Status board of a scene
+ * @param scene a pointer to a scene returned from scene_init()
+ * @return a pointer to the Status
+ */
+Status *scene_get_status(Scene *scene);
+
+
+/**
+ * Gets the current score of the game
+ * @param scene a pointer to a scene returned from scene_init()
+ * @return the current score
+ */
+size_t scene_get_score(Scene *scene);
+
+// Set method for score
+void scene_set_score(Scene *scene, size_t new_score);
+
+/**
  * Adds a body to a scene.
  *
  * @param scene a pointer to a scene returned from scene_init()
@@ -103,6 +133,10 @@ void scene_add_bodies_force_creator(
     Scene *scene, ForceCreator forcer, void *aux, List *bodies, FreeFunc freer
 );
 
+
+void scene_background_tick(Scene * scene, double dt, Vector max);
+
+
 /**
  * Executes a tick of a given scene over a small time interval.
  * This requires executing all the force creators
@@ -114,5 +148,4 @@ void scene_add_bodies_force_creator(
  * @param dt the time elapsed since the last tick, in seconds
  */
 void scene_tick(Scene *scene, double dt);
-
 #endif // #ifndef __SCENE_H__

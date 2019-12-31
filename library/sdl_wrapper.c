@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_ttf.h>
 #include <time.h>
 #include "sdl_wrapper.h"
 
@@ -78,6 +79,8 @@ void sdl_init(Vector min, Vector max) {
         SDL_WINDOW_RESIZABLE
     );
     renderer = SDL_CreateRenderer(window, -1, 0);
+    TTF_Init();
+
 }
 
 bool sdl_is_done(void) {
@@ -192,4 +195,27 @@ double time_since_last_tick(void) {
         : 0.0; // return 0 the first time this is called
     last_clock = now;
     return difference;
+}
+
+void drawText(char* string, int size, RGBColor c, Vector pos)
+{
+
+TTF_Font* font = TTF_OpenFont("arial.ttf", size);
+
+SDL_Color color = {c.r, c.g, c.b};
+
+SDL_Surface* textSurface = TTF_RenderText_Solid(font, string, color);
+
+SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+int texW = 0;
+int texH = 0;
+SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+SDL_Rect dstrect = {pos.x, pos.y, texW, texH };
+
+SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+SDL_FreeSurface(textSurface);
+SDL_DestroyTexture(texture);
+TTF_CloseFont(font);
+
 }
